@@ -1,26 +1,25 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import './App.css'
-import logo from './logo.svg'
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  )
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    async function setupCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        })
+        videoRef.current!.srcObject = stream
+      } catch (error) {
+        console.error('Error opening video camera.', error)
+      }
+    }
+
+    setupCamera()
+  }, [])
+
+  return <video ref={videoRef} autoPlay playsInline controls={false} />
 }
 
 export default App
