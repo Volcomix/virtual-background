@@ -1,23 +1,23 @@
 {
   "files": {
     "main.css": "/virtual-background/static/css/main.611e99f0.chunk.css",
-    "main.js": "/virtual-background/static/js/main.93299d4d.chunk.js",
-    "main.js.map": "/virtual-background/static/js/main.93299d4d.chunk.js.map",
-    "runtime-main.js": "/virtual-background/static/js/runtime-main.328e64bf.js",
-    "runtime-main.js.map": "/virtual-background/static/js/runtime-main.328e64bf.js.map",
-    "static/js/2.35ab2c89.chunk.js": "/virtual-background/static/js/2.35ab2c89.chunk.js",
-    "static/js/2.35ab2c89.chunk.js.map": "/virtual-background/static/js/2.35ab2c89.chunk.js.map",
-    "static/js/3.0f6fd4bc.chunk.js": "/virtual-background/static/js/3.0f6fd4bc.chunk.js",
-    "static/js/3.0f6fd4bc.chunk.js.map": "/virtual-background/static/js/3.0f6fd4bc.chunk.js.map",
+    "main.js": "/virtual-background/static/js/main.11e8193d.chunk.js",
+    "main.js.map": "/virtual-background/static/js/main.11e8193d.chunk.js.map",
+    "runtime-main.js": "/virtual-background/static/js/runtime-main.6d9bb76f.js",
+    "runtime-main.js.map": "/virtual-background/static/js/runtime-main.6d9bb76f.js.map",
+    "static/js/2.42be0ecb.chunk.js": "/virtual-background/static/js/2.42be0ecb.chunk.js",
+    "static/js/2.42be0ecb.chunk.js.map": "/virtual-background/static/js/2.42be0ecb.chunk.js.map",
+    "static/js/3.e40ad1b9.chunk.js": "/virtual-background/static/js/3.e40ad1b9.chunk.js",
+    "static/js/3.e40ad1b9.chunk.js.map": "/virtual-background/static/js/3.e40ad1b9.chunk.js.map",
     "index.html": "/virtual-background/index.html",
     "static/css/main.611e99f0.chunk.css.map": "/virtual-background/static/css/main.611e99f0.chunk.css.map",
-    "static/js/2.35ab2c89.chunk.js.LICENSE.txt": "/virtual-background/static/js/2.35ab2c89.chunk.js.LICENSE.txt",
+    "static/js/2.42be0ecb.chunk.js.LICENSE.txt": "/virtual-background/static/js/2.42be0ecb.chunk.js.LICENSE.txt",
     "static/media/800px-Main_Control_Room_at_ESA's_Space_Operations_Centre_ESA11252261.7973a2b2.jpg": "/virtual-background/static/media/800px-Main_Control_Room_at_ESA's_Space_Operations_Centre_ESA11252261.7973a2b2.jpg"
   },
   "entrypoints": [
-    "static/js/runtime-main.328e64bf.js",
-    "static/js/2.35ab2c89.chunk.js",
+    "static/js/runtime-main.6d9bb76f.js",
+    "static/js/2.42be0ecb.chunk.js",
     "static/css/main.611e99f0.chunk.css",
-    "static/js/main.93299d4d.chunk.js"
+    "static/js/main.11e8193d.chunk.js"
   ]
 }
