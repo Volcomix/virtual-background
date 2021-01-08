@@ -33,12 +33,12 @@ function App() {
 
     async function drawBackground() {
       const segmentation = await netRef.current!.segmentPerson(
-        videoRef.current!,
+        videoRef.current!
       )
       bodyPix.drawBokehEffect(
         canvasRef.current!,
         videoRef.current!,
-        segmentation,
+        segmentation
       )
 
       requestAnimationFrame(drawBackground)
