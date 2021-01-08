@@ -1,4 +1,5 @@
 import * as bodyPix from '@tensorflow-models/body-pix'
+import * as tf from '@tensorflow/tfjs'
 import React, { useEffect, useRef } from 'react'
 import Stats from 'stats.js'
 import './App.css'
@@ -34,6 +35,7 @@ function App() {
     let drawBackgroundHandle: number
 
     async function loadBodyPix() {
+      await tf.ready()
       bodyPixNet = await bodyPix.load()
     }
 
