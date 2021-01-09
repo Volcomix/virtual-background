@@ -1,103 +1,107 @@
-import * as bodyPix from '@tensorflow-models/body-pix'
-import * as tf from '@tensorflow/tfjs'
-import React, { useEffect, useRef } from 'react'
-import Stats from 'stats.js'
-import './App.css'
-import controlRoomImage from "./backgrounds/800px-Main_Control_Room_at_ESA's_Space_Operations_Centre_ESA11252261.jpg"
+// import * as bodyPix from '@tensorflow-models/body-pix'
+// import * as tf from '@tensorflow/tfjs'
+// import React, { useEffect, useState } from 'react'
+import VideoPlayer from './components/VideoPlayer'
+import useBodyPix from './hooks/useBodyPix'
 
 function App() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  // Load BodyPix only once outside of VideoPlayer component to prevent
+  // GPU memory issues with Create React App HMR
+  const bodyPixNeuralNetwork = useBodyPix()
 
-  useEffect(() => {
-    const canvas = canvasRef.current!
-    const ctx = canvas.getContext('2d')!
+  // const canvasRef = useRef<HTMLCanvasElement>(null)
 
-    const stats = new Stats()
-    stats.showPanel(0)
-    document.body.appendChild(stats.dom)
+  // useEffect(() => {
+  //   const canvas = canvasRef.current!
+  //   const ctx = canvas.getContext('2d')!
 
-    const video = document.createElement('video')
-    video.autoplay = true
-    video.playsInline = true
-    video.controls = false
-    video.onloadeddata = drawBackground
+  //   const stats = new Stats()
+  //   stats.showPanel(0)
+  //   document.body.appendChild(stats.dom)
 
-    const backgroundImage = new Image()
-    backgroundImage.src = controlRoomImage
+  //   const video = document.createElement('video')
+  //   video.autoplay = true
+  //   video.playsInline = true
+  //   video.controls = false
+  //   video.onloadeddata = drawBackground
 
-    let mask: ImageData
+  //   const backgroundImage = new Image()
+  //   backgroundImage.src = controlRoomImage
 
-    let videoWidth: number
-    let videoHeight: number
-    let videoPixelCount: number
+  //   let mask: ImageData
 
-    let bodyPixNet: bodyPix.BodyPix
-    let drawBackgroundHandle: number
+  //   let videoWidth: number
+  //   let videoHeight: number
+  //   let videoPixelCount: number
 
-    async function loadBodyPix() {
-      await tf.ready()
-      bodyPixNet = await bodyPix.load()
-    }
+  //   let bodyPixNet: bodyPix.BodyPix
+  //   let drawBackgroundHandle: number
 
-    async function setupCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-        })
-        const [videoTrack] = stream.getVideoTracks()
-        const videoSettings = videoTrack.getSettings()
-        videoWidth = videoSettings.width!
-        videoHeight = videoSettings.height!
-        videoPixelCount = videoWidth * videoHeight
+  //   async function loadBodyPix() {
+  //     await tf.ready()
+  //     bodyPixNet = await bodyPix.load()
+  //   }
 
-        video.srcObject = stream
-        video.width = videoWidth
-        video.height = videoHeight
+  //   async function setupCamera() {
+  //     try {
+  //       const stream = await navigator.mediaDevices.getUserMedia({
+  //         video: true,
+  //       })
+  //       const [videoTrack] = stream.getVideoTracks()
+  //       const videoSettings = videoTrack.getSettings()
+  //       videoWidth = videoSettings.width!
+  //       videoHeight = videoSettings.height!
+  //       videoPixelCount = videoWidth * videoHeight
 
-        backgroundImage.width = videoWidth
-        backgroundImage.height = videoHeight
+  //       video.srcObject = stream
+  //       video.width = videoWidth
+  //       video.height = videoHeight
 
-        canvas.width = videoWidth
-        canvas.height = videoHeight
+  //       backgroundImage.width = videoWidth
+  //       backgroundImage.height = videoHeight
 
-        mask = new ImageData(videoWidth, videoHeight)
-      } catch (error) {
-        console.error('Error opening video camera.', error)
-      }
-    }
+  //       canvas.width = videoWidth
+  //       canvas.height = videoHeight
 
-    async function drawBackground() {
-      // Wait for BodyPix model to be loaded
-      if (bodyPixNet) {
-        stats.begin()
+  //       mask = new ImageData(videoWidth, videoHeight)
+  //     } catch (error) {
+  //       console.error('Error opening video camera.', error)
+  //     }
+  //   }
 
-        const segmentation = await bodyPixNet.segmentPerson(video)
-        for (let i = 0; i < videoPixelCount; i++) {
-          // Set only the alpha component of each pixel
-          mask.data[i * 4 + 3] = segmentation.data[i] ? 255 : 0
-        }
-        ctx.putImageData(mask, 0, 0)
-        ctx.globalCompositeOperation = 'source-in'
-        ctx.drawImage(video, 0, 0)
-        ctx.globalCompositeOperation = 'destination-over'
-        ctx.drawImage(backgroundImage, 0, 0)
+  //   async function drawBackground() {
+  //     // Wait for BodyPix model to be loaded
+  //     if (bodyPixNet) {
+  //       stats.begin()
 
-        stats.end()
-      }
+  //       const segmentation = await bodyPixNet.segmentPerson(video)
+  //       for (let i = 0; i < videoPixelCount; i++) {
+  //         // Set only the alpha component of each pixel
+  //         mask.data[i * 4 + 3] = segmentation.data[i] ? 255 : 0
+  //       }
+  //       ctx.putImageData(mask, 0, 0)
+  //       ctx.globalCompositeOperation = 'source-in'
+  //       ctx.drawImage(video, 0, 0)
+  //       ctx.globalCompositeOperation = 'destination-over'
+  //       ctx.drawImage(backgroundImage, 0, 0)
 
-      drawBackgroundHandle = requestAnimationFrame(drawBackground)
-    }
+  //       stats.end()
+  //     }
 
-    loadBodyPix()
-    setupCamera()
+  //     drawBackgroundHandle = requestAnimationFrame(drawBackground)
+  //   }
 
-    return () => {
-      cancelAnimationFrame(drawBackgroundHandle)
-      stats.dom.remove()
-    }
-  }, [])
+  //   loadBodyPix()
+  //   setupCamera()
 
-  return <canvas className="App-canvas" ref={canvasRef}></canvas>
+  //   return () => {
+  //     cancelAnimationFrame(drawBackgroundHandle)
+  //     stats.dom.remove()
+  //   }
+  // }, [])
+
+  // return <canvas className="App-canvas" ref={canvasRef}></canvas>
+  return <VideoPlayer bodyPixNeuralNetwork={bodyPixNeuralNetwork}></VideoPlayer>
 }
 
 export default App
