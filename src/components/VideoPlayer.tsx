@@ -1,5 +1,5 @@
 import { BodyPix } from '@tensorflow-models/body-pix'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import useCamera from '../hooks/useCamera'
 import useVideoResize from '../hooks/useVideoResize'
 import VideoControl from './VideoControl'
@@ -16,35 +16,63 @@ type ControlNames = 'noBackground' | 'blur' | 'image'
 function VideoPlayer(props: VideoPlayerProps) {
   const videoRef = useCamera()
   const { videoWidth, videoHeight } = useVideoResize(videoRef)
-
   const [activatedControl, setActivatedControl] = useState<ControlNames>(
     'noBackground'
   )
   const [inferenceDuration, setInferenceDuration] = useState(0)
-  const animationFrameHandleRef = useRef<number>(null!)
+  const [fps, setFps] = useState(0)
 
   // const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  async function drawBackground() {
-    const start = Date.now()
-    const segmentation = await props.bodyPixNeuralNetwork.segmentPerson(
-      videoRef.current
-    )
-    setInferenceDuration(Date.now() - start)
-
-    animationFrameHandleRef.current = requestAnimationFrame(drawBackground)
-  }
-
   useEffect(() => {
-    return () => {
-      cancelAnimationFrame(animationFrameHandleRef.current)
+    if (activatedControl === 'noBackground') {
+      return
     }
-  }, [])
+
+    // Required to stop looping in useEffect in development mode
+    let shouldDrawBackground = true
+
+    let animationFrameHandle: number
+    let previousTime = Date.now()
+    let frameCount = 0
+
+    async function drawBackground() {
+      if (!shouldDrawBackground) {
+        return
+      }
+      const beginTime = Date.now()
+      const segmentation = await props.bodyPixNeuralNetwork.segmentPerson(
+        videoRef.current
+      )
+      const time = Date.now()
+      setInferenceDuration(time - beginTime)
+
+      frameCount++
+      if (time >= previousTime + 1000) {
+        setFps((frameCount * 1000) / (time - previousTime))
+        previousTime = time
+        frameCount = 0
+      }
+
+      animationFrameHandle = requestAnimationFrame(drawBackground)
+    }
+
+    drawBackground()
+    console.log('Animation started')
+
+    return () => {
+      shouldDrawBackground = false
+      cancelAnimationFrame(animationFrameHandle)
+      console.log('Animation stopped')
+    }
+  }, [props.bodyPixNeuralNetwork, videoRef, activatedControl])
 
   // return <canvas ref={canvasRef} className="VideoPlayer"></canvas>
   return (
     <div className="VideoPlayer">
-      <div className="VideoPlayer-stats">Inference {inferenceDuration}ms</div>
+      <div className="VideoPlayer-stats">
+        {Math.round(fps)} fps (Inference {inferenceDuration}ms)
+      </div>
       <video
         ref={videoRef}
         className="VideoPlayer-video"
@@ -53,7 +81,6 @@ function VideoPlayer(props: VideoPlayerProps) {
         autoPlay
         playsInline
         controls={false}
-        onLoadedData={drawBackground}
       ></video>
       <div className="VideoPlayer-controls">
         <VideoControl
