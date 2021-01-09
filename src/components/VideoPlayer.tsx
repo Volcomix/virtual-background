@@ -16,6 +16,7 @@ type ControlNames = 'noBackground' | 'blur' | 'image'
 function VideoPlayer(props: VideoPlayerProps) {
   const videoRef = useCamera()
   const { videoWidth, videoHeight } = useVideoResize(videoRef)
+  const [isVideoPlaying, setVideoPlaying] = useState(false)
   const [activatedControl, setActivatedControl] = useState<ControlNames>(
     'noBackground'
   )
@@ -25,7 +26,7 @@ function VideoPlayer(props: VideoPlayerProps) {
   // const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    if (activatedControl === 'noBackground') {
+    if (activatedControl === 'noBackground' || !isVideoPlaying) {
       return
     }
 
@@ -45,10 +46,10 @@ function VideoPlayer(props: VideoPlayerProps) {
         videoRef.current
       )
       const time = Date.now()
-      setInferenceDuration(time - beginTime)
 
       frameCount++
       if (time >= previousTime + 1000) {
+        setInferenceDuration(time - beginTime)
         setFps((frameCount * 1000) / (time - previousTime))
         previousTime = time
         frameCount = 0
@@ -58,14 +59,14 @@ function VideoPlayer(props: VideoPlayerProps) {
     }
 
     drawBackground()
-    console.log('Animation started')
+    console.log('Animation started:', activatedControl)
 
     return () => {
       shouldDrawBackground = false
       cancelAnimationFrame(animationFrameHandle)
-      console.log('Animation stopped')
+      console.log('Animation stopped:', activatedControl)
     }
-  }, [props.bodyPixNeuralNetwork, videoRef, activatedControl])
+  }, [props.bodyPixNeuralNetwork, videoRef, activatedControl, isVideoPlaying])
 
   // return <canvas ref={canvasRef} className="VideoPlayer"></canvas>
   return (
@@ -81,6 +82,8 @@ function VideoPlayer(props: VideoPlayerProps) {
         autoPlay
         playsInline
         controls={false}
+        onLoadedData={() => setVideoPlaying(true)}
+        onAbort={() => setVideoPlaying(false)}
       ></video>
       <div className="VideoPlayer-controls">
         <VideoControl
