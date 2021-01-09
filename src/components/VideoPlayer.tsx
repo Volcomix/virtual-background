@@ -1,9 +1,8 @@
 import { BodyPix } from '@tensorflow-models/body-pix'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import useCamera from '../hooks/useCamera'
 import useVideoResize from '../hooks/useVideoResize'
 import VideoControl from './VideoControl'
-// import { useRef } from 'react'
 import './VideoPlayer.css'
 
 type VideoPlayerProps = {
@@ -15,24 +14,37 @@ type VideoPlayerProps = {
 type ControlNames = 'noBackground' | 'blur' | 'image'
 
 function VideoPlayer(props: VideoPlayerProps) {
+  const videoRef = useCamera()
+  const { videoWidth, videoHeight } = useVideoResize(videoRef)
+
   const [activatedControl, setActivatedControl] = useState<ControlNames>(
     'noBackground'
   )
-  const videoRef = useCamera()
-  const { videoWidth, videoHeight } = useVideoResize(videoRef)
+  const [inferenceDuration, setInferenceDuration] = useState(0)
+  const animationFrameHandleRef = useRef<number>(null!)
+
   // const canvasRef = useRef<HTMLCanvasElement>(null)
 
   async function drawBackground() {
+    const start = Date.now()
     const segmentation = await props.bodyPixNeuralNetwork.segmentPerson(
       videoRef.current
     )
+    setInferenceDuration(Date.now() - start)
 
-    requestAnimationFrame(drawBackground)
+    animationFrameHandleRef.current = requestAnimationFrame(drawBackground)
   }
+
+  useEffect(() => {
+    return () => {
+      cancelAnimationFrame(animationFrameHandleRef.current)
+    }
+  }, [])
 
   // return <canvas ref={canvasRef} className="VideoPlayer"></canvas>
   return (
     <div className="VideoPlayer">
+      <div className="VideoPlayer-stats">Inference {inferenceDuration}ms</div>
       <video
         ref={videoRef}
         className="VideoPlayer-video"
