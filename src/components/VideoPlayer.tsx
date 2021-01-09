@@ -1,6 +1,7 @@
 import { BodyPix } from '@tensorflow-models/body-pix'
 import { useState } from 'react'
 import useCamera from '../hooks/useCamera'
+import useVideoResize from '../hooks/useVideoResize'
 import VideoControl from './VideoControl'
 // import { useRef } from 'react'
 import './VideoPlayer.css'
@@ -8,7 +9,7 @@ import './VideoPlayer.css'
 type VideoPlayerProps = {
   // BodyPix must be loaded outside this component to prevent
   // GPU memory issues with Create React App HMR
-  bodyPixNeuralNetwork?: BodyPix
+  bodyPixNeuralNetwork: BodyPix
 }
 
 type ControlNames = 'noBackground' | 'blur' | 'image'
@@ -18,7 +19,16 @@ function VideoPlayer(props: VideoPlayerProps) {
     'noBackground'
   )
   const videoRef = useCamera()
+  const { videoWidth, videoHeight } = useVideoResize(videoRef)
   // const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  async function drawBackground() {
+    const segmentation = await props.bodyPixNeuralNetwork.segmentPerson(
+      videoRef.current
+    )
+
+    requestAnimationFrame(drawBackground)
+  }
 
   // return <canvas ref={canvasRef} className="VideoPlayer"></canvas>
   return (
@@ -26,9 +36,12 @@ function VideoPlayer(props: VideoPlayerProps) {
       <video
         ref={videoRef}
         className="VideoPlayer-video"
+        width={videoWidth}
+        height={videoHeight}
         autoPlay
         playsInline
         controls={false}
+        onLoadedData={drawBackground}
       ></video>
       <div className="VideoPlayer-controls">
         <VideoControl

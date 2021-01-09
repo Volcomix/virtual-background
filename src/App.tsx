@@ -101,7 +101,11 @@ function App() {
   // }, [])
 
   // return <canvas className="App-canvas" ref={canvasRef}></canvas>
-  return <VideoPlayer bodyPixNeuralNetwork={bodyPixNeuralNetwork}></VideoPlayer>
+  return (
+    bodyPixNeuralNetwork && (
+      <VideoPlayer bodyPixNeuralNetwork={bodyPixNeuralNetwork}></VideoPlayer>
+    )
+  )
 }
 
 export default App
