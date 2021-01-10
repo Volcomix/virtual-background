@@ -1,1 +1,0 @@
-{"version":3,"sources":["webpack://src/App.css","webpack://src/index.css"],"names":[],"mappings":"AAAA,YACE,cAAe,CACf,eACF,CCHA,gBAGE,WACF,CAEA,KACE,QAAS,CACT,eACF","file":"main.611e99f0.chunk.css","sourcesContent":[".App-canvas {\n  max-width: 100%;\n  max-height: 100%;\n}\n","html,\nbody,\n#root {\n  height: 100%;\n}\n\nbody {\n  margin: 0;\n  overflow: hidden;\n}\n"]}
