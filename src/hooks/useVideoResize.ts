@@ -1,8 +1,8 @@
 import { RefObject, useEffect, useState } from 'react'
 
 function useVideoResize(videoRef: RefObject<HTMLVideoElement>) {
-  const [videoWidth, setVideoWidth] = useState<number>()
-  const [videoHeight, setVideoHeight] = useState<number>()
+  const [videoWidth, setVideoWidth] = useState(0)
+  const [videoHeight, setVideoHeight] = useState(0)
 
   useEffect(() => {
     if (!videoRef.current) {

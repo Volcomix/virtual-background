@@ -34,6 +34,8 @@ function VideoPlayer(props: VideoPlayerProps) {
     }
 
     const ctx = canvasRef.current.getContext('2d')!
+    const mask = new ImageData(videoWidth, videoHeight)
+    const videoPixelCount = videoWidth * videoHeight
 
     // Required to stop looping in useEffect in development mode
     let shouldDrawBackground = true
@@ -50,8 +52,22 @@ function VideoPlayer(props: VideoPlayerProps) {
         const segmentation = await props.bodyPixNeuralNetwork.segmentPerson(
           videoRef.current
         )
+        for (let i = 0; i < videoPixelCount; i++) {
+          // Set only the alpha component of each pixel
+          mask.data[i * 4 + 3] = segmentation.data[i] ? 255 : 0
+        }
       }
       addFrameEvent()
+      if (background === 'blur') {
+        ctx.putImageData(mask, 0, 0)
+        ctx.globalCompositeOperation = 'source-out'
+        ctx.filter = 'blur(4px)' // Does not work on Safari
+        ctx.drawImage(videoRef.current, 0, 0)
+        ctx.globalCompositeOperation = 'destination-over'
+        ctx.filter = 'none'
+      } else {
+        ctx.globalCompositeOperation = 'source-over'
+      }
       ctx.drawImage(videoRef.current, 0, 0)
       endFrame()
 
@@ -70,6 +86,8 @@ function VideoPlayer(props: VideoPlayerProps) {
     props.bodyPixNeuralNetwork,
     videoRef,
     background,
+    videoWidth,
+    videoHeight,
     isVideoPlaying,
     beginFrame,
     addFrameEvent,
