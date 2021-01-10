@@ -12,15 +12,13 @@ type VideoPlayerProps = {
   bodyPixNeuralNetwork: BodyPix
 }
 
-type ControlNames = 'noBackground' | 'blur' | 'image'
+type Background = 'none' | 'blur' | 'image'
 
 function VideoPlayer(props: VideoPlayerProps) {
   const videoRef = useCamera()
   const { videoWidth, videoHeight } = useVideoResize(videoRef)
   const [isVideoPlaying, setVideoPlaying] = useState(false)
-  const [activatedControl, setActivatedControl] = useState<ControlNames>(
-    'noBackground'
-  )
+  const [background, setBackground] = useState<Background>('none')
   const {
     fps,
     durations: [inferenceDuration],
@@ -31,7 +29,7 @@ function VideoPlayer(props: VideoPlayerProps) {
   // const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    if (activatedControl === 'noBackground' || !isVideoPlaying) {
+    if (!isVideoPlaying || background === 'none') {
       return
     }
 
@@ -55,17 +53,17 @@ function VideoPlayer(props: VideoPlayerProps) {
     }
 
     drawBackground()
-    console.log('Animation started:', activatedControl)
+    console.log('Animation started:', background)
 
     return () => {
       shouldDrawBackground = false
       cancelAnimationFrame(animationFrameHandle)
-      console.log('Animation stopped:', activatedControl)
+      console.log('Animation stopped:', background)
     }
   }, [
     props.bodyPixNeuralNetwork,
     videoRef,
-    activatedControl,
+    background,
     isVideoPlaying,
     beginFrame,
     endFrame,
@@ -91,18 +89,18 @@ function VideoPlayer(props: VideoPlayerProps) {
       <div className="VideoPlayer-controls">
         <VideoControl
           iconName="do_not_disturb"
-          isActivated={activatedControl === 'noBackground'}
-          onClick={() => setActivatedControl('noBackground')}
+          isActivated={background === 'none'}
+          onClick={() => setBackground('none')}
         ></VideoControl>
         <VideoControl
           iconName="blur_on"
-          isActivated={activatedControl === 'blur'}
-          onClick={() => setActivatedControl('blur')}
+          isActivated={background === 'blur'}
+          onClick={() => setBackground('blur')}
         ></VideoControl>
         <VideoControl
           iconName="image"
-          isActivated={activatedControl === 'image'}
-          onClick={() => setActivatedControl('image')}
+          isActivated={background === 'image'}
+          onClick={() => setBackground('image')}
         ></VideoControl>
       </div>
     </div>
