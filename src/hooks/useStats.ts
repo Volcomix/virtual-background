@@ -9,6 +9,9 @@ function useStats() {
   const eventCount = useRef(0)
   const frameCountRef = useRef(0)
 
+  // The useCallbacks below are required to prevent infinite loop
+  // when the functions are called inside useEffect
+
   const beginFrame = useCallback(() => {
     beginTimeRef.current = Date.now()
   }, [])

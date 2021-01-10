@@ -73,7 +73,7 @@ function VideoPlayer(props: VideoPlayerProps) {
       if (background === 'blur') {
         ctx.putImageData(mask, 0, 0)
         ctx.globalCompositeOperation = 'source-out'
-        ctx.filter = 'blur(4px)' // Does not work on Safari
+        ctx.filter = 'blur(4px)' // FIXME Does not work on Safari
         ctx.drawImage(videoRef.current, 0, 0)
         ctx.globalCompositeOperation = 'destination-over'
         ctx.filter = 'none'
