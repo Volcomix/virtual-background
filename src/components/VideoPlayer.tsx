@@ -1,5 +1,6 @@
 import { BodyPix } from '@tensorflow-models/body-pix'
 import { useEffect, useRef, useState } from 'react'
+import backgroundImage from "../backgrounds/800px-Main_Control_Room_at_ESA's_Space_Operations_Centre_ESA11252261.jpg"
 import useCamera from '../hooks/useCamera'
 import useStats from '../hooks/useStats'
 import useVideoResize from '../hooks/useVideoResize'
@@ -16,6 +17,7 @@ type Background = 'none' | 'blur' | 'image'
 
 function VideoPlayer(props: VideoPlayerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null!)
+  const imageRef = useRef<HTMLImageElement>(null!)
   const videoRef = useCamera()
   const { videoWidth, videoHeight } = useVideoResize(videoRef)
   const [isVideoPlaying, setVideoPlaying] = useState(false)
@@ -65,6 +67,11 @@ function VideoPlayer(props: VideoPlayerProps) {
         ctx.drawImage(videoRef.current, 0, 0)
         ctx.globalCompositeOperation = 'destination-over'
         ctx.filter = 'none'
+      } else if (background === 'image') {
+        ctx.putImageData(mask, 0, 0)
+        ctx.globalCompositeOperation = 'source-out'
+        ctx.drawImage(imageRef.current, 0, 0)
+        ctx.globalCompositeOperation = 'destination-over'
       } else {
         ctx.globalCompositeOperation = 'source-over'
       }
@@ -112,6 +119,7 @@ function VideoPlayer(props: VideoPlayerProps) {
         onLoadedData={() => setVideoPlaying(true)}
         onAbort={() => setVideoPlaying(false)}
       ></video>
+      <img ref={imageRef} src={backgroundImage} alt="" hidden></img>
       <canvas
         ref={canvasRef}
         className="VideoPlayer-video"
