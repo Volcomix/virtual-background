@@ -1,6 +1,7 @@
 import { BodyPix } from '@tensorflow-models/body-pix'
 import { useEffect, useState } from 'react'
 import useCamera from '../hooks/useCamera'
+import useStats from '../hooks/useStats'
 import useVideoResize from '../hooks/useVideoResize'
 import VideoControl from './VideoControl'
 import './VideoPlayer.css'
@@ -20,8 +21,12 @@ function VideoPlayer(props: VideoPlayerProps) {
   const [activatedControl, setActivatedControl] = useState<ControlNames>(
     'noBackground'
   )
-  const [inferenceDuration, setInferenceDuration] = useState(0)
-  const [fps, setFps] = useState(0)
+  const {
+    fps,
+    durations: [inferenceDuration],
+    beginFrame,
+    endFrame,
+  } = useStats()
 
   // const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -34,26 +39,17 @@ function VideoPlayer(props: VideoPlayerProps) {
     let shouldDrawBackground = true
 
     let animationFrameHandle: number
-    let previousTime = Date.now()
-    let frameCount = 0
 
     async function drawBackground() {
       if (!shouldDrawBackground) {
         return
       }
-      const beginTime = Date.now()
+
+      beginFrame()
       const segmentation = await props.bodyPixNeuralNetwork.segmentPerson(
         videoRef.current
       )
-      const time = Date.now()
-
-      frameCount++
-      if (time >= previousTime + 1000) {
-        setInferenceDuration(time - beginTime)
-        setFps((frameCount * 1000) / (time - previousTime))
-        previousTime = time
-        frameCount = 0
-      }
+      endFrame()
 
       animationFrameHandle = requestAnimationFrame(drawBackground)
     }
@@ -66,7 +62,14 @@ function VideoPlayer(props: VideoPlayerProps) {
       cancelAnimationFrame(animationFrameHandle)
       console.log('Animation stopped:', activatedControl)
     }
-  }, [props.bodyPixNeuralNetwork, videoRef, activatedControl, isVideoPlaying])
+  }, [
+    props.bodyPixNeuralNetwork,
+    videoRef,
+    activatedControl,
+    isVideoPlaying,
+    beginFrame,
+    endFrame,
+  ])
 
   // return <canvas ref={canvasRef} className="VideoPlayer"></canvas>
   return (
