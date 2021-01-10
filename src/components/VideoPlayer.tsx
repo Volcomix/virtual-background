@@ -39,6 +39,16 @@ function VideoPlayer(props: VideoPlayerProps) {
     const mask = new ImageData(videoWidth, videoHeight)
     const videoPixelCount = videoWidth * videoHeight
 
+    let imageWidth = imageRef.current.naturalWidth
+    let imageHeight = imageRef.current.naturalHeight
+    const imageScale = Math.max(
+      1,
+      videoWidth / imageWidth,
+      videoHeight / imageHeight
+    )
+    imageWidth *= imageScale
+    imageHeight *= imageScale
+
     // Required to stop looping in useEffect in development mode
     let shouldDrawBackground = true
 
@@ -70,7 +80,7 @@ function VideoPlayer(props: VideoPlayerProps) {
       } else if (background === 'image') {
         ctx.putImageData(mask, 0, 0)
         ctx.globalCompositeOperation = 'source-out'
-        ctx.drawImage(imageRef.current, 0, 0)
+        ctx.drawImage(imageRef.current, 0, 0, imageWidth, imageHeight)
         ctx.globalCompositeOperation = 'destination-over'
       } else {
         ctx.globalCompositeOperation = 'source-over'
