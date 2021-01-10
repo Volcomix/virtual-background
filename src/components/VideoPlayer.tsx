@@ -1,5 +1,5 @@
 import { BodyPix } from '@tensorflow-models/body-pix'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import useCamera from '../hooks/useCamera'
 import useStats from '../hooks/useStats'
 import useVideoResize from '../hooks/useVideoResize'
@@ -15,28 +15,30 @@ type VideoPlayerProps = {
 type Background = 'none' | 'blur' | 'image'
 
 function VideoPlayer(props: VideoPlayerProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null!)
   const videoRef = useCamera()
   const { videoWidth, videoHeight } = useVideoResize(videoRef)
   const [isVideoPlaying, setVideoPlaying] = useState(false)
   const [background, setBackground] = useState<Background>('none')
   const {
     fps,
-    durations: [inferenceDuration],
+    durations: [inferenceDuration, postProcessingDuration],
     beginFrame,
+    addFrameEvent,
     endFrame,
   } = useStats()
 
-  // const canvasRef = useRef<HTMLCanvasElement>(null)
-
   useEffect(() => {
-    if (!isVideoPlaying || background === 'none') {
+    if (!isVideoPlaying) {
       return
     }
+
+    const ctx = canvasRef.current.getContext('2d')!
 
     // Required to stop looping in useEffect in development mode
     let shouldDrawBackground = true
 
-    let animationFrameHandle: number
+    let animationRequestId: number
 
     async function drawBackground() {
       if (!shouldDrawBackground) {
@@ -44,12 +46,16 @@ function VideoPlayer(props: VideoPlayerProps) {
       }
 
       beginFrame()
-      const segmentation = await props.bodyPixNeuralNetwork.segmentPerson(
-        videoRef.current
-      )
+      if (background !== 'none') {
+        const segmentation = await props.bodyPixNeuralNetwork.segmentPerson(
+          videoRef.current
+        )
+      }
+      addFrameEvent()
+      ctx.drawImage(videoRef.current, 0, 0)
       endFrame()
 
-      animationFrameHandle = requestAnimationFrame(drawBackground)
+      animationRequestId = requestAnimationFrame(drawBackground)
     }
 
     drawBackground()
@@ -57,7 +63,7 @@ function VideoPlayer(props: VideoPlayerProps) {
 
     return () => {
       shouldDrawBackground = false
-      cancelAnimationFrame(animationFrameHandle)
+      cancelAnimationFrame(animationRequestId)
       console.log('Animation stopped:', background)
     }
   }, [
@@ -66,26 +72,34 @@ function VideoPlayer(props: VideoPlayerProps) {
     background,
     isVideoPlaying,
     beginFrame,
+    addFrameEvent,
     endFrame,
   ])
 
-  // return <canvas ref={canvasRef} className="VideoPlayer"></canvas>
   return (
     <div className="VideoPlayer">
       <div className="VideoPlayer-stats">
-        {Math.round(fps)} fps (Inference {inferenceDuration}ms)
+        <span>{Math.round(fps)} fps</span> (
+        <span>inference {inferenceDuration}ms</span>,{' '}
+        <span>post-processing {postProcessingDuration}ms</span>)
       </div>
       <video
         ref={videoRef}
-        className="VideoPlayer-video"
         width={videoWidth}
         height={videoHeight}
         autoPlay
         playsInline
         controls={false}
+        hidden
         onLoadedData={() => setVideoPlaying(true)}
         onAbort={() => setVideoPlaying(false)}
       ></video>
+      <canvas
+        ref={canvasRef}
+        className="VideoPlayer-video"
+        width={videoWidth}
+        height={videoHeight}
+      ></canvas>
       <div className="VideoPlayer-controls">
         <VideoControl
           iconName="do_not_disturb"
