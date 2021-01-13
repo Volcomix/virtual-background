@@ -83,7 +83,7 @@ function VideoPlayer(props: VideoPlayerProps) {
         ctx.filter = 'none'
       } else if (background === 'image') {
         ctx.globalCompositeOperation = 'copy'
-        ctx.filter = 'blur(4px)' // FIXME Does not work on Safari
+        ctx.filter = 'blur(2px)' // FIXME Does not work on Safari
         ctx.drawImage(maskCanvasRef.current, 0, 0)
         ctx.globalCompositeOperation = 'source-out'
         ctx.filter = 'none'
