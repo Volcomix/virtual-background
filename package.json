@@ -28,6 +28,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "build:tflite": "docker build -t tflite tflite",
+    "build:wasm": "emcc wasm/tflite.cc -o public/tflite/tflite.js -s EXPORTED_FUNCTIONS='[\"_add\"]' -s ENVIRONMENT=web -s MODULARIZE=1 -s 'EXPORT_NAME=\"createTFLiteModule\"'",
     "test": "react-scripts test",
     "test:tflite": "docker run -it --rm -v $PWD/public/models:/tflite_models tflite ./tflite /tflite_models/segm_lite_v681.tflite",
     "predeploy": "npm run build",
