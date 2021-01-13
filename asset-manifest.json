@@ -1,23 +1,23 @@
 {
   "files": {
     "main.css": "/virtual-background/static/css/main.d7d3979a.chunk.css",
-    "main.js": "/virtual-background/static/js/main.6dc67c74.chunk.js",
-    "main.js.map": "/virtual-background/static/js/main.6dc67c74.chunk.js.map",
+    "main.js": "/virtual-background/static/js/main.71b09223.chunk.js",
+    "main.js.map": "/virtual-background/static/js/main.71b09223.chunk.js.map",
     "runtime-main.js": "/virtual-background/static/js/runtime-main.6d9bb76f.js",
     "runtime-main.js.map": "/virtual-background/static/js/runtime-main.6d9bb76f.js.map",
-    "static/js/2.9424da02.chunk.js": "/virtual-background/static/js/2.9424da02.chunk.js",
-    "static/js/2.9424da02.chunk.js.map": "/virtual-background/static/js/2.9424da02.chunk.js.map",
+    "static/js/2.dedaf8c4.chunk.js": "/virtual-background/static/js/2.dedaf8c4.chunk.js",
+    "static/js/2.dedaf8c4.chunk.js.map": "/virtual-background/static/js/2.dedaf8c4.chunk.js.map",
     "static/js/3.e40ad1b9.chunk.js": "/virtual-background/static/js/3.e40ad1b9.chunk.js",
     "static/js/3.e40ad1b9.chunk.js.map": "/virtual-background/static/js/3.e40ad1b9.chunk.js.map",
     "index.html": "/virtual-background/index.html",
     "static/css/main.d7d3979a.chunk.css.map": "/virtual-background/static/css/main.d7d3979a.chunk.css.map",
-    "static/js/2.9424da02.chunk.js.LICENSE.txt": "/virtual-background/static/js/2.9424da02.chunk.js.LICENSE.txt",
+    "static/js/2.dedaf8c4.chunk.js.LICENSE.txt": "/virtual-background/static/js/2.dedaf8c4.chunk.js.LICENSE.txt",
     "static/media/800px-Main_Control_Room_at_ESA's_Space_Operations_Centre_ESA11252261.7973a2b2.jpg": "/virtual-background/static/media/800px-Main_Control_Room_at_ESA's_Space_Operations_Centre_ESA11252261.7973a2b2.jpg"
   },
   "entrypoints": [
     "static/js/runtime-main.6d9bb76f.js",
-    "static/js/2.9424da02.chunk.js",
+    "static/js/2.dedaf8c4.chunk.js",
     "static/css/main.d7d3979a.chunk.css",
-    "static/js/main.6dc67c74.chunk.js"
+    "static/js/main.71b09223.chunk.js"
   ]
 }
