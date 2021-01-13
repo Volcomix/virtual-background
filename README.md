@@ -58,3 +58,20 @@ The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+## TensorFlow Lite
+
+### `yarn build:tflite`
+
+Builds a Docker image embedding a small tool named `tflite`, which can infer Meet segmentation models.
+
+### `yarn test:tflite`
+
+Runs the `tflite` tool with the lite version of Meet segmentation model.
+You can check `test:tflite` script to see how to call the tool with another model.
+
+Inside the container the tool usage is:
+
+```bash
+tflite <tflite model>
+```
