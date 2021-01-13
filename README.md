@@ -13,7 +13,7 @@ The current demo only uses [BodyPix](https://github.com/tensorflow/tfjs-models/b
 More work is needed to improve the visual result and the performance. Few ideas are:
 
 - Using Google Meet background segmentation model directly if possible. Several approaches are discussed in [this issue](https://github.com/tensorflow/tfjs/issues/4177).
-- Using [TensorFlow.js WebAssembly backend](https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-wasm), [XNNPACK](https://github.com/google/XNNPACK) and [TFLite](https://blog.tensorflow.org/2020/07/accelerating-tensorflow-lite-xnnpack-integration.html) if possible to speed up ML model inference. **Note: it is slower when just running BodyPix model on WASM backend (verified).**
+- Using [WebAssembly](https://webassembly.org/), [XNNPACK](https://github.com/google/XNNPACK) and [TFLite](https://blog.tensorflow.org/2020/07/accelerating-tensorflow-lite-xnnpack-integration.html) if possible to speed up ML model inference. **Note: it is slower when just running BodyPix model on [TensorFlow.js WASM backend](https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-wasm) (verified).**
 - Adding WebGL shaders to add smoother transition between the background and the person, and to have more control on several parameters.
 - Adding WebGL shaders to propose another option to blur the background instead of displaying an image. The [drawBokehEffect](https://github.com/tensorflow/tfjs-models/tree/master/body-pix#bodypixdrawbokeheffect) method from BodyPix API gives medium quality results and poor performance.
 

@@ -27,7 +27,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:tflite": "docker build -t tflite tflite",
     "test": "react-scripts test",
+    "test:tflite": "docker run -it --rm -v $PWD/public/models:/tflite_models tflite ./tflite /tflite_models/segm_lite_v681.tflite",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "eject": "react-scripts eject"
