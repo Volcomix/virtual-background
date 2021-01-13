@@ -17,6 +17,7 @@ type Background = 'none' | 'blur' | 'image'
 
 function VideoPlayer(props: VideoPlayerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null!)
+  const maskCanvasRef = useRef<HTMLCanvasElement>(null!)
   const imageRef = useRef<HTMLImageElement>(null!)
   const videoRef = useCamera()
   const { videoWidth, videoHeight } = useVideoResize(videoRef)
@@ -36,6 +37,7 @@ function VideoPlayer(props: VideoPlayerProps) {
     }
 
     const ctx = canvasRef.current.getContext('2d')!
+    const maskCtx = maskCanvasRef.current.getContext('2d')!
     const mask = new ImageData(videoWidth, videoHeight)
     const videoPixelCount = videoWidth * videoHeight
 
@@ -68,18 +70,24 @@ function VideoPlayer(props: VideoPlayerProps) {
           // Set only the alpha component of each pixel
           mask.data[i * 4 + 3] = segmentation.data[i] ? 255 : 0
         }
+        maskCtx.putImageData(mask, 0, 0)
       }
       addFrameEvent()
       if (background === 'blur') {
-        ctx.putImageData(mask, 0, 0)
+        ctx.globalCompositeOperation = 'copy'
+        ctx.filter = 'blur(4px)' // FIXME Does not work on Safari
+        ctx.drawImage(maskCanvasRef.current, 0, 0)
         ctx.globalCompositeOperation = 'source-out'
         ctx.filter = 'blur(4px)' // FIXME Does not work on Safari
         ctx.drawImage(videoRef.current, 0, 0)
         ctx.globalCompositeOperation = 'destination-over'
         ctx.filter = 'none'
       } else if (background === 'image') {
-        ctx.putImageData(mask, 0, 0)
+        ctx.globalCompositeOperation = 'copy'
+        ctx.filter = 'blur(4px)' // FIXME Does not work on Safari
+        ctx.drawImage(maskCanvasRef.current, 0, 0)
         ctx.globalCompositeOperation = 'source-out'
+        ctx.filter = 'none'
         ctx.drawImage(imageRef.current, 0, 0, imageWidth, imageHeight)
         ctx.globalCompositeOperation = 'destination-over'
       } else {
@@ -130,6 +138,12 @@ function VideoPlayer(props: VideoPlayerProps) {
         onAbort={() => setVideoPlaying(false)}
       ></video>
       <img ref={imageRef} src={backgroundImage} alt="" hidden></img>
+      <canvas
+        ref={maskCanvasRef}
+        width={videoWidth}
+        height={videoHeight}
+        hidden
+      ></canvas>
       <canvas
         ref={canvasRef}
         className="VideoPlayer-video"
