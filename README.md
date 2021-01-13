@@ -63,7 +63,7 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ### `yarn build:tflite`
 
-Builds a Docker image embedding a small tool named `tflite`, which can infer Meet segmentation models.
+Builds a Docker image embedding a small tool named `tflite` which can infer Meet segmentation models.
 
 ### `yarn test:tflite`
 
