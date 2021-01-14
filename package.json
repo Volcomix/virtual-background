@@ -25,12 +25,17 @@
     "web-vitals": "^0.2.4"
   },
   "scripts": {
+    "init:tflite": "yarn init:tflite:image && yarn init:tflite:container && yarn init:mediapipe:copy && yarn init:mediapipe:sed",
+    "init:tflite:image": "docker build -t tflite tflite",
+    "init:tflite:container": "docker run -dit -v $PWD/tflite:/tensorflow_src/tensorflow/lite/virtual_background -v $PWD/wasm:/tflite_wasm -v $PWD/public/tflite:/tflite_build -v $PWD/public/models:/tflite_models --name tflite tflite bash",
+    "init:mediapipe:copy": "docker exec tflite bash -c 'cp /mediapipe_src/mediapipe/util/tflite/operations/transpose_conv_bias.* /tensorflow_src/tensorflow/lite/virtual_background'",
+    "init:mediapipe:sed": "docker exec tflite bash -c \"sed -i 's/mediapipe\\/util\\/tflite\\/operations\\///' /tensorflow_src/tensorflow/lite/virtual_background/transpose_conv_bias.cc\"",
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "build:tflite": "docker build -t tflite tflite",
-    "build:wasm": "docker run -it --rm -v $PWD/wasm:/tflite_src -v $PWD/public/tflite:/tflite_wasm tflite emcc /tflite_src/tflite.cc -o /tflite_wasm/tflite.wasm -Os --no-entry",
+    "build:tflite": "docker exec -w /tensorflow_src tflite bazel build --define tflite_with_xnnpack=true -c opt //tensorflow/lite/virtual_background:tflite",
+    "build:wasm": "docker exec tflite emcc /tflite_wasm/tflite.cc -o /tflite_build/tflite.wasm -Os --no-entry",
     "test": "react-scripts test",
-    "test:tflite": "docker run -it --rm -v $PWD/public/models:/tflite_models tflite ./tflite /tflite_models/segm_lite_v681.tflite",
+    "test:tflite": "docker exec tflite /tensorflow_src/bazel-bin/tensorflow/lite/virtual_background/tflite /tflite_models/segm_lite_v681.tflite",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "eject": "react-scripts eject"

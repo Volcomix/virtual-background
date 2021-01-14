@@ -59,11 +59,21 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+---
+
+**:warning: The sections below are work in progress while trying to build TensorFlow Lite with XNNPACK in WebAssembly**
+
 ## TensorFlow Lite
+
+A Docker development environment must be initialized before using the following scripts.
+
+### `yarn init:tflite`
+
+Builds a Docker development image, starts the container and initializes dependencies required for building tflite tool.
 
 ### `yarn build:tflite`
 
-Builds a Docker image embedding a small tool named `tflite` which can infer Meet segmentation models.
+Builds a small tool named `tflite` which can infer Meet segmentation models.
 
 ### `yarn test:tflite`
 
