@@ -2,9 +2,9 @@ import { useEffect } from 'react'
 import VideoPlayer from './components/VideoPlayer'
 import useBodyPix from './hooks/useBodyPix'
 
-declare function createTFLiteModule(): Promise<{
-  _add(a: number, b: number): number
-}>
+type TFLiteExports = {
+  add(a: number, b: number): number
+}
 
 function App() {
   // Load BodyPix only once outside of VideoPlayer component to prevent
@@ -14,8 +14,11 @@ function App() {
   // Demo effect to test WASM function integration
   useEffect(() => {
     async function initTFLite() {
-      const Module = await createTFLiteModule()
-      console.log('Demo WASM function result:', Module._add(1, 2))
+      const { instance } = await WebAssembly.instantiateStreaming(
+        fetch(`${process.env.PUBLIC_URL}/tflite/tflite.wasm`)
+      )
+      const tfLite = instance.exports as TFLiteExports
+      console.log('Demo WASM function result:', tfLite.add(1, 2))
     }
 
     initTFLite()

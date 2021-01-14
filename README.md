@@ -75,3 +75,9 @@ Inside the container the tool usage is:
 ```bash
 tflite <tflite model>
 ```
+
+## WASM example
+
+### `yarn build:wasm`
+
+Builds an example WASM file in `public/tflite/tflite.wasm`. It is currently called by `src/App.tsx` to demonstrate its usage but doesn't do anything for now.
