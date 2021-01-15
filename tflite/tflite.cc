@@ -17,7 +17,7 @@ limitations under the License.
 #include "tensorflow/lite/kernels/register.h"
 #include "tensorflow/lite/model.h"
 #include "tensorflow/lite/optional_debug_tools.h"
-#include "transpose_conv_bias.h"
+#include "mediapipe/util/tflite/operations/transpose_conv_bias.h"
 
 // This is an example that is minimal to read a model
 // from disk and perform inference. There is no data being loaded
