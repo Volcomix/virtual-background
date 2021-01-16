@@ -73,7 +73,7 @@ Builds a Docker development image, starts the container and initializes dependen
 
 ### `yarn start:tflite:container`
 
-Start the container, then update TensorFlow and MediaPipe repositories inside the container.
+Starts the container, then updates TensorFlow and MediaPipe repositories inside the container.
 
 ### `yarn build:tflite`
 
