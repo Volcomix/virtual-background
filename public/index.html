@@ -48,5 +48,41 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script>
+      // TODO Move in TypeScript code
+      var Module = {
+        async onRuntimeInitialized() {
+          const lightModelResponse = await fetch(
+            '%PUBLIC_URL%/models/segm_lite_v681.tflite'
+          )
+          const lightModel = await lightModelResponse.arrayBuffer()
+          console.log('Lite model buffer size:', lightModel.byteLength)
+          const fullModelResponse = await fetch(
+            '%PUBLIC_URL%/models/segm_full_v679.tflite'
+          )
+          const fullModel = await fullModelResponse.arrayBuffer()
+          console.log('Full model buffer size:', fullModel.byteLength)
+          const modelBufferOffset = Module._getModelBufferOffset()
+          console.log('Model buffer offset:', modelBufferOffset)
+          console.log('Loading light model buffer...')
+          const modelBuffer = new Uint8Array(
+            wasmMemory.buffer,
+            modelBufferOffset,
+            lightModel.byteLength
+          )
+          modelBuffer.set(new Uint8Array(lightModel))
+          try {
+            console.log(
+              '_loadModel result:',
+              Module._loadModel(lightModel.byteLength)
+            )
+          } catch (error) {
+            console.error(error)
+          }
+        },
+      }
+    </script>
+    <!-- TODO Consider moving in head (or not) or load in another way -->
+    <script src="%PUBLIC_URL%/tflite/tflite/tflite.js"></script>
   </body>
 </html>

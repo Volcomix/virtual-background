@@ -67,6 +67,11 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 A Docker development environment must be initialized before building TensorFlow Lite.
 
+### Notes
+
+- The Bazel WORKSPACE configuration is inspired from [MediaPipe repository](https://github.com/google/mediapipe/blob/master/WORKSPACE)
+- Enscripten toolchain for Bazel was setup following [emsdk repository instructions](https://github.com/emscripten-core/emsdk/tree/master/bazel)
+
 ### `yarn init:tflite`
 
 Builds a Docker development image, starts the container and initializes dependencies required for building tflite tool.

@@ -1,4 +1,5 @@
 FROM tensorflow/tensorflow:devel
+# TODO emsdk might not be required anymore if Bazel could download it
 RUN git clone https://github.com/emscripten-core/emsdk.git /emsdk \
   && cd /emsdk \
   && ./emsdk install latest \

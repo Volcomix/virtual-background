@@ -1,0 +1,26 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# Needed by Emscripten
+http_archive(
+  name = "build_bazel_rules_nodejs",
+  sha256 = "0f2de53628e848c1691e5729b515022f5a77369c76a09fbe55611e12731c90e3",
+  urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/2.0.1/rules_nodejs-2.0.1.tar.gz"],
+)
+
+load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
+
+# emscripten 2.0.12
+http_archive(
+  name = "emscripten",
+  sha256 = "bfff9fb0326363c12e19b542f27a5f12cedbfc310f30621dc497c9af51d2d2e3",
+  strip_prefix = "install",
+  url = "https://storage.googleapis.com/webassembly/emscripten-releases-builds/linux/dcf819a7821f8db0c8f15ac336fea8960ec204f5/wasm-binaries.tbz2",
+  build_file = "//emscripten_toolchain:emscripten.BUILD",
+  type = "tar.bz2",
+)
+
+npm_install(
+  name = "npm",
+  package_json = "@emscripten//:emscripten/package.json",
+  package_lock_json = "@emscripten//:emscripten/package-lock.json",
+)

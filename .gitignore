@@ -25,3 +25,8 @@ yarn-error.log*
 
 # bazel output
 bazel-*
+
+# TODO Cleanup these ignores and directories once managed to build TFLite in WASM
+public/tflite/mediapipe
+public/tflite/tflite/tflite.wat
+public/tflite/tflite.tar
