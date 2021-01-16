@@ -1,2 +1,3 @@
-# Tensorflow needs remote repo
+# Tensorflow needs remote repo and Mediapipe custom operators
+# are not public
 common --experimental_repo_remote_exec --check_visibility=false
