@@ -65,11 +65,15 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## TensorFlow Lite
 
-A Docker development environment must be initialized before using the following scripts.
+A Docker development environment must be initialized before building TensorFlow Lite.
 
 ### `yarn init:tflite`
 
 Builds a Docker development image, starts the container and initializes dependencies required for building tflite tool.
+
+### `yarn start:tflite:container`
+
+Start the container, then update TensorFlow and MediaPipe repositories inside the container.
 
 ### `yarn build:tflite`
 
