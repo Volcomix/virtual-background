@@ -79,6 +79,11 @@
           } catch (error) {
             console.error(error)
           }
+          try {
+            console.log('_runInference result:', Module._runInference())
+          } catch (error) {
+            console.error(error)
+          }
         },
       }
     </script>

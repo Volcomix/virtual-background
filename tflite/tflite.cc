@@ -85,6 +85,7 @@ limitations under the License.
 // TODO Cleanup the whole file
 
 char modelBuffer[410000];
+std::unique_ptr<tflite::Interpreter> interpreter;
 
 extern "C" {
 
@@ -110,15 +111,34 @@ int loadModel(int bufferSize) {
   resolver.AddCustom("Convolution2DTransposeBias",
     mediapipe::tflite_operations::RegisterConvolution2DTransposeBias());
   tflite::InterpreterBuilder builder(*model, resolver);
-  std::unique_ptr<tflite::Interpreter> interpreter;
   builder(&interpreter);
   TFLITE_MINIMAL_CHECK(interpreter != nullptr);
 
+  printf("[WASM] Inputs: %lu\n", interpreter->inputs().size());
+  printf("[WASM] Input(0)\n");
+  printf("[WASM]   name: %s\n", interpreter->GetInputName(0));
+  TfLiteIntArray* inputDims = interpreter->input_tensor(0)->dims;
+  printf("[WASM]   height: %d\n", inputDims->data[1]);
+  printf("[WASM]   width: %d\n", inputDims->data[2]);
+  printf("[WASM]   channels: %d\n", inputDims->data[3]);
+  printf("[WASM] ---------------\n");
+  printf("[WASM] Outputs: %lu\n", interpreter->outputs().size());
+  printf("[WASM] Output(0)\n");
+  printf("[WASM]   name: %s\n", interpreter->GetOutputName(0));
+  TfLiteIntArray* outputDims = interpreter->output_tensor(0)->dims;
+  printf("[WASM]   height: %d\n", outputDims->data[1]);
+  printf("[WASM]   width: %d\n", outputDims->data[2]);
+  printf("[WASM]   channels: %d\n", outputDims->data[3]);
+
   // Allocate tensor buffers.
   TFLITE_MINIMAL_CHECK(interpreter->AllocateTensors() == kTfLiteOk);
-  printf("[WASM] === Pre-invoke Interpreter State ===\n");
-  tflite::PrintInterpreterState(interpreter.get());
 
+  return 0;
+}
+
+EMSCRIPTEN_KEEPALIVE
+int runInference() {
+  TFLITE_MINIMAL_CHECK(interpreter->Invoke() == kTfLiteOk);
   return 0;
 }
 
