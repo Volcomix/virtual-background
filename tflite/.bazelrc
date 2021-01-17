@@ -2,11 +2,7 @@
 common --experimental_repo_remote_exec
 
 # Unused function in Tensorflow Lite kernels
-# common --copt="-Wno-error=unused-function"
-
-# TODO Find a way to build everything without threads
-# Workaround for shared memory error on TFLite activation.o
-# common --copt="-pthread"
+common --copt="-Wno-error=unused-function"
 
 # Mediapipe custom operators are not public
 common --check_visibility=false

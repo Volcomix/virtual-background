@@ -15,9 +15,9 @@ limitations under the License.
 #include <cstdio>
 #include <emscripten.h>
 // #include "tensorflow/lite/interpreter.h"
-// #include "tensorflow/lite/kernels/register.h"
+#include "tensorflow/lite/kernels/register.h"
 #include "tensorflow/lite/model.h"
-// #include "tensorflow/lite/optional_debug_tools.h"
+#include "tensorflow/lite/optional_debug_tools.h"
 #include "mediapipe/util/tflite/operations/transpose_conv_bias.h"
 
 // This is an example that is minimal to read a model
@@ -30,11 +30,11 @@ limitations under the License.
 //
 // Usage: tflite <tflite model>
 
-// #define TFLITE_MINIMAL_CHECK(x)                              \
-//   if (!(x)) {                                                \
-//     fprintf(stderr, "Error at %s:%d\n", __FILE__, __LINE__); \
-//     exit(1);                                                 \
-//   }
+#define TFLITE_MINIMAL_CHECK(x)                                \
+    if (!(x)) {                                                \
+      fprintf(stderr, "Error at %s:%d\n", __FILE__, __LINE__); \
+      return 1;                                                \
+    }
 
 // int main(int argc, char* argv[]) {
 //   if (argc != 2) {
@@ -97,13 +97,27 @@ EMSCRIPTEN_KEEPALIVE
 int loadModel(int bufferSize) {
   printf("[WASM] Loading model of size: %d\n", bufferSize);
 
+  // Load model
   std::unique_ptr<tflite::FlatBufferModel> model =
     tflite::FlatBufferModel::BuildFromBuffer(modelBuffer, bufferSize);
-  
-  if (model == nullptr) {
-    fprintf(stderr, "Error at %s:%d\n", __FILE__, __LINE__);
-    return 1;
-  }
+  TFLITE_MINIMAL_CHECK(model != nullptr);
+
+  // Build the interpreter with the InterpreterBuilder.
+  // Note: all Interpreters should be built with the InterpreterBuilder,
+  // which allocates memory for the Intrepter and does various set up
+  // tasks so that the Interpreter can read the provided model.
+  tflite::ops::builtin::BuiltinOpResolver resolver;
+  resolver.AddCustom("Convolution2DTransposeBias",
+    mediapipe::tflite_operations::RegisterConvolution2DTransposeBias());
+  tflite::InterpreterBuilder builder(*model, resolver);
+  std::unique_ptr<tflite::Interpreter> interpreter;
+  builder(&interpreter);
+  TFLITE_MINIMAL_CHECK(interpreter != nullptr);
+
+  // Allocate tensor buffers.
+  TFLITE_MINIMAL_CHECK(interpreter->AllocateTensors() == kTfLiteOk);
+  printf("[WASM] === Pre-invoke Interpreter State ===\n");
+  tflite::PrintInterpreterState(interpreter.get());
 
   return 0;
 }
