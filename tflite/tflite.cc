@@ -95,7 +95,7 @@ char* getModelBufferOffset() {
 
 EMSCRIPTEN_KEEPALIVE
 int loadModel(int bufferSize) {
-  printf("[WASM] Loading model of size: %d", bufferSize);
+  printf("[WASM] Loading model of size: %d\n", bufferSize);
 
   std::unique_ptr<tflite::FlatBufferModel> model =
     tflite::FlatBufferModel::BuildFromBuffer(modelBuffer, bufferSize);
