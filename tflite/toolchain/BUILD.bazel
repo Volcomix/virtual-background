@@ -67,7 +67,7 @@ cc_toolchain(
 )
 
 cc_toolchain_suite(
-    name = "everything",
+    name = "emscripten",
     toolchains = {
         "wasm": ":cc-compiler-wasm",
         "wasm|emscripten": ":cc-compiler-wasm",

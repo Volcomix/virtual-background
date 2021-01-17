@@ -17,35 +17,6 @@ local_repository(
   path = "/tensorflow_src",
 )
 
-# TODO Automate patching TensorFlow files
-# First change might not be necessary
-
-# diff --git a/tensorflow/BUILD b/tensorflow/BUILD
-# index 7eaf0ac79b8..edf84ae6b19 100644
-# --- a/tensorflow/BUILD
-# +++ b/tensorflow/BUILD
-# @@ -116,7 +116,7 @@ config_setting(
- 
-#  config_setting(
-#      name = "emscripten",
-# -    values = {"crosstool_top": "//external:android/emscripten"},
-# +    values = {"cpu": "wasm"},
-#      visibility = ["//visibility:public"],
-#  )
- 
-# diff --git a/third_party/cpuinfo/BUILD.bazel b/third_party/cpuinfo/BUILD.bazel
-# index cac7cc39b47..e9787145d19 100644
-# --- a/third_party/cpuinfo/BUILD.bazel
-# +++ b/third_party/cpuinfo/BUILD.bazel
-# @@ -122,6 +122,7 @@ cc_library(
-#          ":watchos_arm64_32": COMMON_SRCS + MACH_SRCS + MACH_ARM_SRCS,
-#          ":tvos_x86_64": COMMON_SRCS + X86_SRCS + MACH_SRCS + MACH_X86_SRCS,
-#          ":tvos_arm64": COMMON_SRCS + MACH_SRCS + MACH_ARM_SRCS,
-# +        ":emscripten_wasm": COMMON_SRCS + EMSCRIPTEN_SRCS,
-#      }),
-#      copts = select({
-#          ":windows_x86_64": [],
-
 load("@org_tensorflow//tensorflow:workspace.bzl", "tf_workspace")
 tf_workspace(tf_repo_name = "org_tensorflow")
 
@@ -70,7 +41,7 @@ http_archive(
   sha256 = "bfff9fb0326363c12e19b542f27a5f12cedbfc310f30621dc497c9af51d2d2e3",
   strip_prefix = "install",
   url = "https://storage.googleapis.com/webassembly/emscripten-releases-builds/linux/dcf819a7821f8db0c8f15ac336fea8960ec204f5/wasm-binaries.tbz2",
-  build_file = "//emscripten_toolchain:emscripten.BUILD",
+  build_file = "//toolchain:emscripten.BUILD",
   type = "tar.bz2",
 )
 
