@@ -17,37 +17,6 @@ local_repository(
   path = "/tensorflow_src",
 )
 
-# TODO Automate patching TensorFlow files
-# First change might not be necessary
-
-# diff --git a/tensorflow/BUILD b/tensorflow/BUILD
-# index 7eaf0ac79b8..26648b4f700 100644
-# --- a/tensorflow/BUILD
-# +++ b/tensorflow/BUILD
-# @@ -116,7 +116,7 @@ config_setting(
- 
-#  config_setting(
-#      name = "emscripten",
-# -    values = {"crosstool_top": "//external:android/emscripten"},
-# +    values = {"crosstool_top": "//toolchain/emscripten"},
-#      visibility = ["//visibility:public"],
-#  )
- 
-# diff --git a/third_party/cpuinfo/BUILD.bazel b/third_party/cpuinfo/BUILD.bazel
-# old mode 100644
-# new mode 100755
-# index cac7cc39b47..e9787145d19
-# --- a/third_party/cpuinfo/BUILD.bazel
-# +++ b/third_party/cpuinfo/BUILD.bazel
-# @@ -122,6 +122,7 @@ cc_library(
-#          ":watchos_arm64_32": COMMON_SRCS + MACH_SRCS + MACH_ARM_SRCS,
-#          ":tvos_x86_64": COMMON_SRCS + X86_SRCS + MACH_SRCS + MACH_X86_SRCS,
-#          ":tvos_arm64": COMMON_SRCS + MACH_SRCS + MACH_ARM_SRCS,
-# +        ":emscripten_wasm": COMMON_SRCS + EMSCRIPTEN_SRCS,
-#      }),
-#      copts = select({
-#          ":windows_x86_64": [],
-
 load("@org_tensorflow//tensorflow:workspace.bzl", "tf_workspace")
 tf_workspace(tf_repo_name = "org_tensorflow")
 
