@@ -57,13 +57,15 @@
           )
           const lightModel = await lightModelResponse.arrayBuffer()
           console.log('Lite model buffer size:', lightModel.byteLength)
+
           const fullModelResponse = await fetch(
             '%PUBLIC_URL%/models/segm_full_v679.tflite'
           )
           const fullModel = await fullModelResponse.arrayBuffer()
           console.log('Full model buffer size:', fullModel.byteLength)
-          const modelBufferOffset = Module._getModelBufferOffset()
-          console.log('Model buffer offset:', modelBufferOffset)
+
+          const modelBufferOffset = Module._getModelBufferMemoryOffset()
+          console.log('Model buffer memory offset:', modelBufferOffset)
           console.log('Loading light model buffer...')
           const modelBuffer = new Uint8Array(
             wasmMemory.buffer,
@@ -71,19 +73,23 @@
             lightModel.byteLength
           )
           modelBuffer.set(new Uint8Array(lightModel))
-          try {
-            console.log(
-              '_loadModel result:',
-              Module._loadModel(lightModel.byteLength)
-            )
-          } catch (error) {
-            console.error(error)
-          }
-          try {
-            console.log('_runInference result:', Module._runInference())
-          } catch (error) {
-            console.error(error)
-          }
+          console.log(
+            '_loadModel result:',
+            Module._loadModel(lightModel.byteLength)
+          )
+
+          console.log('Input memory offset:', Module._getInputMemoryOffset())
+          console.log('Input height:', Module._getInputHeight())
+          console.log('Input width:', Module._getInputWidth())
+          console.log('Input channels:', Module._getInputChannelCount())
+
+          console.log('Output memory offset:', Module._getOutputMemoryOffset())
+          console.log('Output height:', Module._getOutputHeight())
+          console.log('Output width:', Module._getOutputWidth())
+          console.log('Output channels:', Module._getOutputChannelCount())
+
+          // TODO Remove the next log when inference is used in real-time
+          console.log('_runInference result:', Module._runInference())
         },
       }
     </script>
