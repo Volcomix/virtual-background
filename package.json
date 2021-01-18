@@ -28,7 +28,7 @@
   "scripts": {
     "init:tflite": "yarn init:tflite:image && yarn init:tflite:container",
     "init:tflite:image": "docker build -t tflite tflite",
-    "init:tflite:container": "docker run -dit -v $PWD/tflite:/tflite_src -v $PWD/wasm:/tflite_wasm -v $PWD/public/tflite:/tflite_build -v $PWD/public/models:/tflite_models --name tflite tflite bash",
+    "init:tflite:container": "docker run -dit -v $PWD/tflite:/tflite_src -v $PWD/public/tflite:/tflite_build --name tflite tflite bash",
     "start": "react-scripts start",
     "start:tflite:container": "docker start tflite && yarn update:tflite:container",
     "update:tflite:container": "yarn update:tensorflow && yarn update:mediapipe",
@@ -37,13 +37,8 @@
     "build": "react-scripts build",
     "build:tflite": "yarn build:tflite:archive && yarn extract:tflite",
     "build:tflite:archive": "docker exec -w /tflite_src tflite bazel build --config=wasm -c opt :tflite",
-    "/* TODO Cleanup, rename or remove the next 2 scripts": "*/",
-    "build:tflite:wasm": "docker exec -w /tflite_wasm tflite bazel build --config wasm -c opt :tflite",
-    "build:wasm": "docker exec tflite emcc /tflite_wasm/tflite.cc -o /tflite_build/tflite.wasm -Os --no-entry",
-    "/* TODO Extract tflite output in the parent directory and remove the demo WASM file": "*/",
-    "extract:tflite": "docker exec tflite tar xvf /tflite_src/bazel-bin/tflite -C /tflite_build/tflite",
+    "extract:tflite": "docker exec tflite tar xvf /tflite_src/bazel-bin/tflite -C /tflite_build",
     "test": "react-scripts test",
-    "test:tflite": "docker exec tflite /tflite_src/bazel-bin/tflite /tflite_models/segm_lite_v681.tflite",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "eject": "react-scripts eject"

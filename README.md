@@ -88,20 +88,3 @@ Starts the container, then updates TensorFlow and MediaPipe repositories inside 
 ### `yarn build:tflite`
 
 Builds WASM functions that can infer Meet segmentation models.
-
-### `yarn test:tflite`
-
-Runs the `tflite` tool with the lite version of Meet segmentation model.
-You can check `test:tflite` script to see how to call the tool with another model.
-
-Inside the container the tool usage is:
-
-```bash
-tflite <tflite model>
-```
-
-## WASM example
-
-### `yarn build:wasm`
-
-Builds an example WASM file in `public/tflite/tflite.wasm`. It is currently called by `src/App.tsx` to demonstrate its usage but doesn't do anything for now.
