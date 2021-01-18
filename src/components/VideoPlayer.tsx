@@ -1,6 +1,5 @@
 import { BodyPix } from '@tensorflow-models/body-pix'
 import { useEffect, useRef, useState } from 'react'
-import backgroundImage from "../backgrounds/800px-Main_Control_Room_at_ESA's_Space_Operations_Centre_ESA11252261.jpg"
 import useCamera from '../hooks/useCamera'
 import useStats from '../hooks/useStats'
 import useVideoResize from '../hooks/useVideoResize'
@@ -137,7 +136,12 @@ function VideoPlayer(props: VideoPlayerProps) {
         onLoadedData={() => setVideoPlaying(true)}
         onAbort={() => setVideoPlaying(false)}
       ></video>
-      <img ref={imageRef} src={backgroundImage} alt="" hidden></img>
+      <img
+        ref={imageRef}
+        src={`${process.env.PUBLIC_URL}/backgrounds/trees-4830285_640.jpg`}
+        alt=""
+        hidden
+      ></img>
       <canvas
         ref={maskCanvasRef}
         width={videoWidth}
