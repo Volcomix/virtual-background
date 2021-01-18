@@ -74,6 +74,8 @@ A Docker development environment must be initialized before building TensorFlow 
 - TensorFlow sources [are patched](tflite/Dockerfile) to match Emscripten toolchain and WASM CPU.
 - C++ functions are [called directly from JavaScript](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#call-compiled-c-c-code-directly-from-javascript) to achieve the best performance.
 - [Memory is accessed directly](https://emscripten.org/docs/porting/emscripten-runtime-environment.html#emscripten-memory-representation) from JavaScript through pointer offsets to exchange image data with WASM.
+- [**WIP**] Some Emscripten configurations are inspired from [TensorFlow.js WASM backend](https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/BUILD).
+- [**WIP**] WASM feature detection is inspired from [TensorFlow.js WASM backend](https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/flags_wasm.ts) which relies on [GoogleChromeLabs/wasm-feature-detect](https://github.com/GoogleChromeLabs/wasm-feature-detect)
 
 ### `yarn init:tflite`
 

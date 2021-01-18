@@ -15,6 +15,7 @@ type VideoPlayerProps = {
 
 type Background = 'none' | 'blur' | 'image'
 
+// FIXME No background icon is displayed while initializing camera
 function VideoPlayer(props: VideoPlayerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const maskCanvasRef = useRef<HTMLCanvasElement>(null!)
