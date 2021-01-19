@@ -1,7 +1,7 @@
 import './VideoControl.css'
 
 type VideoControlProps = {
-  iconName: string
+  children: React.ReactNode
   isActivated?: boolean
   onClick: () => void
 }
@@ -14,7 +14,7 @@ function VideoControl(props: VideoControlProps) {
       }`}
       onClick={props.onClick}
     >
-      {props.iconName}
+      {props.children}
     </button>
   )
 }

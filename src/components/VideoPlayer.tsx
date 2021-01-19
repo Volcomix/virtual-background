@@ -1,3 +1,6 @@
+import BlockIcon from '@material-ui/icons/Block'
+import BlurOnIcon from '@material-ui/icons/BlurOn'
+import ImageIcon from '@material-ui/icons/Image'
 import { BodyPix } from '@tensorflow-models/body-pix'
 import { useEffect, useRef, useState } from 'react'
 import useCamera from '../hooks/useCamera'
@@ -120,56 +123,61 @@ function VideoPlayer(props: VideoPlayerProps) {
 
   return (
     <div className="VideoPlayer">
-      <div className="VideoPlayer-stats">
-        <span>{Math.round(fps)} fps</span> (
-        <span>inference {inferenceDuration}ms</span>,{' '}
-        <span>post-processing {postProcessingDuration}ms</span>)
-      </div>
-      <video
-        ref={videoRef}
-        width={videoWidth}
-        height={videoHeight}
-        autoPlay
-        playsInline
-        controls={false}
-        hidden
-        onLoadedData={() => setVideoPlaying(true)}
-        onAbort={() => setVideoPlaying(false)}
-      ></video>
-      <img
-        ref={imageRef}
-        src={`${process.env.PUBLIC_URL}/backgrounds/trees-4830285_640.jpg`}
-        alt=""
-        hidden
-      ></img>
-      <canvas
-        ref={maskCanvasRef}
-        width={videoWidth}
-        height={videoHeight}
-        hidden
-      ></canvas>
-      <canvas
-        ref={canvasRef}
-        className="VideoPlayer-video"
-        width={videoWidth}
-        height={videoHeight}
-      ></canvas>
-      <div className="VideoPlayer-controls">
-        <VideoControl
-          iconName="do_not_disturb"
-          isActivated={background === 'none'}
-          onClick={() => setBackground('none')}
-        ></VideoControl>
-        <VideoControl
-          iconName="blur_on"
-          isActivated={background === 'blur'}
-          onClick={() => setBackground('blur')}
-        ></VideoControl>
-        <VideoControl
-          iconName="image"
-          isActivated={background === 'image'}
-          onClick={() => setBackground('image')}
-        ></VideoControl>
+      <div className="VideoPlayer-root">
+        <div className="VideoPlayer-stats">
+          <span>{Math.round(fps)} fps</span> (
+          <span>inference {inferenceDuration}ms</span>,{' '}
+          <span>post-processing {postProcessingDuration}ms</span>)
+        </div>
+        <video
+          ref={videoRef}
+          width={videoWidth}
+          height={videoHeight}
+          autoPlay
+          playsInline
+          controls={false}
+          hidden
+          onLoadedData={() => setVideoPlaying(true)}
+          onAbort={() => setVideoPlaying(false)}
+        ></video>
+        <img
+          ref={imageRef}
+          src={`${process.env.PUBLIC_URL}/backgrounds/trees-4830285_640.jpg`}
+          alt=""
+          hidden
+        ></img>
+        <canvas
+          ref={maskCanvasRef}
+          width={videoWidth}
+          height={videoHeight}
+          hidden
+        ></canvas>
+        <canvas
+          ref={canvasRef}
+          className="VideoPlayer-video"
+          width={videoWidth}
+          height={videoHeight}
+        ></canvas>
+        <div className="VideoPlayer-controls">
+          <VideoControl
+            isActivated={background === 'none'}
+            onClick={() => setBackground('none')}
+          >
+            <BlockIcon />
+          </VideoControl>
+          <VideoControl
+            isActivated={background === 'blur'}
+            onClick={() => setBackground('blur')}
+          >
+            <BlurOnIcon />
+          </VideoControl>
+          <VideoControl
+            isActivated={background === 'image'}
+            onClick={() => setBackground('image')}
+          >
+            <ImageIcon />
+          </VideoControl>
+        </div>
       </div>
     </div>
   )

@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import VideoPlayer from './components/VideoPlayer'
 import useBodyPix from './hooks/useBodyPix'
 
+const isNewUI = false
+
 declare function createTFLiteModule(): Promise<TFLiteModule>
 
 interface TFLiteModule extends EmscriptenModule {
@@ -79,11 +81,11 @@ function App() {
     loadTFLite()
   }, [])
 
-  return (
-    bodyPixNeuralNetwork && (
-      <VideoPlayer bodyPixNeuralNetwork={bodyPixNeuralNetwork}></VideoPlayer>
-    )
-  )
+  return isNewUI
+    ? null
+    : bodyPixNeuralNetwork && (
+        <VideoPlayer bodyPixNeuralNetwork={bodyPixNeuralNetwork} />
+      )
 }
 
 export default App
