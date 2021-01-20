@@ -3,6 +3,10 @@ import Paper from '@material-ui/core/Paper'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import SourcePlayer from './SourcePlayer'
 
+type PlayerCardProps = {
+  sourceUrl: string
+}
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -11,14 +15,14 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-function PlayerCard() {
+function PlayerCard(props: PlayerCardProps) {
   const classes = useStyles()
 
   return (
     <Paper className={classes.root}>
       <Grid container>
         <Grid container item xs={6}>
-          <SourcePlayer />
+          <SourcePlayer sourceUrl={props.sourceUrl} />
         </Grid>
       </Grid>
     </Paper>

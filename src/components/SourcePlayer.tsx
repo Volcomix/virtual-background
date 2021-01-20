@@ -1,5 +1,9 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
+type SourcePlayerProps = {
+  sourceUrl: string
+}
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -8,16 +12,10 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-function SourcePlayer() {
+function SourcePlayer(props: SourcePlayerProps) {
   const classes = useStyles()
 
-  return (
-    <img
-      className={classes.root}
-      src={`${process.env.PUBLIC_URL}/images/girl-919048_1280.jpg`}
-      alt=""
-    />
-  )
+  return <img className={classes.root} src={props.sourceUrl} alt="" />
 }
 
 export default SourcePlayer

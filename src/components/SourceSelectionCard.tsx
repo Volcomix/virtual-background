@@ -3,17 +3,13 @@ import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-
-const imageUrls = [
-  'girl-919048_1280',
-  'doctor-5871743_640',
-  'woman-5883428_1280',
-].map((imageName) => `${process.env.PUBLIC_URL}/images/${imageName}.jpg`)
+import { imageUrls } from '../helpers/sourceHelper'
 
 // TODO Handle cameras and videos
-// const videoUrls = ['1615284309', '1814594990', '1992432523'].map(
-//   (videoName) => `${process.env.PUBLIC_URL}/videos/${videoName}.mp4`
-// )
+type SourceSelectionCardProps = {
+  sourceUrl: string
+  onSourceUrlChange: (sourceUrl: string) => void
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -29,7 +25,9 @@ const useStyles = makeStyles((theme: Theme) =>
       marginBottom: theme.spacing(1),
       border: '2px solid transparent',
       alignItems: 'stretch',
-      transition: `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
+      transitionProperty: 'transform, border-color',
+      transitionDuration: `${theme.transitions.duration.shortest}ms`,
+      transitionTimingFunction: theme.transitions.easing.easeInOut,
 
       '&:hover': {
         transform: 'scale(1.12)',
@@ -49,7 +47,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-function SourceSelectionCard() {
+function SourceSelectionCard(props: SourceSelectionCardProps) {
   const classes = useStyles()
 
   return (
@@ -58,12 +56,13 @@ function SourceSelectionCard() {
         <Typography gutterBottom variant="h5" component="h2">
           Source
         </Typography>
-        {imageUrls.map((imageUrl, i) => (
+        {imageUrls.map((imageUrl) => (
           <Button
             key={imageUrl}
             className={`${classes.sourceButton} ${
-              i === 0 ? classes.sourceButtonActive : ''
+              imageUrl === props.sourceUrl ? classes.sourceButtonActive : ''
             }`}
+            onClick={() => props.onSourceUrlChange(imageUrl)}
           >
             <img className={classes.sourceImage} src={imageUrl} alt="" />
           </Button>

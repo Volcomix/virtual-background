@@ -1,8 +1,10 @@
 import Grid from '@material-ui/core/Grid'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { useState } from 'react'
 import PlayerCard from './components/PlayerCard'
 import SourceSelectionCard from './components/SourceSelectionCard'
 import VideoPlayer from './components/VideoPlayer'
+import { imageUrls } from './helpers/sourceHelper'
 import useBodyPix from './hooks/useBodyPix'
 import useTFLite from './hooks/useTFLite'
 
@@ -26,14 +28,18 @@ function App() {
   useTFLite()
 
   const classes = useStyles()
+  const [sourceUrl, setSourceUrl] = useState<string>(imageUrls[0])
 
   return isNewUI ? (
     <Grid className={classes.root} container spacing={2}>
       <Grid item xs={8}>
-        <PlayerCard />
+        <PlayerCard sourceUrl={sourceUrl} />
       </Grid>
       <Grid item xs={4}>
-        <SourceSelectionCard />
+        <SourceSelectionCard
+          sourceUrl={sourceUrl}
+          onSourceUrlChange={setSourceUrl}
+        />
       </Grid>
     </Grid>
   ) : (
