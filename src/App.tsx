@@ -1,6 +1,7 @@
 import Grid from '@material-ui/core/Grid'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import SourceCard from './components/SourceCard'
+import PlayerCard from './components/PlayerCard'
+import SourceSelectionCard from './components/SourceSelectionCard'
 import VideoPlayer from './components/VideoPlayer'
 import useBodyPix from './hooks/useBodyPix'
 import useTFLite from './hooks/useTFLite'
@@ -10,7 +11,7 @@ const isNewUI = false
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      padding: theme.spacing(3),
+      padding: theme.spacing(2),
     },
   })
 )
@@ -27,9 +28,12 @@ function App() {
   const classes = useStyles()
 
   return isNewUI ? (
-    <Grid className={classes.root} container>
+    <Grid className={classes.root} container spacing={2}>
+      <Grid item xs={8}>
+        <PlayerCard />
+      </Grid>
       <Grid item xs={4}>
-        <SourceCard />
+        <SourceSelectionCard />
       </Grid>
     </Grid>
   ) : (
