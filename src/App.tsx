@@ -8,16 +8,6 @@ import { imageUrls } from './helpers/sourceHelper'
 import useBodyPix from './hooks/useBodyPix'
 import useTFLite from './hooks/useTFLite'
 
-const isNewUI = false
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      padding: theme.spacing(2),
-    },
-  })
-)
-
 function App() {
   // TODO Inititialize the camera and segmentation models in parallel
 
@@ -30,7 +20,7 @@ function App() {
   const classes = useStyles()
   const [sourceUrl, setSourceUrl] = useState<string>(imageUrls[0])
 
-  return isNewUI ? (
+  return process.env.NODE_ENV === 'development' ? (
     <Grid className={classes.root} container spacing={2}>
       <Grid item xs={8}>
         <PlayerCard sourceUrl={sourceUrl} />
@@ -48,5 +38,13 @@ function App() {
     )
   )
 }
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      padding: theme.spacing(2),
+    },
+  })
+)
 
 export default App

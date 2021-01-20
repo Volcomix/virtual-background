@@ -4,6 +4,12 @@ type SourcePlayerProps = {
   sourceUrl: string
 }
 
+function SourcePlayer(props: SourcePlayerProps) {
+  const classes = useStyles()
+
+  return <img className={classes.root} src={props.sourceUrl} alt="" />
+}
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -11,11 +17,5 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 )
-
-function SourcePlayer(props: SourcePlayerProps) {
-  const classes = useStyles()
-
-  return <img className={classes.root} src={props.sourceUrl} alt="" />
-}
 
 export default SourcePlayer

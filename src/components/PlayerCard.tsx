@@ -7,14 +7,6 @@ type PlayerCardProps = {
   sourceUrl: string
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      overflow: 'hidden',
-    },
-  })
-)
-
 function PlayerCard(props: PlayerCardProps) {
   const classes = useStyles()
 
@@ -28,5 +20,13 @@ function PlayerCard(props: PlayerCardProps) {
     </Paper>
   )
 }
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      overflow: 'hidden',
+    },
+  })
+)
 
 export default PlayerCard

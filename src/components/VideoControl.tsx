@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import './VideoControl.css'
 
 type VideoControlProps = {
@@ -9,9 +10,10 @@ type VideoControlProps = {
 function VideoControl(props: VideoControlProps) {
   return (
     <button
-      className={`VideoControl ${
-        props.isActivated ? 'VideoControl-activated' : ''
-      }`}
+      className={clsx(
+        'VideoControl',
+        props.isActivated && 'VideoControl-activated'
+      )}
       onClick={props.onClick}
     >
       {props.children}
