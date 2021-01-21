@@ -7,6 +7,7 @@ type ImageButtonProps = {
 }
 
 function ImageButton(props: ImageButtonProps) {
+  // TODO Generate thumbnail blobs
   return (
     <ThumbnailButton
       thumbnailUrl={props.imageUrl}

@@ -8,6 +8,7 @@ type ThumbnailButtonProps = {
   isActive: boolean
   children?: React.ReactNode
   onClick: () => void
+  onLoad?: () => void
 }
 
 function ThumbnailButton(props: ThumbnailButtonProps) {
@@ -25,6 +26,7 @@ function ThumbnailButton(props: ThumbnailButtonProps) {
           className={clsx(classes.scalableContent, classes.image)}
           src={props.thumbnailUrl}
           alt=""
+          onLoad={props.onLoad}
         />
       ) : (
         <Skeleton className={classes.scalableContent} variant="rect" />
@@ -38,9 +40,9 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       padding: 0,
-      minWidth: 60,
-      height: 60,
-      width: 60,
+      minWidth: 58,
+      height: 58,
+      width: 58,
       marginRight: theme.spacing(1),
       marginBottom: theme.spacing(1),
       border: '2px solid transparent',
