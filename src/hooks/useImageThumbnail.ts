@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { getThumbnailBlob } from '../helpers/thumbnailHelper'
 
 /**
  * Returns an image thumbnail URL and a function to revoke it.
@@ -9,30 +10,13 @@ function useImageThumbnail(imageUrl: string): [string | null, () => void] {
   useEffect(() => {
     const image = new Image()
     image.src = imageUrl
-    image.onload = () => {
-      const videoSize = Math.min(image.naturalWidth, image.naturalHeight)
-      const horizontalShift = (image.naturalWidth - videoSize) / 2
-      const verticalShift = (image.naturalHeight - videoSize) / 2
-
-      const canvas = document.createElement('canvas')
-      canvas.width = 63
-      canvas.height = 63
-      const ctx = canvas.getContext('2d')!
-      ctx.drawImage(
+    image.onload = async () => {
+      const blob = await getThumbnailBlob(
         image,
-        horizontalShift,
-        verticalShift,
-        videoSize,
-        videoSize,
-        0,
-        0,
-        canvas.width,
-        canvas.height
+        image.naturalWidth,
+        image.naturalHeight
       )
-
-      canvas.toBlob((blob) => {
-        setThumbnailUrl(URL.createObjectURL(blob))
-      })
+      setThumbnailUrl(URL.createObjectURL(blob))
     }
   }, [imageUrl])
 
