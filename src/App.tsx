@@ -1,9 +1,9 @@
 import Grid from '@material-ui/core/Grid'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { useState } from 'react'
-import PlayerCard from './components/PlayerCard'
 import SourceSelectionCard from './components/SourceSelectionCard'
 import VideoPlayer from './components/VideoPlayer'
+import ViewerCard from './components/ViewerCard'
 import { imageUrls } from './helpers/sourceHelper'
 import useBodyPix from './hooks/useBodyPix'
 import useTFLite from './hooks/useTFLite'
@@ -23,7 +23,7 @@ function App() {
   return process.env.NODE_ENV === 'development' ? (
     <Grid className={classes.root} container spacing={2}>
       <Grid item xs={8}>
-        <PlayerCard sourceUrl={sourceUrl} />
+        <ViewerCard sourceUrl={sourceUrl} />
       </Grid>
       <Grid item xs={4}>
         <SourceSelectionCard

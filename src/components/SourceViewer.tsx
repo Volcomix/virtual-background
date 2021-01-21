@@ -1,10 +1,10 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
-type SourcePlayerProps = {
+type SourceViewerProps = {
   sourceUrl: string
 }
 
-function SourcePlayer(props: SourcePlayerProps) {
+function SourceViewer(props: SourceViewerProps) {
   const classes = useStyles()
 
   if (props.sourceUrl.endsWith('.jpg')) {
@@ -26,4 +26,4 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default SourcePlayer
+export default SourceViewer
