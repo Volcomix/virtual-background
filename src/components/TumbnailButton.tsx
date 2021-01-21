@@ -6,6 +6,7 @@ import clsx from 'clsx'
 type ThumbnailButtonProps = {
   thumbnailUrl: string | null
   isActive: boolean
+  children?: React.ReactNode
   onClick: () => void
 }
 
@@ -28,6 +29,7 @@ function ThumbnailButton(props: ThumbnailButtonProps) {
       ) : (
         <Skeleton className={classes.scalableContent} variant="rect" />
       )}
+      {props.children}
     </Button>
   )
 }
@@ -44,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) =>
       border: '2px solid transparent',
       alignItems: 'stretch',
       transitionProperty: 'transform, border-color',
-      transitionDuration: `${theme.transitions.duration.shortest}ms`,
+      transitionDuration: `${theme.transitions.duration.shorter}ms`,
       transitionTimingFunction: theme.transitions.easing.easeInOut,
 
       '&:hover': {
