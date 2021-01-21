@@ -1,19 +1,19 @@
 import ThumbnailButton from './TumbnailButton'
 
-type ImageButtonProps = {
-  imageUrl: string
+type VideoButtonProps = {
+  videoUrl: string
   isActive: boolean
   onClick: () => void
 }
 
-function ImageButton(props: ImageButtonProps) {
+function VideoButton(props: VideoButtonProps) {
   return (
     <ThumbnailButton
-      thumbnailUrl={props.imageUrl}
+      thumbnailUrl={null}
       isActive={props.isActive}
       onClick={props.onClick}
     />
   )
 }
 
-export default ImageButton
+export default VideoButton

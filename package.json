@@ -10,6 +10,7 @@
   "dependencies": {
     "@material-ui/core": "^4.11.2",
     "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
     "@tensorflow-models/body-pix": "^2.0.5",
     "@tensorflow/tfjs": "^2.8.3",
     "@testing-library/jest-dom": "^5.11.4",
