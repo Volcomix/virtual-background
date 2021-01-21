@@ -1,14 +1,14 @@
 import { useEffect } from 'react'
+import { SourceRef } from '../helpers/sourceHelper'
 
 type OutputViewerProps = {
-  source: HTMLImageElement | HTMLVideoElement
+  sourceRef: SourceRef
 }
 
 function OutputViewer(props: OutputViewerProps) {
   useEffect(() => {
-    // FIXME Source change is not always detected
-    console.log('Loading:', props.source.src)
-  }, [props.source.src])
+    console.log('Loading:', props.sourceRef.source.src)
+  }, [props.sourceRef])
 
   return <canvas />
 }

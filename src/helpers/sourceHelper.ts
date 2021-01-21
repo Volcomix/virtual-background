@@ -1,3 +1,8 @@
+// TODO Find a better name
+export type SourceRef = {
+  source: HTMLImageElement | HTMLVideoElement
+}
+
 export const imageUrls = [
   'girl-919048_1280',
   'doctor-5871743_640',

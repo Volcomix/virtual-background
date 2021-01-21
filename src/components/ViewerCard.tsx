@@ -3,6 +3,7 @@ import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { useState } from 'react'
+import { SourceRef } from '../helpers/sourceHelper'
 import OutputViewer from './OutputViewer'
 import SourceViewer from './SourceViewer'
 
@@ -12,16 +13,20 @@ type ViewerCardProps = {
 
 function ViewerCard(props: ViewerCardProps) {
   const classes = useStyles()
-  const [source, setSource] = useState<HTMLImageElement | HTMLVideoElement>()
+  const [sourceRef, setSourceRef] = useState<SourceRef>()
 
   return (
     <Paper className={classes.root}>
       <Grid container>
         <Grid className={classes.sourceCell} item xs={6}>
-          <SourceViewer sourceUrl={props.sourceUrl} onLoad={setSource} />
+          <SourceViewer sourceUrl={props.sourceUrl} onLoad={setSourceRef} />
         </Grid>
         <Grid className={classes.outputCell} item xs={6}>
-          {source ? <OutputViewer source={source} /> : <CircularProgress />}
+          {sourceRef ? (
+            <OutputViewer sourceRef={sourceRef} />
+          ) : (
+            <CircularProgress />
+          )}
         </Grid>
       </Grid>
     </Paper>

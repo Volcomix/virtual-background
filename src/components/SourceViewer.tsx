@@ -1,8 +1,9 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { SourceRef } from '../helpers/sourceHelper'
 
 type SourceViewerProps = {
   sourceUrl: string
-  onLoad: (source: HTMLImageElement | HTMLVideoElement) => void
+  onLoad: (sourceRef: SourceRef) => void
 }
 
 function SourceViewer(props: SourceViewerProps) {
@@ -14,7 +15,9 @@ function SourceViewer(props: SourceViewerProps) {
         className={classes.root}
         src={props.sourceUrl}
         alt=""
-        onLoad={(event) => props.onLoad(event.target as HTMLImageElement)}
+        onLoad={(event) => {
+          props.onLoad({ source: event.target as HTMLImageElement })
+        }}
       />
     )
   } else {
@@ -24,7 +27,9 @@ function SourceViewer(props: SourceViewerProps) {
         src={props.sourceUrl}
         autoPlay
         loop
-        onLoadedData={(event) => props.onLoad(event.target as HTMLVideoElement)}
+        onLoadedData={(event) => {
+          props.onLoad({ source: event.target as HTMLVideoElement })
+        }}
       />
     )
   }
