@@ -7,13 +7,21 @@ type SourcePlayerProps = {
 function SourcePlayer(props: SourcePlayerProps) {
   const classes = useStyles()
 
-  return <img className={classes.root} src={props.sourceUrl} alt="" />
+  if (props.sourceUrl.endsWith('.jpg')) {
+    return <img className={classes.root} src={props.sourceUrl} alt="" />
+  } else {
+    return (
+      <video className={classes.root} src={props.sourceUrl} autoPlay loop />
+    )
+  }
 }
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       width: '100%',
+      height: theme.spacing(52),
+      objectFit: 'cover',
     },
   })
 )

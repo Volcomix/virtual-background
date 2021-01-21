@@ -4,6 +4,8 @@ export const imageUrls = [
   'woman-5883428_1280',
 ].map((imageName) => `${process.env.PUBLIC_URL}/images/${imageName}.jpg`)
 
-export const videoUrls = ['1615284309', '1814594990', '1992432523'].map(
-  (videoName) => `${process.env.PUBLIC_URL}/videos/${videoName}.mp4`
-)
+export const videoUrls = [
+  'Dance - 32938',
+  'Doctor - 26732',
+  'Thoughtful - 35590',
+].map((videoName) => `${process.env.PUBLIC_URL}/videos/${videoName}.mp4`)

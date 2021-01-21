@@ -43,9 +43,9 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       padding: 0,
-      minWidth: 58,
-      height: 58,
-      width: 58,
+      minWidth: theme.spacing(7) + 2,
+      height: theme.spacing(7) + 2,
+      width: theme.spacing(7) + 2,
       marginRight: theme.spacing(1),
       marginBottom: theme.spacing(1),
       border: '2px solid transparent',

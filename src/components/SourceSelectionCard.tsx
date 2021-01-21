@@ -6,7 +6,7 @@ import { imageUrls, videoUrls } from '../helpers/sourceHelper'
 import ImageButton from './ImageButton'
 import VideoButton from './VideoButton'
 
-// TODO Handle cameras and videos
+// TODO Handle cameras
 type SourceSelectionCardProps = {
   sourceUrl: string
   onSourceUrlChange: (sourceUrl: string) => void
