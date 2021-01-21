@@ -1,3 +1,4 @@
+import useImageThumbnail from '../hooks/useImageThumbnail'
 import ThumbnailButton from './TumbnailButton'
 
 type ImageButtonProps = {
@@ -7,12 +8,14 @@ type ImageButtonProps = {
 }
 
 function ImageButton(props: ImageButtonProps) {
-  // TODO Generate thumbnail blobs
+  const [thumbnailUrl, revokeThumbnailUrl] = useImageThumbnail(props.imageUrl)
+
   return (
     <ThumbnailButton
-      thumbnailUrl={props.imageUrl}
+      thumbnailUrl={thumbnailUrl}
       isActive={props.isActive}
       onClick={props.onClick}
+      onLoad={revokeThumbnailUrl}
     />
   )
 }

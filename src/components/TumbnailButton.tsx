@@ -17,7 +17,10 @@ function ThumbnailButton(props: ThumbnailButtonProps) {
   return (
     <Button
       key={props.thumbnailUrl}
-      className={clsx(classes.root, props.isActive && classes.active)}
+      className={clsx(
+        classes.root,
+        props.thumbnailUrl && props.isActive && classes.active
+      )}
       disabled={!props.thumbnailUrl}
       onClick={props.onClick}
     >
