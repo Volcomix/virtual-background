@@ -4,7 +4,7 @@ import Skeleton from '@material-ui/lab/Skeleton'
 import clsx from 'clsx'
 
 type ThumbnailButtonProps = {
-  thumbnailUrl: string | null
+  thumbnailUrl?: string
   isActive: boolean
   children?: React.ReactNode
   onClick: () => void

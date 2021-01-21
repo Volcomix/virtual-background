@@ -2,16 +2,30 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
 type SourceViewerProps = {
   sourceUrl: string
+  onLoad: (source: HTMLImageElement | HTMLVideoElement) => void
 }
 
 function SourceViewer(props: SourceViewerProps) {
   const classes = useStyles()
 
   if (props.sourceUrl.endsWith('.jpg')) {
-    return <img className={classes.root} src={props.sourceUrl} alt="" />
+    return (
+      <img
+        className={classes.root}
+        src={props.sourceUrl}
+        alt=""
+        onLoad={(event) => props.onLoad(event.target as HTMLImageElement)}
+      />
+    )
   } else {
     return (
-      <video className={classes.root} src={props.sourceUrl} autoPlay loop />
+      <video
+        className={classes.root}
+        src={props.sourceUrl}
+        autoPlay
+        loop
+        onLoadedData={(event) => props.onLoad(event.target as HTMLVideoElement)}
+      />
     )
   }
 }
