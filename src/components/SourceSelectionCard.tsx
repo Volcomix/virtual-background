@@ -2,14 +2,14 @@ import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import { imageUrls, videoUrls } from '../helpers/sourceHelper'
+import { imageUrls, Source, videoUrls } from '../helpers/sourceHelper'
 import ImageButton from './ImageButton'
 import VideoButton from './VideoButton'
 
 // TODO Handle cameras
 type SourceSelectionCardProps = {
-  sourceUrl: string
-  onSourceUrlChange: (sourceUrl: string) => void
+  source: Source
+  onSourceChange: (source: Source) => void
 }
 
 function SourceSelectionCard(props: SourceSelectionCardProps) {
@@ -25,16 +25,20 @@ function SourceSelectionCard(props: SourceSelectionCardProps) {
           <ImageButton
             key={imageUrl}
             imageUrl={imageUrl}
-            isActive={imageUrl === props.sourceUrl}
-            onClick={() => props.onSourceUrlChange(imageUrl)}
+            isActive={imageUrl === props.source.url}
+            onClick={() => {
+              props.onSourceChange({ type: 'image', url: imageUrl })
+            }}
           />
         ))}
         {videoUrls.map((videoUrl) => (
           <VideoButton
             key={videoUrl}
             videoUrl={videoUrl}
-            isActive={videoUrl === props.sourceUrl}
-            onClick={() => props.onSourceUrlChange(videoUrl)}
+            isActive={videoUrl === props.source.url}
+            onClick={() => {
+              props.onSourceChange({ type: 'video', url: videoUrl })
+            }}
           />
         ))}
       </CardContent>

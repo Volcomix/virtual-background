@@ -4,7 +4,7 @@ import { useState } from 'react'
 import SourceSelectionCard from './components/SourceSelectionCard'
 import VideoPlayer from './components/VideoPlayer'
 import ViewerCard from './components/ViewerCard'
-import { imageUrls } from './helpers/sourceHelper'
+import { imageUrls, Source } from './helpers/sourceHelper'
 import useBodyPix from './hooks/useBodyPix'
 import useTFLite from './hooks/useTFLite'
 
@@ -18,18 +18,18 @@ function App() {
   useTFLite()
 
   const classes = useStyles()
-  const [sourceUrl, setSourceUrl] = useState<string>(imageUrls[0])
+  const [source, setSource] = useState<Source>({
+    type: 'image',
+    url: imageUrls[0],
+  })
 
   return process.env.NODE_ENV === 'development' ? (
     <Grid className={classes.root} container spacing={2}>
       <Grid item xs={8}>
-        <ViewerCard sourceUrl={sourceUrl} />
+        <ViewerCard source={source} />
       </Grid>
       <Grid item xs={4}>
-        <SourceSelectionCard
-          sourceUrl={sourceUrl}
-          onSourceUrlChange={setSourceUrl}
-        />
+        <SourceSelectionCard source={source} onSourceChange={setSource} />
       </Grid>
     </Grid>
   ) : (

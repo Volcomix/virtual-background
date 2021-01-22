@@ -1,6 +1,11 @@
-// TODO Find a better name
-export type SourceRef = {
-  source: HTMLImageElement | HTMLVideoElement
+// TODO Handle camera
+export type Source = {
+  type: 'image' | 'video'
+  url: string
+}
+
+export type SourcePlayback = {
+  htmlElement: HTMLImageElement | HTMLVideoElement
 }
 
 export const imageUrls = [

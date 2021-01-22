@@ -1,14 +1,14 @@
 import { useEffect } from 'react'
-import { SourceRef } from '../helpers/sourceHelper'
+import { SourcePlayback } from '../helpers/sourceHelper'
 
 type OutputViewerProps = {
-  sourceRef: SourceRef
+  sourcePlayback: SourcePlayback
 }
 
 function OutputViewer(props: OutputViewerProps) {
   useEffect(() => {
-    console.log('Loading:', props.sourceRef.source.src)
-  }, [props.sourceRef])
+    console.log('Received source playback:', props.sourcePlayback.htmlElement)
+  }, [props.sourcePlayback])
 
   return <canvas />
 }

@@ -3,27 +3,27 @@ import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { useState } from 'react'
-import { SourceRef } from '../helpers/sourceHelper'
+import { Source, SourcePlayback } from '../helpers/sourceHelper'
 import OutputViewer from './OutputViewer'
 import SourceViewer from './SourceViewer'
 
 type ViewerCardProps = {
-  sourceUrl: string
+  source: Source
 }
 
 function ViewerCard(props: ViewerCardProps) {
   const classes = useStyles()
-  const [sourceRef, setSourceRef] = useState<SourceRef>()
+  const [sourcePlayback, setSourcePlayback] = useState<SourcePlayback>()
 
   return (
     <Paper className={classes.root}>
       <Grid container>
         <Grid className={classes.sourceCell} item xs={6}>
-          <SourceViewer sourceUrl={props.sourceUrl} onLoad={setSourceRef} />
+          <SourceViewer source={props.source} onLoad={setSourcePlayback} />
         </Grid>
         <Grid className={classes.outputCell} item xs={6}>
-          {sourceRef ? (
-            <OutputViewer sourceRef={sourceRef} />
+          {sourcePlayback ? (
+            <OutputViewer sourcePlayback={sourcePlayback} />
           ) : (
             <CircularProgress />
           )}
