@@ -5,7 +5,7 @@ import ThumbnailButton from './TumbnailButton'
 
 type VideoButtonProps = {
   videoUrl: string
-  isActive: boolean
+  active: boolean
   onClick: () => void
 }
 
@@ -16,7 +16,7 @@ function VideoButton(props: VideoButtonProps) {
   return (
     <ThumbnailButton
       thumbnailUrl={thumbnailUrl}
-      isActive={props.isActive}
+      active={props.active}
       onClick={props.onClick}
       onLoad={revokeThumbnailUrl}
     >

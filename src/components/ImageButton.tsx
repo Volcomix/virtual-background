@@ -3,7 +3,7 @@ import ThumbnailButton from './TumbnailButton'
 
 type ImageButtonProps = {
   imageUrl: string
-  isActive: boolean
+  active: boolean
   onClick: () => void
 }
 
@@ -13,7 +13,7 @@ function ImageButton(props: ImageButtonProps) {
   return (
     <ThumbnailButton
       thumbnailUrl={thumbnailUrl}
-      isActive={props.isActive}
+      active={props.active}
       onClick={props.onClick}
       onLoad={revokeThumbnailUrl}
     />

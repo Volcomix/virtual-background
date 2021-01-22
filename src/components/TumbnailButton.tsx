@@ -1,11 +1,11 @@
-import Button from '@material-ui/core/Button'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Skeleton from '@material-ui/lab/Skeleton'
 import clsx from 'clsx'
+import SelectionButton from './SelectionButton'
 
 type ThumbnailButtonProps = {
   thumbnailUrl?: string
-  isActive: boolean
+  active: boolean
   children?: React.ReactNode
   onClick: () => void
   onLoad?: () => void
@@ -15,12 +15,8 @@ function ThumbnailButton(props: ThumbnailButtonProps) {
   const classes = useStyles()
 
   return (
-    <Button
-      key={props.thumbnailUrl}
-      className={clsx(
-        classes.root,
-        props.thumbnailUrl && props.isActive && classes.active
-      )}
+    <SelectionButton
+      active={!!props.thumbnailUrl && props.active}
       disabled={!props.thumbnailUrl}
       onClick={props.onClick}
     >
@@ -35,35 +31,14 @@ function ThumbnailButton(props: ThumbnailButtonProps) {
         <Skeleton className={classes.scalableContent} variant="rect" />
       )}
       {props.children}
-    </Button>
+    </SelectionButton>
   )
 }
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
-      padding: 0,
-      minWidth: theme.spacing(7) + 2,
-      height: theme.spacing(7) + 2,
-      width: theme.spacing(7) + 2,
-      marginRight: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-      border: '2px solid transparent',
-      alignItems: 'stretch',
-      transitionProperty: 'transform, border-color',
-      transitionDuration: `${theme.transitions.duration.shorter}ms`,
-      transitionTimingFunction: theme.transitions.easing.easeInOut,
-
-      '&:hover': {
-        transform: 'scale(1.125)',
-      },
-    },
-    active: {
-      borderColor: theme.palette.primary.main,
-      transform: 'scale(1.125)',
-    },
     scalableContent: {
-      // Fix rendering issues with border when scaled
+      // Fixes rendering issues with border when scaled
       width: 'calc(100% + 2px)',
       height: 'calc(100% + 2px)',
       margin: -1,

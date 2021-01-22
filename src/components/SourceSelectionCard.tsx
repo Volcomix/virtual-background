@@ -25,7 +25,7 @@ function SourceSelectionCard(props: SourceSelectionCardProps) {
           <ImageButton
             key={imageUrl}
             imageUrl={imageUrl}
-            isActive={imageUrl === props.source.url}
+            active={imageUrl === props.source.url}
             onClick={() => {
               props.onSourceChange({ type: 'image', url: imageUrl })
             }}
@@ -35,7 +35,7 @@ function SourceSelectionCard(props: SourceSelectionCardProps) {
           <VideoButton
             key={videoUrl}
             videoUrl={videoUrl}
-            isActive={videoUrl === props.source.url}
+            active={videoUrl === props.source.url}
             onClick={() => {
               props.onSourceChange({ type: 'video', url: videoUrl })
             }}
