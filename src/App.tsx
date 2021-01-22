@@ -1,10 +1,12 @@
 import Grid from '@material-ui/core/Grid'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { useState } from 'react'
+import BackgroundSelectionCard from './components/BackgroundSelectionCard'
 import SourceSelectionCard from './components/SourceSelectionCard'
 import VideoPlayer from './components/VideoPlayer'
 import ViewerCard from './components/ViewerCard'
-import { imageUrls, Source } from './helpers/sourceHelper'
+import { Background, backgroundImageUrls } from './helpers/backgroundHelper'
+import { Source, sourceImageUrls } from './helpers/sourceHelper'
 import useBodyPix from './hooks/useBodyPix'
 import useTFLite from './hooks/useTFLite'
 
@@ -20,7 +22,11 @@ function App() {
   const classes = useStyles()
   const [source, setSource] = useState<Source>({
     type: 'image',
-    url: imageUrls[0],
+    url: sourceImageUrls[0],
+  })
+  const [background, setBackground] = useState<Background>({
+    type: 'image',
+    url: backgroundImageUrls[0],
   })
 
   return process.env.NODE_ENV === 'development' ? (
@@ -30,6 +36,12 @@ function App() {
       </Grid>
       <Grid item xs={4}>
         <SourceSelectionCard source={source} onSourceChange={setSource} />
+      </Grid>
+      <Grid item xs={4}>
+        <BackgroundSelectionCard
+          background={background}
+          onBackgroundChange={setBackground}
+        />
       </Grid>
     </Grid>
   ) : (
@@ -42,7 +54,6 @@ function App() {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      height: theme.spacing(52),
       padding: theme.spacing(2),
     },
   })

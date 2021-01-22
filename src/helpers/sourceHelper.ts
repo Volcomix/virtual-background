@@ -1,4 +1,3 @@
-// TODO Handle camera
 export type Source = {
   type: 'image' | 'video' | 'camera'
   url?: string
@@ -8,13 +7,13 @@ export type SourcePlayback = {
   htmlElement: HTMLImageElement | HTMLVideoElement
 }
 
-export const imageUrls = [
+export const sourceImageUrls = [
   'girl-919048_1280',
   'doctor-5871743_640',
   'woman-5883428_1280',
 ].map((imageName) => `${process.env.PUBLIC_URL}/images/${imageName}.jpg`)
 
-export const videoUrls = [
+export const sourceVideoUrls = [
   'Dance - 32938',
   'Doctor - 26732',
   'Thoughtful - 35590',
