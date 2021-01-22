@@ -28,6 +28,7 @@ function SourceViewer(props: SourceViewerProps) {
         autoPlay
         playsInline
         controls={false}
+        muted
         loop
         onLoadedData={(event) => {
           props.onLoad({ htmlElement: event.target as HTMLVideoElement })

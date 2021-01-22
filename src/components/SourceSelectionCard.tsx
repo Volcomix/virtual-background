@@ -3,6 +3,7 @@ import CardContent from '@material-ui/core/CardContent'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import { imageUrls, Source, videoUrls } from '../helpers/sourceHelper'
+import CameraButton from './CameraButton'
 import ImageButton from './ImageButton'
 import VideoButton from './VideoButton'
 
@@ -21,6 +22,7 @@ function SourceSelectionCard(props: SourceSelectionCardProps) {
         <Typography gutterBottom variant="h5" component="h2">
           Source
         </Typography>
+        <CameraButton active={false} onClick={() => {}} />
         {imageUrls.map((imageUrl) => (
           <ImageButton
             key={imageUrl}

@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 'calc(100% + 2px)',
       height: 'calc(100% + 2px)',
       margin: -1,
-      borderRadius: 4,
+      borderRadius: theme.shape.borderRadius,
     },
     image: {
       objectFit: 'cover',

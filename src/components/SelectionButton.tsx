@@ -4,7 +4,7 @@ import clsx from 'clsx'
 
 type SelectionButtonProps = {
   active: boolean
-  disabled: boolean
+  disabled?: boolean
   children: React.ReactNode
   onClick: () => void
 }
