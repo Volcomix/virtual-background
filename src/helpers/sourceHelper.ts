@@ -1,7 +1,7 @@
 // TODO Handle camera
 export type Source = {
-  type: 'image' | 'video'
-  url: string
+  type: 'image' | 'video' | 'camera'
+  url?: string
 }
 
 export type SourcePlayback = {

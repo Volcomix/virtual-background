@@ -13,7 +13,7 @@ function CameraButton(props: CameraButtonProps) {
   return (
     <SelectionButton active={props.active} onClick={props.onClick}>
       <div className={classes.root}>
-        <VideocamIcon fontSize="large" />
+        <VideocamIcon />
       </div>
     </SelectionButton>
   )

@@ -22,7 +22,10 @@ function SourceSelectionCard(props: SourceSelectionCardProps) {
         <Typography gutterBottom variant="h5" component="h2">
           Source
         </Typography>
-        <CameraButton active={false} onClick={() => {}} />
+        <CameraButton
+          active={props.source.type === 'camera'}
+          onClick={() => props.onSourceChange({ type: 'camera' })}
+        />
         {imageUrls.map((imageUrl) => (
           <ImageButton
             key={imageUrl}
