@@ -1,4 +1,4 @@
-import CircularProgress from '@material-ui/core/CircularProgress'
+import Avatar from '@material-ui/core/Avatar'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
@@ -25,7 +25,7 @@ function ViewerCard(props: ViewerCardProps) {
           {sourcePlayback ? (
             <OutputViewer sourcePlayback={sourcePlayback} />
           ) : (
-            <CircularProgress />
+            <Avatar className={classes.avatar} />
           )}
         </Grid>
       </Grid>
@@ -36,15 +36,27 @@ function ViewerCard(props: ViewerCardProps) {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
+      height: '100%',
+      display: 'flex',
       overflow: 'hidden',
     },
     sourceCell: {
+      position: 'relative',
       display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRightWidth: 1,
+      borderRightStyle: 'solid',
+      borderRightColor: theme.palette.divider,
     },
     outputCell: {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
+    },
+    avatar: {
+      width: theme.spacing(20),
+      height: theme.spacing(20),
     },
   })
 )

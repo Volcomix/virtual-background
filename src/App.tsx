@@ -42,6 +42,7 @@ function App() {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
+      height: theme.spacing(52),
       padding: theme.spacing(2),
     },
   })
