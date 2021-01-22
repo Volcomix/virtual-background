@@ -5,7 +5,7 @@ import BackgroundSelectionCard from './components/BackgroundSelectionCard'
 import SourceSelectionCard from './components/SourceSelectionCard'
 import VideoPlayer from './components/VideoPlayer'
 import ViewerCard from './components/ViewerCard'
-import { Background, backgroundImageUrls } from './helpers/backgroundHelper'
+import { Background } from './helpers/backgroundHelper'
 import { Source, sourceImageUrls } from './helpers/sourceHelper'
 import useBodyPix from './hooks/useBodyPix'
 import useTFLite from './hooks/useTFLite'
@@ -24,10 +24,7 @@ function App() {
     type: 'image',
     url: sourceImageUrls[0],
   })
-  const [background, setBackground] = useState<Background>({
-    type: 'image',
-    url: backgroundImageUrls[0],
-  })
+  const [background, setBackground] = useState<Background>({ type: 'none' })
 
   return process.env.NODE_ENV === 'development' ? (
     <Grid className={classes.root} container spacing={2}>

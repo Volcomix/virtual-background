@@ -1,20 +1,18 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import VideocamIcon from '@material-ui/icons/Videocam'
 import SelectionButton from './SelectionButton'
 
-type CameraButtonProps = {
+type SelectionIconButtonProps = {
   active: boolean
+  children: React.ReactNode
   onClick: () => void
 }
 
-function CameraButton(props: CameraButtonProps) {
+function SelectionIconButton(props: SelectionIconButtonProps) {
   const classes = useStyles()
 
   return (
     <SelectionButton active={props.active} onClick={props.onClick}>
-      <div className={classes.root}>
-        <VideocamIcon />
-      </div>
+      <div className={classes.root}>{props.children}</div>
     </SelectionButton>
   )
 }
@@ -26,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
       height: '100%',
       borderWidth: 1,
       borderStyle: 'solid',
-      borderColor: theme.palette.text.primary,
+      borderColor: theme.palette.text.disabled,
       borderRadius: theme.shape.borderRadius,
       margin: -1,
       boxSizing: 'content-box',
@@ -37,4 +35,4 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default CameraButton
+export default SelectionIconButton
