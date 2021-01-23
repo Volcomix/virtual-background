@@ -12,7 +12,7 @@ function PostProcessingSelectionCard(props: PostProcessingSelectionCardProps) {
     <Card className={classes.root}>
       <CardContent>
         <Typography gutterBottom variant="h6" component="h2">
-          Post processing
+          Post-processing
         </Typography>
         <Typography variant="body2" color="textSecondary">
           Coming soon
