@@ -1,41 +1,87 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import { BodyPix } from '@tensorflow-models/body-pix'
 import React, { useEffect, useRef } from 'react'
+import { Background } from '../helpers/backgroundHelper'
 import { SourcePlayback } from '../helpers/sourceHelper'
 import useStats from '../hooks/useStats'
 
 type OutputViewerProps = {
   sourcePlayback: SourcePlayback
+  background: Background
+  bodyPix: BodyPix
 }
 
 function OutputViewer(props: OutputViewerProps) {
   const classes = useStyles()
   const canvasRef = useRef<HTMLCanvasElement>(null!)
-  const { fps, beginFrame, endFrame } = useStats()
+  const {
+    fps,
+    durations: [inferenceDuration, postProcessingDuration],
+    beginFrame,
+    addFrameEvent,
+    endFrame,
+  } = useStats()
+
+  const statDetails = [
+    `inference ${inferenceDuration}ms`,
+    `post-processing ${postProcessingDuration}ms`,
+  ]
+  const stats = `${Math.round(fps)} fps (${statDetails.join(', ')})`
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext('2d')!
+    const videoPixelCount =
+      props.sourcePlayback.width * props.sourcePlayback.height
+
+    const mask = new ImageData(
+      props.sourcePlayback.width,
+      props.sourcePlayback.height
+    )
+    const maskCanvas = document.createElement('canvas')
+    const maskCtx = maskCanvas.getContext('2d')!
+
     let renderRequestId: number
 
-    function render() {
-      renderRequestId = requestAnimationFrame(render)
-
+    async function render() {
       beginFrame()
+      if (props.background.type !== 'none') {
+        const segmentation = await props.bodyPix.segmentPerson(
+          props.sourcePlayback.htmlElement
+        )
+        for (let i = 0; i < videoPixelCount; i++) {
+          // Set only the alpha component of each pixel
+          mask.data[i * 4 + 3] = segmentation.data[i] ? 255 : 0
+        }
+        maskCtx.putImageData(mask, 0, 0)
+      }
+      addFrameEvent()
       ctx.drawImage(props.sourcePlayback.htmlElement, 0, 0)
       endFrame()
+
+      renderRequestId = requestAnimationFrame(render)
     }
 
     render()
+    console.log('Animation started:', props.sourcePlayback, props.background)
 
     return () => {
       cancelAnimationFrame(renderRequestId)
+      console.log('Animation stopped:', props.sourcePlayback, props.background)
     }
-  }, [props.sourcePlayback, beginFrame, endFrame])
+  }, [
+    props.sourcePlayback,
+    props.background,
+    props.bodyPix,
+    beginFrame,
+    addFrameEvent,
+    endFrame,
+  ])
 
   return (
     <React.Fragment>
       <Typography className={classes.stats} variant="caption">
-        {Math.round(fps)} fps
+        {stats}
       </Typography>
       <canvas
         ref={canvasRef}

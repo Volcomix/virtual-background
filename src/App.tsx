@@ -18,7 +18,7 @@ function App() {
 
   // Loads BodyPix only once outside of VideoPlayer component to prevent
   // GPU memory issues with Create React App HMR
-  const bodyPixNeuralNetwork = useBodyPix()
+  const bodyPix = useBodyPix()
 
   useTFLite()
 
@@ -36,7 +36,11 @@ function App() {
     <div className={classes.root}>
       <Grid container spacing={2}>
         <Grid item xs={8}>
-          <ViewerCard source={source} />
+          <ViewerCard
+            source={source}
+            background={background}
+            bodyPix={bodyPix}
+          />
         </Grid>
         <Grid item xs={4}>
           <SourceSelectionCard source={source} onSourceChange={setSource} />
@@ -55,11 +59,9 @@ function App() {
         </Grid>
       </Grid>
     </div>
-  ) : (
-    bodyPixNeuralNetwork && (
-      <VideoPlayer bodyPixNeuralNetwork={bodyPixNeuralNetwork} />
-    )
-  )
+  ) : bodyPix ? (
+    <VideoPlayer bodyPixNeuralNetwork={bodyPix} />
+  ) : null
 }
 
 const useStyles = makeStyles((theme: Theme) =>

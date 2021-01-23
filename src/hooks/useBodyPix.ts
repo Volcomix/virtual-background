@@ -6,7 +6,7 @@ function useBodyPix() {
   const [
     bodyPixNeuralNetwork,
     setBodyPixNeuralNetwork,
-  ] = useState<bodyPix.BodyPix | null>(null)
+  ] = useState<bodyPix.BodyPix>()
 
   useEffect(() => {
     async function loadBodyPix() {

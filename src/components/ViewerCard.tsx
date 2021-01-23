@@ -2,13 +2,17 @@ import Avatar from '@material-ui/core/Avatar'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { BodyPix } from '@tensorflow-models/body-pix'
 import { useEffect, useState } from 'react'
+import { Background } from '../helpers/backgroundHelper'
 import { Source, SourcePlayback } from '../helpers/sourceHelper'
 import OutputViewer from './OutputViewer'
 import SourceViewer from './SourceViewer'
 
 type ViewerCardProps = {
   source: Source
+  background: Background
+  bodyPix?: BodyPix
 }
 
 function ViewerCard(props: ViewerCardProps) {
@@ -26,8 +30,12 @@ function ViewerCard(props: ViewerCardProps) {
           <SourceViewer source={props.source} onLoad={setSourcePlayback} />
         </Grid>
         <Grid className={classes.outputCell} item xs={6}>
-          {sourcePlayback ? (
-            <OutputViewer sourcePlayback={sourcePlayback} />
+          {sourcePlayback && props.bodyPix ? (
+            <OutputViewer
+              sourcePlayback={sourcePlayback}
+              background={props.background}
+              bodyPix={props.bodyPix}
+            />
           ) : (
             <Avatar className={classes.avatar} />
           )}
