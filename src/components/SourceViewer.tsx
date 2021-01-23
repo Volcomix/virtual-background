@@ -1,7 +1,7 @@
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import VideocamOffIcon from '@material-ui/icons/VideocamOff'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { SyntheticEvent, useEffect, useRef, useState } from 'react'
 import { Source, SourcePlayback } from '../helpers/sourceHelper'
 
 type SourceViewerProps = {
@@ -50,6 +50,26 @@ function SourceViewer(props: SourceViewerProps) {
     }
   }, [props.source])
 
+  function handleImageLoad(event: SyntheticEvent) {
+    const image = event.target as HTMLImageElement
+    props.onLoad({
+      htmlElement: image,
+      width: image.naturalWidth,
+      height: image.naturalHeight,
+    })
+    setLoading(false)
+  }
+
+  function handleVideoLoad(event: SyntheticEvent) {
+    const video = event.target as HTMLVideoElement
+    props.onLoad({
+      htmlElement: video,
+      width: video.videoWidth,
+      height: video.videoHeight,
+    })
+    setLoading(false)
+  }
+
   return (
     <React.Fragment>
       {isLoading && <CircularProgress />}
@@ -59,15 +79,7 @@ function SourceViewer(props: SourceViewerProps) {
           src={sourceUrl}
           hidden={isLoading}
           alt=""
-          onLoad={(event) => {
-            const image = event.target as HTMLImageElement
-            props.onLoad({
-              htmlElement: image,
-              width: image.naturalWidth,
-              height: image.naturalHeight,
-            })
-            setLoading(false)
-          }}
+          onLoad={handleImageLoad}
         />
       ) : isCameraError ? (
         <VideocamOffIcon fontSize="large" />
@@ -82,15 +94,7 @@ function SourceViewer(props: SourceViewerProps) {
           controls={false}
           muted
           loop
-          onLoadedData={(event) => {
-            const video = event.target as HTMLVideoElement
-            props.onLoad({
-              htmlElement: video,
-              width: video.videoWidth,
-              height: video.videoHeight,
-            })
-            setLoading(false)
-          }}
+          onLoadedData={handleVideoLoad}
         />
       )}
     </React.Fragment>
