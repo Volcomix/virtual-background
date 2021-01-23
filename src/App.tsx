@@ -3,6 +3,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { useState } from 'react'
 import BackgroundSelectionCard from './components/BackgroundSelectionCard'
 import ModelSelectionCard from './components/ModelSelectionCard'
+import PostProcessingSelectionCard from './components/PostProcessingSelectionCard'
 import SourceSelectionCard from './components/SourceSelectionCard'
 import VideoPlayer from './components/VideoPlayer'
 import ViewerCard from './components/ViewerCard'
@@ -42,6 +43,9 @@ function App() {
         </Grid>
         <Grid item xs={4}>
           <ModelSelectionCard model={model} onModelChange={setModel} />
+        </Grid>
+        <Grid item xs={4}>
+          <PostProcessingSelectionCard />
         </Grid>
         <Grid item xs={4}>
           <BackgroundSelectionCard
