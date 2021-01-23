@@ -1,5 +1,6 @@
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import BlockIcon from '@material-ui/icons/Block'
 import BlurOnIcon from '@material-ui/icons/BlurOn'
@@ -13,8 +14,10 @@ type BackgroundSelectionCardProps = {
 }
 
 function BackgroundSelectionCard(props: BackgroundSelectionCardProps) {
+  const classes = useStyles()
+
   return (
-    <Card>
+    <Card className={classes.root}>
       <CardContent>
         <Typography gutterBottom variant="h6" component="h2">
           Background
@@ -45,5 +48,13 @@ function BackgroundSelectionCard(props: BackgroundSelectionCardProps) {
     </Card>
   )
 }
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      height: '100%',
+    },
+  })
+)
 
 export default BackgroundSelectionCard

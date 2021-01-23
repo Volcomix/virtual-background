@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
       height: '100%',
       borderWidth: 1,
       borderStyle: 'solid',
-      borderColor: theme.palette.text.disabled,
+      borderColor: 'rgba(0, 0, 0, 0.23)',
       borderRadius: theme.shape.borderRadius,
       margin: -1,
       boxSizing: 'content-box',

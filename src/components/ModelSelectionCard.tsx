@@ -4,6 +4,7 @@ import FormControl from '@material-ui/core/FormControl'
 import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import { Model } from '../helpers/modelHelper'
 
@@ -13,15 +14,18 @@ type ModelSelectionCardProps = {
 }
 
 function ModelSelectionCard(props: ModelSelectionCardProps) {
+  const classes = useStyles()
+
   return (
-    <Card>
+    <Card className={classes.root}>
       <CardContent>
         <Typography gutterBottom variant="h6" component="h2">
-          Person segmentation
+          Segmentation
         </Typography>
-        <FormControl>
+        <FormControl className={classes.formControl} variant="outlined">
           <InputLabel>Model</InputLabel>
           <Select
+            label="Model"
             value={props.model}
             onChange={(event) =>
               props.onModelChange(event.target.value as Model)
@@ -34,5 +38,17 @@ function ModelSelectionCard(props: ModelSelectionCardProps) {
     </Card>
   )
 }
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      height: '100%',
+    },
+    formControl: {
+      marginTop: theme.spacing(1),
+      minWidth: 120,
+    },
+  })
+)
 
 export default ModelSelectionCard
