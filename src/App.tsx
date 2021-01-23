@@ -27,20 +27,24 @@ function App() {
   const [background, setBackground] = useState<Background>({ type: 'none' })
 
   return process.env.NODE_ENV === 'development' ? (
-    <Grid className={classes.root} container spacing={2}>
-      <Grid item xs={8}>
-        <ViewerCard source={source} />
+    // The root level is required to fix negative margin limitations
+    // https://material-ui.com/components/grid/#negative-margin
+    <div className={classes.root}>
+      <Grid container spacing={2}>
+        <Grid item xs={8}>
+          <ViewerCard source={source} />
+        </Grid>
+        <Grid item xs={4}>
+          <SourceSelectionCard source={source} onSourceChange={setSource} />
+        </Grid>
+        <Grid item xs={4}>
+          <BackgroundSelectionCard
+            background={background}
+            onBackgroundChange={setBackground}
+          />
+        </Grid>
       </Grid>
-      <Grid item xs={4}>
-        <SourceSelectionCard source={source} onSourceChange={setSource} />
-      </Grid>
-      <Grid item xs={4}>
-        <BackgroundSelectionCard
-          background={background}
-          onBackgroundChange={setBackground}
-        />
-      </Grid>
-    </Grid>
+    </div>
   ) : (
     bodyPixNeuralNetwork && (
       <VideoPlayer bodyPixNeuralNetwork={bodyPixNeuralNetwork} />
