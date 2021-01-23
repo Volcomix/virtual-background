@@ -2,7 +2,7 @@ import Avatar from '@material-ui/core/Avatar'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Source, SourcePlayback } from '../helpers/sourceHelper'
 import OutputViewer from './OutputViewer'
 import SourceViewer from './SourceViewer'
@@ -14,6 +14,10 @@ type ViewerCardProps = {
 function ViewerCard(props: ViewerCardProps) {
   const classes = useStyles()
   const [sourcePlayback, setSourcePlayback] = useState<SourcePlayback>()
+
+  useEffect(() => {
+    setSourcePlayback(undefined)
+  }, [props.source])
 
   return (
     <Paper className={classes.root}>

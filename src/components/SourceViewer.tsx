@@ -60,7 +60,12 @@ function SourceViewer(props: SourceViewerProps) {
           hidden={isLoading}
           alt=""
           onLoad={(event) => {
-            props.onLoad({ htmlElement: event.target as HTMLImageElement })
+            const image = event.target as HTMLImageElement
+            props.onLoad({
+              htmlElement: image,
+              width: image.naturalWidth,
+              height: image.naturalHeight,
+            })
             setLoading(false)
           }}
         />
@@ -78,7 +83,12 @@ function SourceViewer(props: SourceViewerProps) {
           muted
           loop
           onLoadedData={(event) => {
-            props.onLoad({ htmlElement: event.target as HTMLVideoElement })
+            const video = event.target as HTMLVideoElement
+            props.onLoad({
+              htmlElement: video,
+              width: video.videoWidth,
+              height: video.videoHeight,
+            })
             setLoading(false)
           }}
         />
