@@ -55,6 +55,7 @@ const useStyles = makeStyles((theme: Theme) =>
       borderRightColor: theme.palette.divider,
     },
     outputCell: {
+      position: 'relative',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',

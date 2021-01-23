@@ -1,6 +1,8 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { useEffect, useRef } from 'react'
+import Typography from '@material-ui/core/Typography'
+import React, { useEffect, useRef } from 'react'
 import { SourcePlayback } from '../helpers/sourceHelper'
+import useStats from '../hooks/useStats'
 
 type OutputViewerProps = {
   sourcePlayback: SourcePlayback
@@ -9,6 +11,7 @@ type OutputViewerProps = {
 function OutputViewer(props: OutputViewerProps) {
   const classes = useStyles()
   const canvasRef = useRef<HTMLCanvasElement>(null!)
+  const { fps, beginFrame, endFrame } = useStats()
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext('2d')!
@@ -17,7 +20,9 @@ function OutputViewer(props: OutputViewerProps) {
     function render() {
       renderRequestId = requestAnimationFrame(render)
 
+      beginFrame()
       ctx.drawImage(props.sourcePlayback.htmlElement, 0, 0)
+      endFrame()
     }
 
     render()
@@ -25,15 +30,20 @@ function OutputViewer(props: OutputViewerProps) {
     return () => {
       cancelAnimationFrame(renderRequestId)
     }
-  }, [props.sourcePlayback])
+  }, [props.sourcePlayback, beginFrame, endFrame])
 
   return (
-    <canvas
-      ref={canvasRef}
-      className={classes.canvas}
-      width={props.sourcePlayback.width}
-      height={props.sourcePlayback.height}
-    />
+    <React.Fragment>
+      <Typography className={classes.stats} variant="caption">
+        {Math.round(fps)} fps
+      </Typography>
+      <canvas
+        ref={canvasRef}
+        className={classes.canvas}
+        width={props.sourcePlayback.width}
+        height={props.sourcePlayback.height}
+      />
+    </React.Fragment>
   )
 }
 
@@ -43,6 +53,15 @@ const useStyles = makeStyles((theme: Theme) =>
       width: '100%',
       height: '100%',
       objectFit: 'cover',
+    },
+    stats: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      left: 0,
+      textAlign: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.48)',
+      color: theme.palette.common.white,
     },
   })
 )
