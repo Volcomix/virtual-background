@@ -11,13 +11,20 @@ type SourceViewerProps = {
 
 function SourceViewer(props: SourceViewerProps) {
   const classes = useStyles()
+  const [sourceUrl, setSourceUrl] = useState<string>()
   const [isLoading, setLoading] = useState(false)
   const [isCameraError, setCameraError] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
+    setSourceUrl(undefined)
     setLoading(true)
     setCameraError(false)
+
+    // Enforces reloading the resource, otherwise
+    // onLoad event is not always dispatched and the
+    // progress indicator never disappears
+    setTimeout(() => setSourceUrl(props.source.url))
   }, [props.source])
 
   useEffect(() => {
@@ -49,7 +56,7 @@ function SourceViewer(props: SourceViewerProps) {
       {props.source.type === 'image' ? (
         <img
           className={classes.sourcePlayback}
-          src={props.source.url}
+          src={sourceUrl}
           hidden={isLoading}
           alt=""
           onLoad={(event) => {
@@ -63,7 +70,7 @@ function SourceViewer(props: SourceViewerProps) {
         <video
           ref={videoRef}
           className={classes.sourcePlayback}
-          src={props.source.url}
+          src={sourceUrl}
           hidden={isLoading}
           autoPlay
           playsInline

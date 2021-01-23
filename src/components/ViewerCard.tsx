@@ -36,7 +36,8 @@ function ViewerCard(props: ViewerCardProps) {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      height: theme.spacing(52),
+      minHeight: theme.spacing(52),
+      height: '100%',
       display: 'flex',
       overflow: 'hidden',
     },
