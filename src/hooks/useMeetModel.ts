@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { SegmentationConfig } from '../helpers/segmentationHelper'
 import { TFLite } from './useTFLite'
 
@@ -6,11 +6,15 @@ function useMeetModel(
   tflite: TFLite | undefined,
   segmentationConfig: SegmentationConfig
 ) {
+  const [isLoaded, setLoaded] = useState(false)
+
   useEffect(() => {
     async function loadMeetModel() {
       if (!tflite || segmentationConfig.model !== 'meet') {
         return
       }
+
+      setLoaded(false)
 
       const modelFileName =
         segmentationConfig.inputResolution === '144p'
@@ -39,10 +43,14 @@ function useMeetModel(
       console.log('Output height:', tflite._getOutputHeight())
       console.log('Output width:', tflite._getOutputWidth())
       console.log('Output channels:', tflite._getOutputChannelCount())
+
+      setLoaded(true)
     }
 
     loadMeetModel()
   }, [tflite, segmentationConfig])
+
+  return isLoaded
 }
 
 export default useMeetModel

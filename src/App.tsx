@@ -38,7 +38,8 @@ function App() {
     setPostProcessingConfig,
   ] = useState<PostProcessingConfig>({ smoothSegmentationMask: true })
 
-  useMeetModel(tflite, segmentationConfig)
+  // FIXME Animation stops, starts and stops again when changing segmentation config
+  const isMeetModelLoaded = useMeetModel(tflite, segmentationConfig)
 
   return (
     <div className={classes.root}>
@@ -46,7 +47,12 @@ function App() {
         source={source}
         background={background}
         bodyPix={bodyPix}
-        tflite={tflite}
+        tflite={
+          // TODO Find a better way to handle both bodyPix and tflite props
+          isMeetModelLoaded || segmentationConfig.model === 'bodyPix'
+            ? tflite
+            : undefined
+        }
         segmentationConfig={segmentationConfig}
         postProcessingConfig={postProcessingConfig}
       />

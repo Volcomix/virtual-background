@@ -77,18 +77,51 @@ function OutputViewer(props: OutputViewerProps) {
 
       addFrameEvent()
 
-      if (
-        props.background.type !== 'none' &&
-        props.segmentationConfig.model === 'bodyPix'
-      ) {
-        const segmentation = await props.bodyPix.segmentPerson(
-          segmentationMaskCanvas
-        )
-        for (let i = 0; i < segmentationPixelCount; i++) {
-          // Sets only the alpha component of each pixel
-          segmentationMask.data[i * 4 + 3] = segmentation.data[i] ? 255 : 0
+      if (props.background.type !== 'none') {
+        if (props.segmentationConfig.model === 'bodyPix') {
+          const segmentation = await props.bodyPix.segmentPerson(
+            segmentationMaskCanvas
+          )
+          for (let i = 0; i < segmentationPixelCount; i++) {
+            // Sets only the alpha component of each pixel
+            segmentationMask.data[i * 4 + 3] = segmentation.data[i] ? 255 : 0
+          }
+          segmentationMaskCtx.putImageData(segmentationMask, 0, 0)
+        } else {
+          // TODO Use a shader to directly output the resizing result in memory
+          const imageData = segmentationMaskCtx.getImageData(
+            0,
+            0,
+            segmentationWidth,
+            segmentationHeight
+          )
+
+          // TODO Retrieve offset only once
+          const inputMemoryOffset = props.tflite._getInputMemoryOffset() / 4
+          for (let i = 0; i < segmentationPixelCount; i++) {
+            props.tflite.HEAPF32[inputMemoryOffset + i * 3] =
+              imageData.data[i * 4] / 255
+            props.tflite.HEAPF32[inputMemoryOffset + i * 3 + 1] =
+              imageData.data[i * 4 + 1] / 255
+            props.tflite.HEAPF32[inputMemoryOffset + i * 3 + 2] =
+              imageData.data[i * 4 + 2] / 255
+          }
+
+          props.tflite._runInference()
+
+          // TODO Use shaders to completely avoid this kind of CPU manipulations
+          const outputMemoryOffset = props.tflite._getOutputMemoryOffset() / 4
+          for (let i = 0; i < segmentationPixelCount; i++) {
+            // TODO Implement softmax on GPU instead
+            // Sets only the alpha component of each pixel
+            segmentationMask.data[i * 4 + 3] =
+              props.tflite.HEAPF32[outputMemoryOffset + i * 2] <
+              props.tflite.HEAP32[outputMemoryOffset + i * 2 + 1]
+                ? 255
+                : 0
+          }
+          segmentationMaskCtx.putImageData(segmentationMask, 0, 0)
         }
-        segmentationMaskCtx.putImageData(segmentationMask, 0, 0)
       }
 
       addFrameEvent()
@@ -154,6 +187,7 @@ function OutputViewer(props: OutputViewerProps) {
     props.sourcePlayback,
     props.background,
     props.bodyPix,
+    props.tflite,
     props.segmentationConfig,
     props.postProcessingConfig,
     beginFrame,
