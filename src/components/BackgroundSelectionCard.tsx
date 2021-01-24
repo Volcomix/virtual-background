@@ -10,7 +10,7 @@ import SelectionIconButton from './SelectionIconButton'
 
 type BackgroundSelectionCardProps = {
   background: Background
-  onBackgroundChange: (background: Background) => void
+  onChange: (background: Background) => void
 }
 
 function BackgroundSelectionCard(props: BackgroundSelectionCardProps) {
@@ -24,13 +24,13 @@ function BackgroundSelectionCard(props: BackgroundSelectionCardProps) {
         </Typography>
         <SelectionIconButton
           active={props.background.type === 'none'}
-          onClick={() => props.onBackgroundChange({ type: 'none' })}
+          onClick={() => props.onChange({ type: 'none' })}
         >
           <BlockIcon />
         </SelectionIconButton>
         <SelectionIconButton
           active={props.background.type === 'blur'}
-          onClick={() => props.onBackgroundChange({ type: 'blur' })}
+          onClick={() => props.onChange({ type: 'blur' })}
         >
           <BlurOnIcon />
         </SelectionIconButton>
@@ -39,9 +39,7 @@ function BackgroundSelectionCard(props: BackgroundSelectionCardProps) {
             key={imageUrl}
             imageUrl={imageUrl}
             active={imageUrl === props.background.url}
-            onClick={() =>
-              props.onBackgroundChange({ type: 'image', url: imageUrl })
-            }
+            onClick={() => props.onChange({ type: 'image', url: imageUrl })}
           />
         ))}
       </CardContent>

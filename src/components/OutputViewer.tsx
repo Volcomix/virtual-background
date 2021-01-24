@@ -84,6 +84,7 @@ function OutputViewer(props: OutputViewerProps) {
         ctx.globalCompositeOperation = 'source-in'
       }
 
+      // TODO Fix image source
       ctx.filter = 'none'
       ctx.drawImage(props.sourcePlayback.htmlElement, 0, 0)
 

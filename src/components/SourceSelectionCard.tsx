@@ -14,7 +14,7 @@ import VideoButton from './VideoButton'
 
 type SourceSelectionCardProps = {
   source: Source
-  onSourceChange: (source: Source) => void
+  onChange: (source: Source) => void
 }
 
 function SourceSelectionCard(props: SourceSelectionCardProps) {
@@ -28,7 +28,7 @@ function SourceSelectionCard(props: SourceSelectionCardProps) {
         </Typography>
         <SelectionIconButton
           active={props.source.type === 'camera'}
-          onClick={() => props.onSourceChange({ type: 'camera' })}
+          onClick={() => props.onChange({ type: 'camera' })}
         >
           <VideocamIcon />
         </SelectionIconButton>
@@ -37,9 +37,7 @@ function SourceSelectionCard(props: SourceSelectionCardProps) {
             key={imageUrl}
             imageUrl={imageUrl}
             active={imageUrl === props.source.url}
-            onClick={() => {
-              props.onSourceChange({ type: 'image', url: imageUrl })
-            }}
+            onClick={() => props.onChange({ type: 'image', url: imageUrl })}
           />
         ))}
         {sourceVideoUrls.map((videoUrl) => (
@@ -47,9 +45,7 @@ function SourceSelectionCard(props: SourceSelectionCardProps) {
             key={videoUrl}
             videoUrl={videoUrl}
             active={videoUrl === props.source.url}
-            onClick={() => {
-              props.onSourceChange({ type: 'video', url: videoUrl })
-            }}
+            onClick={() => props.onChange({ type: 'video', url: videoUrl })}
           />
         ))}
       </CardContent>

@@ -2,13 +2,13 @@ import Grid from '@material-ui/core/Grid'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { useState } from 'react'
 import BackgroundSelectionCard from './components/BackgroundSelectionCard'
-import ModelSelectionCard from './components/ModelSelectionCard'
 import PostProcessingSelectionCard from './components/PostProcessingSelectionCard'
+import SegmentationConfigCard from './components/SegmentationConfigCard'
 import SourceSelectionCard from './components/SourceSelectionCard'
 import VideoPlayer from './components/VideoPlayer'
 import ViewerCard from './components/ViewerCard'
 import { Background } from './helpers/backgroundHelper'
-import { Model } from './helpers/modelHelper'
+import { SegmentationConfig } from './helpers/segmentationHelper'
 import { Source, sourceImageUrls } from './helpers/sourceHelper'
 import useBodyPix from './hooks/useBodyPix'
 import useTFLite from './hooks/useTFLite'
@@ -28,7 +28,10 @@ function App() {
     url: sourceImageUrls[0],
   })
   const [background, setBackground] = useState<Background>({ type: 'none' })
-  const [model, setModel] = useState<Model>('bodyPix')
+  const [
+    segmentationConfig,
+    setSegmentationConfig,
+  ] = useState<SegmentationConfig>({ model: 'bodyPix' })
 
   return process.env.NODE_ENV === 'development' ? (
     // The root level is required to fix negative margin limitations
@@ -43,10 +46,13 @@ function App() {
           />
         </Grid>
         <Grid item xs={4}>
-          <SourceSelectionCard source={source} onSourceChange={setSource} />
+          <SourceSelectionCard source={source} onChange={setSource} />
         </Grid>
         <Grid item xs={4}>
-          <ModelSelectionCard model={model} onModelChange={setModel} />
+          <SegmentationConfigCard
+            config={segmentationConfig}
+            onChange={setSegmentationConfig}
+          />
         </Grid>
         <Grid item xs={4}>
           <PostProcessingSelectionCard />
@@ -54,7 +60,7 @@ function App() {
         <Grid item xs={4}>
           <BackgroundSelectionCard
             background={background}
-            onBackgroundChange={setBackground}
+            onChange={setBackground}
           />
         </Grid>
       </Grid>

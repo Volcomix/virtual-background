@@ -6,14 +6,17 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import { Model } from '../helpers/modelHelper'
+import {
+  SegmentationConfig,
+  SegmentationModel,
+} from '../helpers/segmentationHelper'
 
-type ModelSelectionCardProps = {
-  model: Model
-  onModelChange: (model: Model) => void
+type SegmentationConfigCardProps = {
+  config: SegmentationConfig
+  onChange: (segmentationConfig: SegmentationConfig) => void
 }
 
-function ModelSelectionCard(props: ModelSelectionCardProps) {
+function SegmentationConfigCard(props: SegmentationConfigCardProps) {
   const classes = useStyles()
 
   return (
@@ -26,10 +29,10 @@ function ModelSelectionCard(props: ModelSelectionCardProps) {
           <InputLabel>Model</InputLabel>
           <Select
             label="Model"
-            value={props.model}
-            onChange={(event) =>
-              props.onModelChange(event.target.value as Model)
-            }
+            value={props.config.model}
+            onChange={(event) => {
+              props.onChange({ model: event.target.value as SegmentationModel })
+            }}
           >
             <MenuItem value={'bodyPix'}>BodyPix</MenuItem>
           </Select>
@@ -51,4 +54,4 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default ModelSelectionCard
+export default SegmentationConfigCard
