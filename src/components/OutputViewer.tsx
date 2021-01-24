@@ -7,6 +7,10 @@ import { PostProcessingConfig } from '../helpers/postProcessingHelper'
 import { SourcePlayback } from '../helpers/sourceHelper'
 import useStats from '../hooks/useStats'
 
+// TODO Set as segmentation configuration
+const segmentationWidth = 640
+const segmentationHeight = 360
+
 type OutputViewerProps = {
   sourcePlayback: SourcePlayback
   background: Background
@@ -19,7 +23,7 @@ function OutputViewer(props: OutputViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const {
     fps,
-    durations: [inferenceDuration, postProcessingDuration],
+    durations: [resizingDuration, inferenceDuration, postProcessingDuration],
     beginFrame,
     addFrameEvent,
     endFrame,
@@ -28,20 +32,14 @@ function OutputViewer(props: OutputViewerProps) {
   useEffect(() => {
     const ctx = canvasRef.current.getContext('2d')!
 
-    // BodyPix needs width and height properties to be set
-    props.sourcePlayback.htmlElement.width = props.sourcePlayback.width
-    props.sourcePlayback.htmlElement.height = props.sourcePlayback.height
-
-    const videoPixelCount =
-      props.sourcePlayback.width * props.sourcePlayback.height
-
+    const segmentationPixelCount = segmentationWidth * segmentationHeight
     const segmentationMask = new ImageData(
-      props.sourcePlayback.width,
-      props.sourcePlayback.height
+      segmentationWidth,
+      segmentationHeight
     )
     const segmentationMaskCanvas = document.createElement('canvas')
-    segmentationMaskCanvas.width = props.sourcePlayback.width
-    segmentationMaskCanvas.height = props.sourcePlayback.height
+    segmentationMaskCanvas.width = segmentationWidth
+    segmentationMaskCanvas.height = segmentationHeight
     const segmentationMaskCtx = segmentationMaskCanvas.getContext('2d')!
 
     // The useEffect cleanup function is not enough to stop
@@ -58,11 +56,26 @@ function OutputViewer(props: OutputViewerProps) {
       beginFrame()
 
       if (props.background.type !== 'none') {
-        // FIXME Errors when video not yet loaded
-        const segmentation = await props.bodyPix.segmentPerson(
-          props.sourcePlayback.htmlElement
+        segmentationMaskCtx.drawImage(
+          props.sourcePlayback.htmlElement,
+          0,
+          0,
+          props.sourcePlayback.width,
+          props.sourcePlayback.height,
+          0,
+          0,
+          segmentationWidth,
+          segmentationHeight
         )
-        for (let i = 0; i < videoPixelCount; i++) {
+      }
+
+      addFrameEvent()
+
+      if (props.background.type !== 'none') {
+        const segmentation = await props.bodyPix.segmentPerson(
+          segmentationMaskCanvas
+        )
+        for (let i = 0; i < segmentationPixelCount; i++) {
           // Sets only the alpha component of each pixel
           segmentationMask.data[i * 4 + 3] = segmentation.data[i] ? 255 : 0
         }
@@ -83,12 +96,21 @@ function OutputViewer(props: OutputViewerProps) {
       }
 
       if (props.background.type !== 'none') {
-        ctx.drawImage(segmentationMaskCanvas, 0, 0)
+        ctx.drawImage(
+          segmentationMaskCanvas,
+          0,
+          0,
+          segmentationWidth,
+          segmentationHeight,
+          0,
+          0,
+          props.sourcePlayback.width,
+          props.sourcePlayback.height
+        )
         ctx.globalCompositeOperation = 'source-in'
         ctx.filter = 'none'
       }
 
-      // FIXME Wrong segmentation mask with image sources
       ctx.drawImage(props.sourcePlayback.htmlElement, 0, 0)
 
       if (props.background.type === 'blur') {
@@ -130,6 +152,7 @@ function OutputViewer(props: OutputViewerProps) {
   ])
 
   const statDetails = [
+    `resizing ${resizingDuration}ms`,
     `inference ${inferenceDuration}ms`,
     `post-processing ${postProcessingDuration}ms`,
   ]

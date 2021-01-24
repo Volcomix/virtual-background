@@ -7,7 +7,7 @@ import SegmentationConfigCard from './components/SegmentationConfigCard'
 import SourceSelectionCard from './components/SourceSelectionCard'
 import VideoPlayer from './components/VideoPlayer'
 import ViewerCard from './components/ViewerCard'
-import { Background } from './helpers/backgroundHelper'
+import { Background, backgroundImageUrls } from './helpers/backgroundHelper'
 import { PostProcessingConfig } from './helpers/postProcessingHelper'
 import { SegmentationConfig } from './helpers/segmentationHelper'
 import { Source, sourceImageUrls } from './helpers/sourceHelper'
@@ -28,7 +28,10 @@ function App() {
     type: 'image',
     url: sourceImageUrls[0],
   })
-  const [background, setBackground] = useState<Background>({ type: 'none' })
+  const [background, setBackground] = useState<Background>({
+    type: 'image',
+    url: backgroundImageUrls[0],
+  })
   const [
     segmentationConfig,
     setSegmentationConfig,
