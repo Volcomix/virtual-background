@@ -5,6 +5,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { BodyPix } from '@tensorflow-models/body-pix'
 import { useEffect, useState } from 'react'
 import { Background } from '../helpers/backgroundHelper'
+import { PostProcessingConfig } from '../helpers/postProcessingHelper'
 import { Source, SourcePlayback } from '../helpers/sourceHelper'
 import OutputViewer from './OutputViewer'
 import SourceViewer from './SourceViewer'
@@ -13,6 +14,7 @@ type ViewerCardProps = {
   source: Source
   background: Background
   bodyPix?: BodyPix
+  postProcessingConfig: PostProcessingConfig
 }
 
 function ViewerCard(props: ViewerCardProps) {
@@ -35,6 +37,7 @@ function ViewerCard(props: ViewerCardProps) {
               sourcePlayback={sourcePlayback}
               background={props.background}
               bodyPix={props.bodyPix}
+              postProcessingConfig={props.postProcessingConfig}
             />
           ) : (
             <Avatar className={classes.avatar} />

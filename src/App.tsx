@@ -2,12 +2,13 @@ import Grid from '@material-ui/core/Grid'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { useState } from 'react'
 import BackgroundSelectionCard from './components/BackgroundSelectionCard'
-import PostProcessingSelectionCard from './components/PostProcessingSelectionCard'
+import PostProcessingConfigCard from './components/PostProcessingConfigCard'
 import SegmentationConfigCard from './components/SegmentationConfigCard'
 import SourceSelectionCard from './components/SourceSelectionCard'
 import VideoPlayer from './components/VideoPlayer'
 import ViewerCard from './components/ViewerCard'
 import { Background } from './helpers/backgroundHelper'
+import { PostProcessingConfig } from './helpers/postProcessingHelper'
 import { SegmentationConfig } from './helpers/segmentationHelper'
 import { Source, sourceImageUrls } from './helpers/sourceHelper'
 import useBodyPix from './hooks/useBodyPix'
@@ -32,6 +33,10 @@ function App() {
     segmentationConfig,
     setSegmentationConfig,
   ] = useState<SegmentationConfig>({ model: 'bodyPix' })
+  const [
+    postProcessingConfig,
+    setPostProcessingConfig,
+  ] = useState<PostProcessingConfig>({ smoothSegmentationMask: true })
 
   return process.env.NODE_ENV === 'development' ? (
     // The root level is required to fix negative margin limitations
@@ -43,6 +48,7 @@ function App() {
             source={source}
             background={background}
             bodyPix={bodyPix}
+            postProcessingConfig={postProcessingConfig}
           />
         </Grid>
         <Grid item xs={4}>
@@ -55,7 +61,10 @@ function App() {
           />
         </Grid>
         <Grid item xs={4}>
-          <PostProcessingSelectionCard />
+          <PostProcessingConfigCard
+            config={postProcessingConfig}
+            onChange={setPostProcessingConfig}
+          />
         </Grid>
         <Grid item xs={4}>
           <BackgroundSelectionCard

@@ -3,6 +3,7 @@ import Typography from '@material-ui/core/Typography'
 import { BodyPix } from '@tensorflow-models/body-pix'
 import React, { useEffect, useRef } from 'react'
 import { Background } from '../helpers/backgroundHelper'
+import { PostProcessingConfig } from '../helpers/postProcessingHelper'
 import { SourcePlayback } from '../helpers/sourceHelper'
 import useStats from '../hooks/useStats'
 
@@ -10,6 +11,7 @@ type OutputViewerProps = {
   sourcePlayback: SourcePlayback
   background: Background
   bodyPix: BodyPix
+  postProcessingConfig: PostProcessingConfig
 }
 
 function OutputViewer(props: OutputViewerProps) {
@@ -39,14 +41,14 @@ function OutputViewer(props: OutputViewerProps) {
     const videoPixelCount =
       props.sourcePlayback.width * props.sourcePlayback.height
 
-    const mask = new ImageData(
+    const segmentationMask = new ImageData(
       props.sourcePlayback.width,
       props.sourcePlayback.height
     )
-    const maskCanvas = document.createElement('canvas')
-    maskCanvas.width = props.sourcePlayback.width
-    maskCanvas.height = props.sourcePlayback.height
-    const maskCtx = maskCanvas.getContext('2d')!
+    const segmentationMaskCanvas = document.createElement('canvas')
+    segmentationMaskCanvas.width = props.sourcePlayback.width
+    segmentationMaskCanvas.height = props.sourcePlayback.height
+    const segmentationMaskCtx = segmentationMaskCanvas.getContext('2d')!
 
     // The useEffect cleanup function is not enough to stop
     // the rendering loop when the framerate is low
@@ -62,30 +64,37 @@ function OutputViewer(props: OutputViewerProps) {
       beginFrame()
 
       if (props.background.type !== 'none') {
+        // FIXME Errors when video not yet loaded
         const segmentation = await props.bodyPix.segmentPerson(
           props.sourcePlayback.htmlElement
         )
         for (let i = 0; i < videoPixelCount; i++) {
           // Sets only the alpha component of each pixel
-          mask.data[i * 4 + 3] = segmentation.data[i] ? 255 : 0
+          segmentationMask.data[i * 4 + 3] = segmentation.data[i] ? 255 : 0
         }
-        maskCtx.putImageData(mask, 0, 0)
+        segmentationMaskCtx.putImageData(segmentationMask, 0, 0)
       }
 
       addFrameEvent()
 
       ctx.globalCompositeOperation = 'copy'
+      ctx.filter = 'none'
 
-      if (props.background.type !== 'none') {
-        // TODO Set as post-processing option
-        ctx.filter = 'blur(2px)' // FIXME Does not work on Safari
-
-        ctx.drawImage(maskCanvas, 0, 0)
-        ctx.globalCompositeOperation = 'source-in'
+      if (props.postProcessingConfig.smoothSegmentationMask) {
+        if (props.background.type === 'blur') {
+          ctx.filter = 'blur(8px)' // FIXME Does not work on Safari
+        } else if (props.background.type === 'image') {
+          ctx.filter = 'blur(2px)' // FIXME Does not work on Safari
+        }
       }
 
-      // TODO Fix image source
-      ctx.filter = 'none'
+      if (props.background.type !== 'none') {
+        ctx.drawImage(segmentationMaskCanvas, 0, 0)
+        ctx.globalCompositeOperation = 'source-in'
+        ctx.filter = 'none'
+      }
+
+      // FIXME Wrong segmentation mask with image sources
       ctx.drawImage(props.sourcePlayback.htmlElement, 0, 0)
 
       if (props.background.type === 'blur') {
@@ -99,17 +108,28 @@ function OutputViewer(props: OutputViewerProps) {
     }
 
     render()
-    console.log('Animation started:', props.sourcePlayback, props.background)
+    console.log(
+      'Animation started:',
+      props.sourcePlayback,
+      props.background,
+      props.postProcessingConfig
+    )
 
     return () => {
       shouldRender = false
       cancelAnimationFrame(renderRequestId)
-      console.log('Animation stopped:', props.sourcePlayback, props.background)
+      console.log(
+        'Animation stopped:',
+        props.sourcePlayback,
+        props.background,
+        props.postProcessingConfig
+      )
     }
   }, [
     props.sourcePlayback,
     props.background,
     props.bodyPix,
+    props.postProcessingConfig,
     beginFrame,
     addFrameEvent,
     endFrame,
