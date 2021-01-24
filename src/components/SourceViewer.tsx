@@ -71,7 +71,7 @@ function SourceViewer(props: SourceViewerProps) {
   }
 
   return (
-    <React.Fragment>
+    <div className={classes.root}>
       {isLoading && <CircularProgress />}
       {props.source.type === 'image' ? (
         <img
@@ -97,12 +97,30 @@ function SourceViewer(props: SourceViewerProps) {
           onLoadedData={handleVideoLoad}
         />
       )}
-    </React.Fragment>
+    </div>
   )
 }
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    root: {
+      position: 'relative',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+
+      [theme.breakpoints.down('xs')]: {
+        width: 0,
+        overflow: 'hidden',
+      },
+
+      [theme.breakpoints.up('sm')]: {
+        flex: 1,
+        borderRightWidth: 1,
+        borderRightStyle: 'solid',
+        borderRightColor: theme.palette.divider,
+      },
+    },
     sourcePlayback: {
       position: 'absolute',
       width: '100%',

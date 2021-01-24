@@ -1,5 +1,4 @@
 import Avatar from '@material-ui/core/Avatar'
-import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { BodyPix } from '@tensorflow-models/body-pix'
@@ -29,24 +28,20 @@ function ViewerCard(props: ViewerCardProps) {
 
   return (
     <Paper className={classes.root}>
-      <Grid container>
-        <Grid className={classes.sourceCell} item xs={6}>
-          <SourceViewer source={props.source} onLoad={setSourcePlayback} />
-        </Grid>
-        <Grid className={classes.outputCell} item xs={6}>
-          {sourcePlayback && props.bodyPix ? (
-            <OutputViewer
-              sourcePlayback={sourcePlayback}
-              background={props.background}
-              bodyPix={props.bodyPix}
-              segmentationConfig={props.segmentationConfig}
-              postProcessingConfig={props.postProcessingConfig}
-            />
-          ) : (
-            <Avatar className={classes.avatar} />
-          )}
-        </Grid>
-      </Grid>
+      <SourceViewer source={props.source} onLoad={setSourcePlayback} />
+      {sourcePlayback && props.bodyPix ? (
+        <OutputViewer
+          sourcePlayback={sourcePlayback}
+          background={props.background}
+          bodyPix={props.bodyPix}
+          segmentationConfig={props.segmentationConfig}
+          postProcessingConfig={props.postProcessingConfig}
+        />
+      ) : (
+        <div className={classes.noOutput}>
+          <Avatar className={classes.avatar} />
+        </div>
+      )}
     </Paper>
   )
 }
@@ -70,17 +65,8 @@ const useStyles = makeStyles((theme: Theme) => {
         gridRowEnd: 3,
       },
     },
-    sourceCell: {
-      position: 'relative',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRightWidth: 1,
-      borderRightStyle: 'solid',
-      borderRightColor: theme.palette.divider,
-    },
-    outputCell: {
-      position: 'relative',
+    noOutput: {
+      flex: 1,
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',

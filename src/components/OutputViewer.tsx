@@ -164,7 +164,7 @@ function OutputViewer(props: OutputViewerProps) {
   const stats = `${Math.round(fps)} fps (${statDetails.join(', ')})`
 
   return (
-    <React.Fragment>
+    <div className={classes.root}>
       {props.background.type === 'image' && (
         <img className={classes.render} src={props.background.url} alt="" />
       )}
@@ -177,12 +177,16 @@ function OutputViewer(props: OutputViewerProps) {
       <Typography className={classes.stats} variant="caption">
         {stats}
       </Typography>
-    </React.Fragment>
+    </div>
   )
 }
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    root: {
+      flex: 1,
+      position: 'relative',
+    },
     render: {
       position: 'absolute',
       width: '100%',
