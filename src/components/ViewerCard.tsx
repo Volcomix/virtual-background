@@ -6,6 +6,7 @@ import { BodyPix } from '@tensorflow-models/body-pix'
 import { useEffect, useState } from 'react'
 import { Background } from '../helpers/backgroundHelper'
 import { PostProcessingConfig } from '../helpers/postProcessingHelper'
+import { SegmentationConfig } from '../helpers/segmentationHelper'
 import { Source, SourcePlayback } from '../helpers/sourceHelper'
 import OutputViewer from './OutputViewer'
 import SourceViewer from './SourceViewer'
@@ -14,6 +15,7 @@ type ViewerCardProps = {
   source: Source
   background: Background
   bodyPix?: BodyPix
+  segmentationConfig: SegmentationConfig
   postProcessingConfig: PostProcessingConfig
 }
 
@@ -37,6 +39,7 @@ function ViewerCard(props: ViewerCardProps) {
               sourcePlayback={sourcePlayback}
               background={props.background}
               bodyPix={props.bodyPix}
+              segmentationConfig={props.segmentationConfig}
               postProcessingConfig={props.postProcessingConfig}
             />
           ) : (

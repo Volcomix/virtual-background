@@ -35,7 +35,10 @@ function App() {
   const [
     segmentationConfig,
     setSegmentationConfig,
-  ] = useState<SegmentationConfig>({ model: 'bodyPix' })
+  ] = useState<SegmentationConfig>({
+    model: 'bodyPix',
+    inputResolution: '360p',
+  })
   const [
     postProcessingConfig,
     setPostProcessingConfig,
@@ -51,6 +54,7 @@ function App() {
             source={source}
             background={background}
             bodyPix={bodyPix}
+            segmentationConfig={segmentationConfig}
             postProcessingConfig={postProcessingConfig}
           />
         </Grid>

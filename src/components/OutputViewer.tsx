@@ -4,17 +4,18 @@ import { BodyPix } from '@tensorflow-models/body-pix'
 import React, { useEffect, useRef } from 'react'
 import { Background } from '../helpers/backgroundHelper'
 import { PostProcessingConfig } from '../helpers/postProcessingHelper'
+import {
+  inputResolutions,
+  SegmentationConfig,
+} from '../helpers/segmentationHelper'
 import { SourcePlayback } from '../helpers/sourceHelper'
 import useStats from '../hooks/useStats'
-
-// TODO Set as segmentation configuration
-const segmentationWidth = 640
-const segmentationHeight = 360
 
 type OutputViewerProps = {
   sourcePlayback: SourcePlayback
   background: Background
   bodyPix: BodyPix
+  segmentationConfig: SegmentationConfig
   postProcessingConfig: PostProcessingConfig
 }
 
@@ -32,6 +33,9 @@ function OutputViewer(props: OutputViewerProps) {
   useEffect(() => {
     const ctx = canvasRef.current.getContext('2d')!
 
+    const [segmentationWidth, segmentationHeight] = inputResolutions[
+      props.segmentationConfig.inputResolution
+    ]
     const segmentationPixelCount = segmentationWidth * segmentationHeight
     const segmentationMask = new ImageData(
       segmentationWidth,
@@ -145,6 +149,7 @@ function OutputViewer(props: OutputViewerProps) {
     props.sourcePlayback,
     props.background,
     props.bodyPix,
+    props.segmentationConfig,
     props.postProcessingConfig,
     beginFrame,
     addFrameEvent,
