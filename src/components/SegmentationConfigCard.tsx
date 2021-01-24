@@ -65,7 +65,10 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      height: '100%',
+      [theme.breakpoints.only('md')]: {
+        gridColumnStart: 2,
+        gridRowStart: 2,
+      },
     },
     formControl: {
       marginTop: theme.spacing(1),

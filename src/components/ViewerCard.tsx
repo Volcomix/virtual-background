@@ -51,13 +51,24 @@ function ViewerCard(props: ViewerCardProps) {
   )
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles((theme: Theme) => {
+  const minHeight = [`${theme.spacing(52)}px`, `100vh - ${theme.spacing(2)}px`]
+
+  return createStyles({
     root: {
-      minHeight: theme.spacing(52),
-      height: '100%',
+      minHeight: `calc(min(${minHeight.join(', ')}))`,
       display: 'flex',
       overflow: 'hidden',
+
+      [theme.breakpoints.up('md')]: {
+        gridColumnStart: 1,
+        gridColumnEnd: 3,
+      },
+
+      [theme.breakpoints.up('lg')]: {
+        gridRowStart: 1,
+        gridRowEnd: 3,
+      },
     },
     sourceCell: {
       position: 'relative',
@@ -79,6 +90,6 @@ const useStyles = makeStyles((theme: Theme) =>
       height: theme.spacing(20),
     },
   })
-)
+})
 
 export default ViewerCard

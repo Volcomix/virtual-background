@@ -1,4 +1,4 @@
-import Grid from '@material-ui/core/Grid'
+// import Grid from '@material-ui/core/Grid'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { useState } from 'react'
 import BackgroundSelectionCard from './components/BackgroundSelectionCard'
@@ -45,41 +45,27 @@ function App() {
   ] = useState<PostProcessingConfig>({ smoothSegmentationMask: true })
 
   return process.env.NODE_ENV === 'development' ? (
-    // The root level is required to fix negative margin limitations
-    // https://material-ui.com/components/grid/#negative-margin
     <div className={classes.root}>
-      <Grid container spacing={2}>
-        <Grid item xs={8}>
-          <ViewerCard
-            source={source}
-            background={background}
-            bodyPix={bodyPix}
-            segmentationConfig={segmentationConfig}
-            postProcessingConfig={postProcessingConfig}
-          />
-        </Grid>
-        <Grid item xs={4}>
-          <SourceSelectionCard source={source} onChange={setSource} />
-        </Grid>
-        <Grid item xs={4}>
-          <SegmentationConfigCard
-            config={segmentationConfig}
-            onChange={setSegmentationConfig}
-          />
-        </Grid>
-        <Grid item xs={4}>
-          <PostProcessingConfigCard
-            config={postProcessingConfig}
-            onChange={setPostProcessingConfig}
-          />
-        </Grid>
-        <Grid item xs={4}>
-          <BackgroundSelectionCard
-            background={background}
-            onChange={setBackground}
-          />
-        </Grid>
-      </Grid>
+      <ViewerCard
+        source={source}
+        background={background}
+        bodyPix={bodyPix}
+        segmentationConfig={segmentationConfig}
+        postProcessingConfig={postProcessingConfig}
+      />
+      <SourceSelectionCard source={source} onChange={setSource} />
+      <BackgroundSelectionCard
+        background={background}
+        onChange={setBackground}
+      />
+      <SegmentationConfigCard
+        config={segmentationConfig}
+        onChange={setSegmentationConfig}
+      />
+      <PostProcessingConfigCard
+        config={postProcessingConfig}
+        onChange={setPostProcessingConfig}
+      />
     </div>
   ) : bodyPix ? (
     <VideoPlayer bodyPixNeuralNetwork={bodyPix} />
@@ -89,7 +75,27 @@ function App() {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      padding: theme.spacing(2),
+      display: 'grid',
+
+      [theme.breakpoints.up('xs')]: {
+        margin: theme.spacing(1),
+        gap: theme.spacing(1),
+        gridTemplateColumns: '1fr',
+      },
+
+      [theme.breakpoints.up('md')]: {
+        margin: theme.spacing(2),
+        gap: theme.spacing(2),
+        gridTemplateColumns: 'repeat(2, 1fr)',
+      },
+
+      [theme.breakpoints.up('lg')]: {
+        gridTemplateColumns: 'repeat(3, 1fr)',
+      },
+    },
+    resourceSelectionCards: {
+      display: 'flex',
+      flexDirection: 'column',
     },
   })
 )

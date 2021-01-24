@@ -56,7 +56,7 @@ function SourceSelectionCard(props: SourceSelectionCardProps) {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      height: '100%',
+      flex: 1,
     },
   })
 )

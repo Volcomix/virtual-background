@@ -50,7 +50,7 @@ function BackgroundSelectionCard(props: BackgroundSelectionCardProps) {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      height: '100%',
+      flex: 1,
     },
   })
 )
