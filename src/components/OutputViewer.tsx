@@ -48,6 +48,9 @@ function OutputViewer(props: OutputViewerProps) {
     segmentationMaskCanvas.height = segmentationHeight
     const segmentationMaskCtx = segmentationMaskCanvas.getContext('2d')!
 
+    const inputMemoryOffset = props.tflite._getInputMemoryOffset() / 4
+    const outputMemoryOffset = props.tflite._getOutputMemoryOffset() / 4
+
     // The useEffect cleanup function is not enough to stop
     // the rendering loop when the framerate is low
     let shouldRender = true
@@ -96,8 +99,6 @@ function OutputViewer(props: OutputViewerProps) {
             segmentationHeight
           )
 
-          // TODO Retrieve offset only once
-          const inputMemoryOffset = props.tflite._getInputMemoryOffset() / 4
           for (let i = 0; i < segmentationPixelCount; i++) {
             props.tflite.HEAPF32[inputMemoryOffset + i * 3] =
               imageData.data[i * 4] / 255
@@ -110,7 +111,6 @@ function OutputViewer(props: OutputViewerProps) {
           props.tflite._runInference()
 
           // TODO Use shaders to completely avoid this kind of CPU manipulations
-          const outputMemoryOffset = props.tflite._getOutputMemoryOffset() / 4
           for (let i = 0; i < segmentationPixelCount; i++) {
             // TODO Implement softmax on GPU instead
             // Sets only the alpha component of each pixel
