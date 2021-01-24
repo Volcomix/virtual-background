@@ -10,11 +10,13 @@ import {
 } from '../helpers/segmentationHelper'
 import { SourcePlayback } from '../helpers/sourceHelper'
 import useStats from '../hooks/useStats'
+import { TFLite } from '../hooks/useTFLite'
 
 type OutputViewerProps = {
   sourcePlayback: SourcePlayback
   background: Background
   bodyPix: BodyPix
+  tflite: TFLite
   segmentationConfig: SegmentationConfig
   postProcessingConfig: PostProcessingConfig
 }

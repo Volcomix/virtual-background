@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { SegmentationConfig } from '../helpers/segmentationHelper'
-import { TFLiteModule } from './useTFLite'
+import { TFLite } from './useTFLite'
 
 function useMeetModel(
-  tflite: TFLiteModule | undefined,
+  tflite: TFLite | undefined,
   segmentationConfig: SegmentationConfig
 ) {
   useEffect(() => {

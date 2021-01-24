@@ -7,6 +7,7 @@ import { Background } from '../helpers/backgroundHelper'
 import { PostProcessingConfig } from '../helpers/postProcessingHelper'
 import { SegmentationConfig } from '../helpers/segmentationHelper'
 import { Source, SourcePlayback } from '../helpers/sourceHelper'
+import { TFLite } from '../hooks/useTFLite'
 import OutputViewer from './OutputViewer'
 import SourceViewer from './SourceViewer'
 
@@ -14,6 +15,7 @@ type ViewerCardProps = {
   source: Source
   background: Background
   bodyPix?: BodyPix
+  tflite?: TFLite
   segmentationConfig: SegmentationConfig
   postProcessingConfig: PostProcessingConfig
 }
@@ -29,11 +31,12 @@ function ViewerCard(props: ViewerCardProps) {
   return (
     <Paper className={classes.root}>
       <SourceViewer source={props.source} onLoad={setSourcePlayback} />
-      {sourcePlayback && props.bodyPix ? (
+      {sourcePlayback && props.bodyPix && props.tflite ? (
         <OutputViewer
           sourcePlayback={sourcePlayback}
           background={props.background}
           bodyPix={props.bodyPix}
+          tflite={props.tflite}
           segmentationConfig={props.segmentationConfig}
           postProcessingConfig={props.postProcessingConfig}
         />

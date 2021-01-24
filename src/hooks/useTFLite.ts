@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
-declare function createTFLiteModule(): Promise<TFLiteModule>
+declare function createTFLiteModule(): Promise<TFLite>
 
-export interface TFLiteModule extends EmscriptenModule {
+export interface TFLite extends EmscriptenModule {
   _getModelBufferMemoryOffset(): number
   _getInputMemoryOffset(): number
   _getInputHeight(): number
@@ -17,7 +17,7 @@ export interface TFLiteModule extends EmscriptenModule {
 }
 
 function useTFLite() {
-  const [tflite, setTFLite] = useState<TFLiteModule>()
+  const [tflite, setTFLite] = useState<TFLite>()
 
   useEffect(() => {
     // TODO Detect WASM features to handle SIMD and multithreading

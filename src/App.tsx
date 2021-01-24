@@ -46,6 +46,7 @@ function App() {
         source={source}
         background={background}
         bodyPix={bodyPix}
+        tflite={tflite}
         segmentationConfig={segmentationConfig}
         postProcessingConfig={postProcessingConfig}
       />
