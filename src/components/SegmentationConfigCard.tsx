@@ -6,6 +6,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import { ChangeEvent } from 'react'
 import {
   InputResolution,
   SegmentationConfig,
@@ -20,6 +21,22 @@ type SegmentationConfigCardProps = {
 function SegmentationConfigCard(props: SegmentationConfigCardProps) {
   const classes = useStyles()
 
+  function handleModelChange(event: ChangeEvent<{ value: unknown }>) {
+    const model = event.target.value as SegmentationModel
+    let inputResolution = props.config.inputResolution
+    if (model === 'meet' && inputResolution === '360p') {
+      inputResolution = '144p'
+    }
+    props.onChange({ ...props.config, model, inputResolution })
+  }
+
+  function handleInputResolutionChange(event: ChangeEvent<{ value: unknown }>) {
+    props.onChange({
+      ...props.config,
+      inputResolution: event.target.value as InputResolution,
+    })
+  }
+
   return (
     <Card className={classes.root}>
       <CardContent>
@@ -31,14 +48,10 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
           <Select
             label="Model"
             value={props.config.model}
-            onChange={(event) => {
-              props.onChange({
-                ...props.config,
-                model: event.target.value as SegmentationModel,
-              })
-            }}
+            onChange={handleModelChange}
           >
             <MenuItem value={'bodyPix'}>BodyPix</MenuItem>
+            <MenuItem value={'meet'}>Meet (WIP)</MenuItem>
           </Select>
         </FormControl>
         <FormControl className={classes.formControl} variant="outlined">
@@ -46,15 +59,13 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
           <Select
             label="Input resolution"
             value={props.config.inputResolution}
-            onChange={(event) => {
-              props.onChange({
-                ...props.config,
-                inputResolution: event.target.value as InputResolution,
-              })
-            }}
+            onChange={handleInputResolutionChange}
           >
-            <MenuItem value={'360p'}>360p</MenuItem>
+            <MenuItem value={'360p'} disabled={props.config.model === 'meet'}>
+              360p
+            </MenuItem>
             <MenuItem value={'144p'}>144p</MenuItem>
+            <MenuItem value={'96p'}>96p</MenuItem>
           </Select>
         </FormControl>
       </CardContent>

@@ -75,7 +75,10 @@ function OutputViewer(props: OutputViewerProps) {
 
       addFrameEvent()
 
-      if (props.background.type !== 'none') {
+      if (
+        props.background.type !== 'none' &&
+        props.segmentationConfig.model === 'bodyPix'
+      ) {
         const segmentation = await props.bodyPix.segmentPerson(
           segmentationMaskCanvas
         )
