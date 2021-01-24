@@ -30,8 +30,8 @@ function App() {
     segmentationConfig,
     setSegmentationConfig,
   ] = useState<SegmentationConfig>({
-    model: 'bodyPix',
-    inputResolution: '360p',
+    model: 'meet',
+    inputResolution: '96p',
   })
   const [
     postProcessingConfig,

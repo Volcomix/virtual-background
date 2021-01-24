@@ -50,8 +50,8 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
             value={props.config.model}
             onChange={handleModelChange}
           >
+            <MenuItem value={'meet'}>Meet</MenuItem>
             <MenuItem value={'bodyPix'}>BodyPix</MenuItem>
-            <MenuItem value={'meet'}>Meet (WIP)</MenuItem>
           </Select>
         </FormControl>
         <FormControl className={classes.formControl} variant="outlined">
