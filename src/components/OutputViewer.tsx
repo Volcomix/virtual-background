@@ -25,12 +25,6 @@ function OutputViewer(props: OutputViewerProps) {
     endFrame,
   } = useStats()
 
-  const statDetails = [
-    `inference ${inferenceDuration}ms`,
-    `post-processing ${postProcessingDuration}ms`,
-  ]
-  const stats = `${Math.round(fps)} fps (${statDetails.join(', ')})`
-
   useEffect(() => {
     const ctx = canvasRef.current.getContext('2d')!
 
@@ -134,6 +128,12 @@ function OutputViewer(props: OutputViewerProps) {
     addFrameEvent,
     endFrame,
   ])
+
+  const statDetails = [
+    `inference ${inferenceDuration}ms`,
+    `post-processing ${postProcessingDuration}ms`,
+  ]
+  const stats = `${Math.round(fps)} fps (${statDetails.join(', ')})`
 
   return (
     <React.Fragment>
