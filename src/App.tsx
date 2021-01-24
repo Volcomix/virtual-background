@@ -10,11 +10,12 @@ import { PostProcessingConfig } from './helpers/postProcessingHelper'
 import { SegmentationConfig } from './helpers/segmentationHelper'
 import { Source, sourceImageUrls } from './helpers/sourceHelper'
 import useBodyPix from './hooks/useBodyPix'
+import useMeetModel from './hooks/useMeetModel'
 import useTFLite from './hooks/useTFLite'
 
 function App() {
   const bodyPix = useBodyPix()
-  useTFLite()
+  const tflite = useTFLite()
 
   const classes = useStyles()
   const [source, setSource] = useState<Source>({
@@ -36,6 +37,8 @@ function App() {
     postProcessingConfig,
     setPostProcessingConfig,
   ] = useState<PostProcessingConfig>({ smoothSegmentationMask: true })
+
+  useMeetModel(tflite, segmentationConfig)
 
   return (
     <div className={classes.root}>
