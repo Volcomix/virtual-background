@@ -13,7 +13,7 @@ export function buildWebGL2Pipeline(
   postProcessingConfig: PostProcessingConfig,
   addFrameEvent: () => void
 ) {
-  const gl = canvas.getContext('webgl2')
+  // const gl = canvas.getContext('webgl2')
 
   async function runPipeline() {
     // Source resizing
@@ -26,11 +26,11 @@ export function buildWebGL2Pipeline(
   return runPipeline
 }
 
-const vertexShaderSource = `#version 300 es
+// const vertexShaderSource = `#version 300 es
 
-in vec4 a_position;
+// in vec4 a_position;
 
-void main() {
-  gl_Position = a_position;
-}
-`
+// void main() {
+//   gl_Position = a_position;
+// }
+// `

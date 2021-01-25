@@ -62,8 +62,8 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
             value={props.config.model}
             onChange={handleModelChange}
           >
-            <MenuItem value={'meet'}>Meet</MenuItem>
-            <MenuItem value={'bodyPix'}>BodyPix</MenuItem>
+            <MenuItem value="meet">Meet</MenuItem>
+            <MenuItem value="bodyPix">BodyPix</MenuItem>
           </Select>
         </FormControl>
         <FormControl className={classes.formControl} variant="outlined">
@@ -73,11 +73,11 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
             value={props.config.inputResolution}
             onChange={handleInputResolutionChange}
           >
-            <MenuItem value={'360p'} disabled={props.config.model === 'meet'}>
+            <MenuItem value="360p" disabled={props.config.model === 'meet'}>
               360p
             </MenuItem>
-            <MenuItem value={'144p'}>144p</MenuItem>
-            <MenuItem value={'96p'}>96p</MenuItem>
+            <MenuItem value="144p">144p</MenuItem>
+            <MenuItem value="96p">96p</MenuItem>
           </Select>
         </FormControl>
         <FormControl className={classes.formControl} variant="outlined">
@@ -88,12 +88,12 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
             onChange={handlePipelineChange}
           >
             <MenuItem
-              value={'webgl2'}
+              value="webgl2"
               disabled={props.config.model === 'bodyPix'}
             >
               WebGL 2 (WIP)
             </MenuItem>
-            <MenuItem value={'canvas2dCpu'}>Canvas 2D + CPU</MenuItem>
+            <MenuItem value="canvas2dCpu">Canvas 2D + CPU</MenuItem>
           </Select>
         </FormControl>
       </CardContent>
