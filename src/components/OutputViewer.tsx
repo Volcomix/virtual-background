@@ -42,9 +42,10 @@ function OutputViewer(props: OutputViewerProps) {
 
   return (
     <div className={classes.root}>
-      {props.background.type === 'image' && (
-        <img className={classes.render} src={props.background.url} alt="" />
-      )}
+      {props.segmentationConfig.pipeline === 'canvas2dCpu' &&
+        props.background.type === 'image' && (
+          <img className={classes.render} src={props.background.url} alt="" />
+        )}
       <canvas
         ref={canvasRef}
         className={classes.render}

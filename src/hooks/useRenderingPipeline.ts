@@ -5,6 +5,7 @@ import { buildCanvas2dCpuPipeline } from '../helpers/canvas2dCpuPipeline'
 import { PostProcessingConfig } from '../helpers/postProcessingHelper'
 import { SegmentationConfig } from '../helpers/segmentationHelper'
 import { SourcePlayback } from '../helpers/sourceHelper'
+import { buildWebGL2Pipeline } from '../helpers/webgl2Pipeline'
 import useStats from './useStats'
 import { TFLite } from './useTFLite'
 
@@ -26,16 +27,27 @@ function useRenderingPipeline(
 
     let renderRequestId: number
 
-    const runPipeline = buildCanvas2dCpuPipeline(
-      sourcePlayback,
-      background,
-      canvasRef.current,
-      bodyPix,
-      tflite,
-      segmentationConfig,
-      postProcessingConfig,
-      addFrameEvent
-    )
+    const runPipeline =
+      segmentationConfig.pipeline === 'webgl2'
+        ? buildWebGL2Pipeline(
+            sourcePlayback,
+            background,
+            canvasRef.current,
+            tflite,
+            segmentationConfig,
+            postProcessingConfig,
+            addFrameEvent
+          )
+        : buildCanvas2dCpuPipeline(
+            sourcePlayback,
+            background,
+            canvasRef.current,
+            bodyPix,
+            tflite,
+            segmentationConfig,
+            postProcessingConfig,
+            addFrameEvent
+          )
 
     async function render() {
       if (!shouldRender) {
