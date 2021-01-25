@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography'
 import { ChangeEvent } from 'react'
 import {
   InputResolution,
+  Pipeline,
   SegmentationConfig,
   SegmentationModel,
 } from '../helpers/segmentationHelper'
@@ -27,13 +28,24 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
     if (model === 'meet' && inputResolution === '360p') {
       inputResolution = '144p'
     }
-    props.onChange({ ...props.config, model, inputResolution })
+    let pipeline = props.config.pipeline
+    if (model === 'bodyPix' && pipeline === 'webgl2') {
+      pipeline = 'canvas2dCpu'
+    }
+    props.onChange({ ...props.config, model, inputResolution, pipeline })
   }
 
   function handleInputResolutionChange(event: ChangeEvent<{ value: unknown }>) {
     props.onChange({
       ...props.config,
       inputResolution: event.target.value as InputResolution,
+    })
+  }
+
+  function handlePipelineChange(event: ChangeEvent<{ value: unknown }>) {
+    props.onChange({
+      ...props.config,
+      pipeline: event.target.value as Pipeline,
     })
   }
 
@@ -66,6 +78,22 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
             </MenuItem>
             <MenuItem value={'144p'}>144p</MenuItem>
             <MenuItem value={'96p'}>96p</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl className={classes.formControl} variant="outlined">
+          <InputLabel>Pipeline</InputLabel>
+          <Select
+            label="Pipeline"
+            value={props.config.pipeline}
+            onChange={handlePipelineChange}
+          >
+            <MenuItem
+              value={'webgl2'}
+              disabled={props.config.model === 'bodyPix'}
+            >
+              WebGL 2 (WIP)
+            </MenuItem>
+            <MenuItem value={'canvas2dCpu'}>Canvas 2D + CPU</MenuItem>
           </Select>
         </FormControl>
       </CardContent>

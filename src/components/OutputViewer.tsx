@@ -170,6 +170,7 @@ function OutputViewer(props: OutputViewerProps) {
       'Animation started:',
       props.sourcePlayback,
       props.background,
+      props.segmentationConfig,
       props.postProcessingConfig
     )
 
@@ -180,6 +181,7 @@ function OutputViewer(props: OutputViewerProps) {
         'Animation stopped:',
         props.sourcePlayback,
         props.background,
+        props.segmentationConfig,
         props.postProcessingConfig
       )
     }

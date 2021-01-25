@@ -32,6 +32,7 @@ function App() {
   ] = useState<SegmentationConfig>({
     model: 'meet',
     inputResolution: '96p',
+    pipeline: 'canvas2dCpu',
   })
   const [
     postProcessingConfig,
