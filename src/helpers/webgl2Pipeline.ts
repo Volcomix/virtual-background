@@ -20,7 +20,7 @@ export function buildWebGL2Pipeline(
   const segmentationPixelCount = segmentationWidth * segmentationHeight
 
   const inputMemoryOffset = tflite._getInputMemoryOffset() / 4
-  // const outputMemoryOffset = tflite._getOutputMemoryOffset() / 4
+  const outputMemoryOffset = tflite._getOutputMemoryOffset() / 4
 
   const gl = canvas.getContext('webgl2')!
 
@@ -31,7 +31,7 @@ export function buildWebGL2Pipeline(
   const fragmentShader = compileShader(
     gl,
     gl.FRAGMENT_SHADER,
-    fragmentShaderSource
+    resizingFragmentShaderSource
   )
   const program = createProgram(gl, vertexShader, fragmentShader)
 
@@ -155,6 +155,18 @@ export function buildWebGL2Pipeline(
 
     // Post-processing
     gl.viewport(0, 0, canvas.width, canvas.height)
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RG32F,
+      segmentationWidth,
+      segmentationHeight,
+      0,
+      gl.RG,
+      gl.FLOAT,
+      tflite.HEAPF32,
+      outputMemoryOffset
+    )
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
@@ -187,7 +199,7 @@ const vertexShaderSource = glsl`#version 300 es
   }
 `
 
-const fragmentShaderSource = glsl`#version 300 es
+const resizingFragmentShaderSource = glsl`#version 300 es
 
   precision highp float;
 
@@ -201,6 +213,22 @@ const fragmentShaderSource = glsl`#version 300 es
     outColor = texture(u_image, v_texCoord);
   }
 `
+
+// TODO Use this shader for post-processing
+// const postProcessingFragmentShaderSource = glsl`#version 300 es
+
+//   precision highp float;
+
+//   uniform sampler2D u_image;
+
+//   in vec2 v_texCoord;
+
+//   out vec4 outColor;
+
+//   void main() {
+//     outColor = texture(u_image, v_texCoord);
+//   }
+// `
 
 function compileShader(
   gl: WebGL2RenderingContext,
