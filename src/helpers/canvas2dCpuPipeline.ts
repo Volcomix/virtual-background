@@ -66,6 +66,24 @@ export function buildCanvas2dCpuPipeline(
       segmentationWidth,
       segmentationHeight
     )
+
+    if (segmentationConfig.model === 'meet') {
+      // TODO Use a shader to directly output the resizing result in memory
+      const imageData = segmentationMaskCtx.getImageData(
+        0,
+        0,
+        segmentationWidth,
+        segmentationHeight
+      )
+
+      for (let i = 0; i < segmentationPixelCount; i++) {
+        tflite.HEAPF32[inputMemoryOffset + i * 3] = imageData.data[i * 4] / 255
+        tflite.HEAPF32[inputMemoryOffset + i * 3 + 1] =
+          imageData.data[i * 4 + 1] / 255
+        tflite.HEAPF32[inputMemoryOffset + i * 3 + 2] =
+          imageData.data[i * 4 + 2] / 255
+      }
+    }
   }
 
   async function runBodyPixInference() {
@@ -78,22 +96,6 @@ export function buildCanvas2dCpuPipeline(
   }
 
   function runTFLiteInference() {
-    // TODO Use a shader to directly output the resizing result in memory
-    const imageData = segmentationMaskCtx.getImageData(
-      0,
-      0,
-      segmentationWidth,
-      segmentationHeight
-    )
-
-    for (let i = 0; i < segmentationPixelCount; i++) {
-      tflite.HEAPF32[inputMemoryOffset + i * 3] = imageData.data[i * 4] / 255
-      tflite.HEAPF32[inputMemoryOffset + i * 3 + 1] =
-        imageData.data[i * 4 + 1] / 255
-      tflite.HEAPF32[inputMemoryOffset + i * 3 + 2] =
-        imageData.data[i * 4 + 2] / 255
-    }
-
     tflite._runInference()
 
     // TODO Use shaders to completely avoid this kind of CPU manipulations

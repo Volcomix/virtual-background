@@ -16,6 +16,9 @@ export function buildWebGL2Pipeline(
 ) {
   const gl = canvas.getContext('webgl2')!
 
+  // TODO Check if the extension is available otherwise convert to floats on CPU
+  gl.getExtension('EXT_color_buffer_float')
+
   const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
   const fragmentShader = compileShader(
     gl,
@@ -53,30 +56,60 @@ export function buildWebGL2Pipeline(
   gl.vertexAttribPointer(texCoordAttributeLocation, 2, gl.FLOAT, false, 0, 0)
 
   const texture = gl.createTexture()
-  gl.activeTexture(gl.TEXTURE0 + 0)
   gl.bindTexture(gl.TEXTURE_2D, texture)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
 
+  const resizedTexture = gl.createTexture()
+  gl.bindTexture(gl.TEXTURE_2D, resizedTexture)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+
+  // TODO Handle input resolutation instead of hard-coded dimensions
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA32F,
+    160,
+    96,
+    0,
+    gl.RGBA,
+    gl.FLOAT,
+    null
+  )
+
+  const frameBuffer = gl.createFramebuffer()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    resizedTexture,
+    0
+  )
+
+  const resizedPixels = new Float32Array(160 * 96 * 4)
+
+  // TODO Remove debug messages
+  let isLogged = false
+
   async function run() {
     // Source resizing
-
-    addFrameEvent()
-
-    // Inference
-
-    addFrameEvent()
-
-    // Post-processing
-    gl.viewport(0, 0, canvas.width, canvas.height)
+    gl.viewport(0, 0, 160, 96)
 
     gl.clearColor(0, 0, 0, 0)
     gl.clear(gl.COLOR_BUFFER_BIT)
 
     gl.useProgram(program)
+
     gl.bindVertexArray(vertexArray)
+
+    gl.activeTexture(gl.TEXTURE0 + 0)
+    gl.bindTexture(gl.TEXTURE_2D, texture)
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
@@ -86,10 +119,32 @@ export function buildWebGL2Pipeline(
       sourcePlayback.htmlElement
     )
     gl.uniform1i(imageLocation, 0)
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+
+    gl.readPixels(0, 0, 160, 96, gl.RGBA, gl.FLOAT, resizedPixels)
+    if (!isLogged) {
+      console.log(resizedPixels)
+      isLogged = true
+    }
+
+    addFrameEvent()
+
+    // Inference
+
+    addFrameEvent()
+
+    // Post-processing
+    gl.viewport(0, 0, canvas.width, canvas.height)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 
   function cleanUp() {
+    gl.deleteFramebuffer(frameBuffer)
+    gl.deleteTexture(resizedTexture)
     gl.deleteTexture(texture)
     gl.deleteBuffer(texCoordBuffer)
     gl.deleteBuffer(positionBuffer)
