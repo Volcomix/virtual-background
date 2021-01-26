@@ -24,15 +24,41 @@ export function buildWebGL2Pipeline(
   )
   const program = createProgram(gl, vertexShader, fragmentShader)
 
+  const positionAttributeLocation = gl.getAttribLocation(program, 'a_position')
+
+  const positionBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
+  var positions = [-1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0]
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
+
+  const vertexArray = gl.createVertexArray()
+  gl.bindVertexArray(vertexArray)
+  gl.enableVertexAttribArray(positionAttributeLocation)
+  gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0)
+
   async function run() {
     // Source resizing
+
     addFrameEvent()
+
     // Inference
+
     addFrameEvent()
+
     // Post-processing
+    gl.viewport(0, 0, canvas.width, canvas.height)
+
+    gl.clearColor(0, 0, 0, 0)
+    gl.clear(gl.COLOR_BUFFER_BIT)
+
+    gl.useProgram(program)
+    gl.bindVertexArray(vertexArray)
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 
   function cleanUp() {
+    gl.deleteVertexArray(vertexArray)
+    gl.deleteBuffer(positionBuffer)
     gl.deleteProgram(program)
     gl.deleteShader(fragmentShader)
     gl.deleteShader(vertexShader)
