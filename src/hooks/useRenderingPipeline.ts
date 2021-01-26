@@ -27,7 +27,7 @@ function useRenderingPipeline(
 
     let renderRequestId: number
 
-    const runPipeline =
+    const pipeline =
       segmentationConfig.pipeline === 'webgl2'
         ? buildWebGL2Pipeline(
             sourcePlayback,
@@ -54,7 +54,7 @@ function useRenderingPipeline(
         return
       }
       beginFrame()
-      await runPipeline()
+      await pipeline.run()
       endFrame()
       renderRequestId = requestAnimationFrame(render)
     }
@@ -71,6 +71,7 @@ function useRenderingPipeline(
     return () => {
       shouldRender = false
       cancelAnimationFrame(renderRequestId)
+      pipeline.cleanUp()
       console.log(
         'Animation stopped:',
         sourcePlayback,

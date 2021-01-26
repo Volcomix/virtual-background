@@ -47,6 +47,9 @@ function OutputViewer(props: OutputViewerProps) {
           <img className={classes.render} src={props.background.url} alt="" />
         )}
       <canvas
+        // The key attribute is required to create a new canvas when switching
+        // context mode
+        key={props.segmentationConfig.pipeline}
         ref={canvasRef}
         className={classes.render}
         width={props.sourcePlayback.width}
