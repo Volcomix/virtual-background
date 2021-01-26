@@ -1,7 +1,7 @@
 import { TFLite } from '../hooks/useTFLite'
 import { Background } from './backgroundHelper'
 import { PostProcessingConfig } from './postProcessingHelper'
-import { SegmentationConfig } from './segmentationHelper'
+import { inputResolutions, SegmentationConfig } from './segmentationHelper'
 import { SourcePlayback } from './sourceHelper'
 import { glsl } from './webglHelper'
 
@@ -14,6 +14,14 @@ export function buildWebGL2Pipeline(
   postProcessingConfig: PostProcessingConfig,
   addFrameEvent: () => void
 ) {
+  const [segmentationWidth, segmentationHeight] = inputResolutions[
+    segmentationConfig.inputResolution
+  ]
+  const segmentationPixelCount = segmentationWidth * segmentationHeight
+
+  const inputMemoryOffset = tflite._getInputMemoryOffset() / 4
+  // const outputMemoryOffset = tflite._getOutputMemoryOffset() / 4
+
   const gl = canvas.getContext('webgl2')!
 
   // TODO Check if the extension is available otherwise convert to floats on CPU
@@ -69,13 +77,12 @@ export function buildWebGL2Pipeline(
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
 
-  // TODO Handle input resolutation instead of hard-coded dimensions
   gl.texImage2D(
     gl.TEXTURE_2D,
     0,
     gl.RGBA32F,
-    160,
-    96,
+    segmentationWidth,
+    segmentationHeight,
     0,
     gl.RGBA,
     gl.FLOAT,
@@ -92,14 +99,13 @@ export function buildWebGL2Pipeline(
     0
   )
 
-  const resizedPixels = new Float32Array(160 * 96 * 4)
-
-  // TODO Remove debug messages
-  let isLogged = false
+  const resizedPixels = new Float32Array(
+    segmentationWidth * segmentationHeight * 4
+  )
 
   async function run() {
     // Source resizing
-    gl.viewport(0, 0, 160, 96)
+    gl.viewport(0, 0, segmentationWidth, segmentationHeight)
 
     gl.clearColor(0, 0, 0, 0)
     gl.clear(gl.COLOR_BUFFER_BIT)
@@ -124,15 +130,26 @@ export function buildWebGL2Pipeline(
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 
-    gl.readPixels(0, 0, 160, 96, gl.RGBA, gl.FLOAT, resizedPixels)
-    if (!isLogged) {
-      console.log(resizedPixels)
-      isLogged = true
+    gl.readPixels(
+      0,
+      0,
+      segmentationWidth,
+      segmentationHeight,
+      gl.RGBA,
+      gl.FLOAT,
+      resizedPixels
+    )
+
+    for (let i = 0; i < segmentationPixelCount; i++) {
+      tflite.HEAPF32[inputMemoryOffset + i * 3] = resizedPixels[i * 4]
+      tflite.HEAPF32[inputMemoryOffset + i * 3 + 1] = resizedPixels[i * 4 + 1]
+      tflite.HEAPF32[inputMemoryOffset + i * 3 + 2] = resizedPixels[i * 4 + 2]
     }
 
     addFrameEvent()
 
     // Inference
+    tflite._runInference()
 
     addFrameEvent()
 
