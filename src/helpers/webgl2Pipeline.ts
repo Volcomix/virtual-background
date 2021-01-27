@@ -28,17 +28,39 @@ export function buildWebGL2Pipeline(
   gl.getExtension('EXT_color_buffer_float')
 
   const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
-  const fragmentShader = compileShader(
+
+  const resizingFragmentShader = compileShader(
     gl,
     gl.FRAGMENT_SHADER,
     resizingFragmentShaderSource
   )
-  const program = createProgram(gl, vertexShader, fragmentShader)
+  const postProcessingFragmentShader = compileShader(
+    gl,
+    gl.FRAGMENT_SHADER,
+    postProcessingFragmentShaderSource
+  )
 
-  const positionAttributeLocation = gl.getAttribLocation(program, 'a_position')
-  const texCoordAttributeLocation = gl.getAttribLocation(program, 'a_texCoord')
+  const resizingProgram = createProgram(
+    gl,
+    vertexShader,
+    resizingFragmentShader
+  )
+  const postProcessingProgram = createProgram(
+    gl,
+    vertexShader,
+    postProcessingFragmentShader
+  )
 
-  const imageLocation = gl.getUniformLocation(program, 'u_image')
+  const positionAttributeLocation = gl.getAttribLocation(
+    resizingProgram,
+    'a_position'
+  )
+  const texCoordAttributeLocation = gl.getAttribLocation(
+    resizingProgram,
+    'a_texCoord'
+  )
+
+  const imageLocation = gl.getUniformLocation(resizingProgram, 'u_image')
 
   const vertexArray = gl.createVertexArray()
   gl.bindVertexArray(vertexArray)
@@ -110,7 +132,7 @@ export function buildWebGL2Pipeline(
     gl.clearColor(0, 0, 0, 0)
     gl.clear(gl.COLOR_BUFFER_BIT)
 
-    gl.useProgram(program)
+    gl.useProgram(resizingProgram)
 
     gl.bindVertexArray(vertexArray)
 
@@ -155,6 +177,9 @@ export function buildWebGL2Pipeline(
 
     // Post-processing
     gl.viewport(0, 0, canvas.width, canvas.height)
+
+    gl.useProgram(postProcessingProgram)
+
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
@@ -178,8 +203,10 @@ export function buildWebGL2Pipeline(
     gl.deleteBuffer(texCoordBuffer)
     gl.deleteBuffer(positionBuffer)
     gl.deleteVertexArray(vertexArray)
-    gl.deleteProgram(program)
-    gl.deleteShader(fragmentShader)
+    gl.deleteProgram(postProcessingProgram)
+    gl.deleteProgram(resizingProgram)
+    gl.deleteShader(postProcessingFragmentShader)
+    gl.deleteShader(resizingFragmentShader)
     gl.deleteShader(vertexShader)
   }
 
@@ -214,21 +241,20 @@ const resizingFragmentShaderSource = glsl`#version 300 es
   }
 `
 
-// TODO Use this shader for post-processing
-// const postProcessingFragmentShaderSource = glsl`#version 300 es
+const postProcessingFragmentShaderSource = glsl`#version 300 es
 
-//   precision highp float;
+  precision highp float;
 
-//   uniform sampler2D u_image;
+  uniform sampler2D u_image;
 
-//   in vec2 v_texCoord;
+  in vec2 v_texCoord;
 
-//   out vec4 outColor;
+  out vec4 outColor;
 
-//   void main() {
-//     outColor = texture(u_image, v_texCoord);
-//   }
-// `
+  void main() {
+    outColor = texture(u_image, vec2(v_texCoord.x, 1.0 - v_texCoord.y));
+  }
+`
 
 function compileShader(
   gl: WebGL2RenderingContext,
