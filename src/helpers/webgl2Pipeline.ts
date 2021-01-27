@@ -253,10 +253,10 @@ const postProcessingFragmentShaderSource = glsl`#version 300 es
 
   void main() {
     vec2 segmentation = texture(u_image, vec2(v_texCoord.x, 1.0 - v_texCoord.y)).rg;
-    float foregroundExp = exp(segmentation.r);
-    float backgroundExp = exp(segmentation.g);
-    float background = backgroundExp / (foregroundExp + backgroundExp);
-    outColor = vec4(vec3(background), 1.0);
+    float backgroundExp = exp(segmentation.r);
+    float personExp = exp(segmentation.g);
+    float person = personExp / (backgroundExp + personExp);
+    outColor = vec4(vec3(person), 1.0);
   }
 `
 
