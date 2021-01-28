@@ -253,8 +253,9 @@ const postProcessingFragmentShaderSource = glsl`#version 300 es
 
   float segmentPerson() {
     vec2 segmentation = texture(u_image, vec2(v_texCoord.x, 1.0 - v_texCoord.y)).rg;
-    float backgroundExp = exp(segmentation.r);
-    float personExp = exp(segmentation.g);
+    float shift = max(segmentation.r, segmentation.g);
+    float backgroundExp = exp(segmentation.r - shift);
+    float personExp = exp(segmentation.g - shift);
     return personExp / (backgroundExp + personExp); // softmax
   }
 

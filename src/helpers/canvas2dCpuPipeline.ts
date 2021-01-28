@@ -101,12 +101,15 @@ export function buildCanvas2dCpuPipeline(
     // TODO Use shaders to completely avoid this kind of CPU manipulations
     for (let i = 0; i < segmentationPixelCount; i++) {
       // TODO Implement softmax on GPU instead
+      const background = tflite.HEAPF32[outputMemoryOffset + i * 2]
+      const person = tflite.HEAPF32[outputMemoryOffset + i * 2 + 1]
+      const shift = Math.max(background, person)
+      const backgroundExp = Math.exp(background - shift)
+      const personExp = Math.exp(person - shift)
+
       // Sets only the alpha component of each pixel
       segmentationMask.data[i * 4 + 3] =
-        tflite.HEAPF32[outputMemoryOffset + i * 2] <
-        tflite.HEAP32[outputMemoryOffset + i * 2 + 1]
-          ? 255
-          : 0
+        (255 * personExp) / (backgroundExp + personExp) // softmax
     }
     segmentationMaskCtx.putImageData(segmentationMask, 0, 0)
   }
@@ -119,7 +122,7 @@ export function buildCanvas2dCpuPipeline(
       if (background.type === 'blur') {
         ctx.filter = 'blur(8px)' // FIXME Does not work on Safari
       } else if (background.type === 'image') {
-        ctx.filter = 'blur(2px)' // FIXME Does not work on Safari
+        ctx.filter = 'blur(4px)' // FIXME Does not work on Safari
       }
     }
 
