@@ -1,17 +1,20 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { useState } from 'react'
-import BackgroundSelectionCard from './components/BackgroundSelectionCard'
-import PostProcessingConfigCard from './components/PostProcessingConfigCard'
-import SegmentationConfigCard from './components/SegmentationConfigCard'
-import SourceSelectionCard from './components/SourceSelectionCard'
-import ViewerCard from './components/ViewerCard'
-import { Background, backgroundImageUrls } from './helpers/backgroundHelper'
-import { PostProcessingConfig } from './helpers/postProcessingHelper'
-import { SegmentationConfig } from './helpers/segmentationHelper'
-import { Source, sourceImageUrls } from './helpers/sourceHelper'
-import useBodyPix from './hooks/useBodyPix'
-import useMeetModel from './hooks/useMeetModel'
-import useTFLite from './hooks/useTFLite'
+import BackgroundSelectionCard from './core/components/BackgroundSelectionCard'
+import PostProcessingConfigCard from './core/components/PostProcessingConfigCard'
+import SegmentationConfigCard from './core/components/SegmentationConfigCard'
+import SourceSelectionCard from './core/components/SourceSelectionCard'
+import ViewerCard from './core/components/ViewerCard'
+import {
+  Background,
+  backgroundImageUrls,
+} from './core/helpers/backgroundHelper'
+import { PostProcessingConfig } from './core/helpers/postProcessingHelper'
+import { SegmentationConfig } from './core/helpers/segmentationHelper'
+import { Source, sourceImageUrls } from './core/helpers/sourceHelper'
+import useBodyPix from './core/hooks/useBodyPix'
+import useMeetModel from './core/hooks/useMeetModel'
+import useTFLite from './core/hooks/useTFLite'
 
 function App() {
   const bodyPix = useBodyPix()

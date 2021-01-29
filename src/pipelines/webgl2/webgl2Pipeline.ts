@@ -1,9 +1,12 @@
-import { TFLite } from '../hooks/useTFLite'
-import { Background } from './backgroundHelper'
-import { PostProcessingConfig } from './postProcessingHelper'
-import { inputResolutions, SegmentationConfig } from './segmentationHelper'
-import { SourcePlayback } from './sourceHelper'
-import { glsl } from './webglHelper'
+import { Background } from '../../core/helpers/backgroundHelper'
+import { PostProcessingConfig } from '../../core/helpers/postProcessingHelper'
+import {
+  inputResolutions,
+  SegmentationConfig,
+} from '../../core/helpers/segmentationHelper'
+import { SourcePlayback } from '../../core/helpers/sourceHelper'
+import { glsl } from '../../core/helpers/webglHelper'
+import { TFLite } from '../../core/hooks/useTFLite'
 
 export function buildWebGL2Pipeline(
   sourcePlayback: SourcePlayback,

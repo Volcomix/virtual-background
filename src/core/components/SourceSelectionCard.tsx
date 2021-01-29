@@ -3,14 +3,14 @@ import CardContent from '@material-ui/core/CardContent'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import VideocamIcon from '@material-ui/icons/Videocam'
+import ImageButton from '../../shared/components/ImageButton'
+import SelectionIconButton from '../../shared/components/SelectionIconButton'
+import VideoButton from '../../shared/components/VideoButton'
 import {
   Source,
   sourceImageUrls,
   sourceVideoUrls,
 } from '../helpers/sourceHelper'
-import ImageButton from './ImageButton'
-import SelectionIconButton from './SelectionIconButton'
-import VideoButton from './VideoButton'
 
 type SourceSelectionCardProps = {
   source: Source

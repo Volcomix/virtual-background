@@ -4,9 +4,9 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import BlockIcon from '@material-ui/icons/Block'
 import BlurOnIcon from '@material-ui/icons/BlurOn'
+import ImageButton from '../../shared/components/ImageButton'
+import SelectionIconButton from '../../shared/components/SelectionIconButton'
 import { Background, backgroundImageUrls } from '../helpers/backgroundHelper'
-import ImageButton from './ImageButton'
-import SelectionIconButton from './SelectionIconButton'
 
 type BackgroundSelectionCardProps = {
   background: Background
