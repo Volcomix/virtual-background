@@ -91,6 +91,13 @@ export function buildWebGL2Pipeline(
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+  gl.texStorage2D(
+    gl.TEXTURE_2D,
+    1,
+    gl.RGBA8,
+    sourcePlayback.width,
+    sourcePlayback.height
+  )
 
   const resizedTexture = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, resizedTexture)
@@ -98,17 +105,26 @@ export function buildWebGL2Pipeline(
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-
-  gl.texImage2D(
+  gl.texStorage2D(
     gl.TEXTURE_2D,
-    0,
+    1,
     gl.RGBA32F,
     segmentationWidth,
-    segmentationHeight,
-    0,
-    gl.RGBA,
-    gl.FLOAT,
-    null
+    segmentationHeight
+  )
+
+  const segmentationMaskTexture = gl.createTexture()
+  gl.bindTexture(gl.TEXTURE_2D, segmentationMaskTexture)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+  gl.texStorage2D(
+    gl.TEXTURE_2D,
+    1,
+    gl.RG32F,
+    segmentationWidth,
+    segmentationHeight
   )
 
   const frameBuffer = gl.createFramebuffer()
@@ -138,10 +154,11 @@ export function buildWebGL2Pipeline(
 
     gl.activeTexture(gl.TEXTURE0 + 0)
     gl.bindTexture(gl.TEXTURE_2D, texture)
-    gl.texImage2D(
+    gl.texSubImage2D(
       gl.TEXTURE_2D,
       0,
-      gl.RGBA,
+      0,
+      0,
       gl.RGBA,
       gl.UNSIGNED_BYTE,
       sourcePlayback.htmlElement
@@ -180,13 +197,14 @@ export function buildWebGL2Pipeline(
 
     gl.useProgram(postProcessingProgram)
 
-    gl.texImage2D(
+    gl.bindTexture(gl.TEXTURE_2D, segmentationMaskTexture)
+    gl.texSubImage2D(
       gl.TEXTURE_2D,
       0,
-      gl.RG32F,
+      0,
+      0,
       segmentationWidth,
       segmentationHeight,
-      0,
       gl.RG,
       gl.FLOAT,
       tflite.HEAPF32,
@@ -198,6 +216,7 @@ export function buildWebGL2Pipeline(
 
   function cleanUp() {
     gl.deleteFramebuffer(frameBuffer)
+    gl.deleteTexture(segmentationMaskTexture)
     gl.deleteTexture(resizedTexture)
     gl.deleteTexture(texture)
     gl.deleteBuffer(texCoordBuffer)
