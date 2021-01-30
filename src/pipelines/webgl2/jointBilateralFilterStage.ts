@@ -47,7 +47,7 @@ export function buildJointBilateralFilterStage(
     void main() {
       vec2 centerCoord = v_texCoord;
       vec3 centerColor = texture(u_inputFrame, centerCoord).rgb;
-      vec3 newColor = vec3(0.0);
+      float newVal = 0.0;
 
       float spaceWeight = 0.0;
       float colorWeight = 0.0;
@@ -61,18 +61,18 @@ export function buildJointBilateralFilterStage(
           vec2 shift = vec2(j, i) * u_texelSize;
           vec2 coord = vec2(centerCoord + shift);
           vec3 frameColor = texture(u_inputFrame, coord).rgb;
-          vec3 color = texture(u_segmentationMask, coord).rgb;
+          float outVal = texture(u_segmentationMask, coord).a;
 
           spaceWeight = gaussian(distance(centerCoord, coord), sigmaTexel);
           colorWeight = gaussian(distance(centerColor, frameColor), sigmaColor);
           totalWeight += spaceWeight * colorWeight;
 
-          newColor += vec3(spaceWeight * colorWeight) * color;
+          newVal += spaceWeight * colorWeight * outVal;
         }
       }
-      newColor /= vec3(totalWeight);
+      newVal /= totalWeight;
 
-      outColor = vec4(newColor * centerColor, 1.0);
+      outColor = vec4(vec3(newVal), 1.0);
     }
   `
 

@@ -34,7 +34,7 @@ export function buildSoftmaxStage(
       float shift = max(segmentation.r, segmentation.g);
       float backgroundExp = exp(segmentation.r - shift);
       float personExp = exp(segmentation.g - shift);
-      outColor = vec4(vec3(personExp / (backgroundExp + personExp)), 1.0);
+      outColor = vec4(vec3(0.0), personExp / (backgroundExp + personExp));
     }
   `
 
