@@ -1,4 +1,3 @@
-import { SegmentationConfig } from '../../core/helpers/segmentationHelper'
 import {
   compileShader,
   createPiplelineStageProgram,
@@ -10,7 +9,6 @@ export function buildJointBilateralFilterStage(
   vertexShader: WebGLShader,
   positionBuffer: WebGLBuffer,
   texCoordBuffer: WebGLBuffer,
-  segmentationConfig: SegmentationConfig,
   inputTexture: WebGLTexture,
   canvas: HTMLCanvasElement
 ) {

@@ -80,7 +80,6 @@ export function buildWebGL2Pipeline(
     vertexShader,
     positionBuffer,
     texCoordBuffer,
-    segmentationConfig,
     segmentationTexture,
     canvas
   )
