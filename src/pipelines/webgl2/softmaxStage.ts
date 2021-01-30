@@ -2,27 +2,25 @@ import {
   inputResolutions,
   SegmentationConfig,
 } from '../../core/helpers/segmentationHelper'
-import { SourcePlayback } from '../../core/helpers/sourceHelper'
 import { TFLite } from '../../core/hooks/useTFLite'
 import { compileShader, createProgram, glsl } from '../helpers/webglHelper'
 
-export function buildResizingStage(
+export function buildSoftmaxStage(
   gl: WebGL2RenderingContext,
   vertexShader: WebGLShader,
   positionBuffer: WebGLBuffer,
   texCoordBuffer: WebGLBuffer,
-  sourcePlayback: SourcePlayback,
   segmentationConfig: SegmentationConfig,
-  tflite: TFLite
+  tflite: TFLite,
+  canvas: HTMLCanvasElement
 ) {
   // TFLite memory will be accessed as float32
-  const tfliteInputMemoryOffset = tflite._getInputMemoryOffset() / 4
+  const tfliteOutputMemoryOffset = tflite._getOutputMemoryOffset() / 4
 
-  const { width: inputWidth, height: inputHeight } = sourcePlayback
-  const [outputWidth, outputHeight] = inputResolutions[
+  const [inputWidth, inputHeight] = inputResolutions[
     segmentationConfig.inputResolution
   ]
-  const outputPixelCount = outputWidth * outputHeight
+  const { width: outputWidth, height: outputHeight } = canvas
 
   const fragmentShader = compileShader(
     gl,
@@ -41,7 +39,7 @@ export function buildResizingStage(
   gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer)
   gl.vertexAttribPointer(texCoordAttributeLocation, 2, gl.FLOAT, false, 0, 0)
 
-  const inputLocation = gl.getUniformLocation(program, 'u_inputFrame')
+  const inputLocation = gl.getUniformLocation(program, 'u_inputSegmentation')
 
   const inputTexture = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, inputTexture)
@@ -49,27 +47,7 @@ export function buildResizingStage(
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, inputWidth, inputHeight)
-
-  const outputTexture = gl.createTexture()
-  gl.bindTexture(gl.TEXTURE_2D, outputTexture)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, outputWidth, outputHeight)
-
-  const frameBuffer = gl.createFramebuffer()
-  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
-  gl.framebufferTexture2D(
-    gl.FRAMEBUFFER,
-    gl.COLOR_ATTACHMENT0,
-    gl.TEXTURE_2D,
-    outputTexture,
-    0
-  )
-
-  const outputPixels = new Float32Array(outputPixelCount * 4)
+  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RG32F, inputWidth, inputHeight)
 
   function render() {
     gl.useProgram(program)
@@ -80,36 +58,20 @@ export function buildResizingStage(
       0,
       0,
       0,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      sourcePlayback.htmlElement
+      inputWidth,
+      inputHeight,
+      gl.RG,
+      gl.FLOAT,
+      tflite.HEAPF32,
+      tfliteOutputMemoryOffset
     )
     gl.uniform1i(inputLocation, 0)
-    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
-
-    gl.readPixels(
-      0,
-      0,
-      outputWidth,
-      outputHeight,
-      gl.RGBA,
-      gl.FLOAT,
-      outputPixels
-    )
-    for (let i = 0; i < outputPixelCount; i++) {
-      const tfliteIndex = tfliteInputMemoryOffset + i * 3
-      const outputIndex = i * 4
-      tflite.HEAPF32[tfliteIndex] = outputPixels[outputIndex]
-      tflite.HEAPF32[tfliteIndex + 1] = outputPixels[outputIndex + 1]
-      tflite.HEAPF32[tfliteIndex + 2] = outputPixels[outputIndex + 2]
-    }
   }
 
   function cleanUp() {
-    gl.deleteFramebuffer(frameBuffer)
-    gl.deleteTexture(outputTexture)
     gl.deleteTexture(inputTexture)
     gl.deleteProgram(program)
     gl.deleteShader(fragmentShader)
@@ -122,13 +84,17 @@ const fragmentShaderSource = glsl`#version 300 es
 
   precision highp float;
 
-  uniform sampler2D u_inputFrame;
+  uniform sampler2D u_inputSegmentation;
 
   in vec2 v_texCoord;
 
   out vec4 outColor;
 
   void main() {
-    outColor = texture(u_inputFrame, v_texCoord);
+    vec2 segmentation = texture(u_inputSegmentation, vec2(v_texCoord.x, 1.0 - v_texCoord.y)).rg;
+    float shift = max(segmentation.r, segmentation.g);
+    float backgroundExp = exp(segmentation.r - shift);
+    float personExp = exp(segmentation.g - shift);
+    outColor = vec4(vec3(personExp / (backgroundExp + personExp)), 1.0);
   }
 `
