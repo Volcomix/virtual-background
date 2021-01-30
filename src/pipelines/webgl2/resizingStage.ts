@@ -4,7 +4,12 @@ import {
 } from '../../core/helpers/segmentationHelper'
 import { SourcePlayback } from '../../core/helpers/sourceHelper'
 import { TFLite } from '../../core/hooks/useTFLite'
-import { compileShader, createProgram, glsl } from '../helpers/webglHelper'
+import {
+  compileShader,
+  createPiplelineStageProgram,
+  createTexture,
+  glsl,
+} from '../helpers/webglHelper'
 
 export function buildResizingStage(
   gl: WebGL2RenderingContext,
@@ -29,35 +34,16 @@ export function buildResizingStage(
     gl.FRAGMENT_SHADER,
     fragmentShaderSource
   )
-  const program = createProgram(gl, vertexShader, fragmentShader)
-
-  const positionAttributeLocation = gl.getAttribLocation(program, 'a_position')
-  gl.enableVertexAttribArray(positionAttributeLocation)
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
-  gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0)
-
-  const texCoordAttributeLocation = gl.getAttribLocation(program, 'a_texCoord')
-  gl.enableVertexAttribArray(texCoordAttributeLocation)
-  gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer)
-  gl.vertexAttribPointer(texCoordAttributeLocation, 2, gl.FLOAT, false, 0, 0)
-
+  const program = createPiplelineStageProgram(
+    gl,
+    vertexShader,
+    fragmentShader,
+    positionBuffer,
+    texCoordBuffer
+  )
   const inputLocation = gl.getUniformLocation(program, 'u_inputFrame')
-
-  const inputTexture = gl.createTexture()
-  gl.bindTexture(gl.TEXTURE_2D, inputTexture)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, inputWidth, inputHeight)
-
-  const outputTexture = gl.createTexture()
-  gl.bindTexture(gl.TEXTURE_2D, outputTexture)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, outputWidth, outputHeight)
+  const inputTexture = createTexture(gl, gl.RGBA8, inputWidth, inputHeight)
+  const outputTexture = createTexture(gl, gl.RGBA32F, outputWidth, outputHeight)
 
   const frameBuffer = gl.createFramebuffer()
   gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
@@ -68,7 +54,6 @@ export function buildResizingStage(
     outputTexture,
     0
   )
-
   const outputPixels = new Float32Array(outputPixelCount * 4)
 
   function render() {

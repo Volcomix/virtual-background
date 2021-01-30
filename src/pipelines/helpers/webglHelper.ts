@@ -9,6 +9,28 @@
  */
 export const glsl = String.raw
 
+export function createPiplelineStageProgram(
+  gl: WebGL2RenderingContext,
+  vertexShader: WebGLShader,
+  fragmentShader: WebGLShader,
+  positionBuffer: WebGLBuffer,
+  texCoordBuffer: WebGLBuffer
+) {
+  const program = createProgram(gl, vertexShader, fragmentShader)
+
+  const positionAttributeLocation = gl.getAttribLocation(program, 'a_position')
+  gl.enableVertexAttribArray(positionAttributeLocation)
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
+  gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0)
+
+  const texCoordAttributeLocation = gl.getAttribLocation(program, 'a_texCoord')
+  gl.enableVertexAttribArray(texCoordAttributeLocation)
+  gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer)
+  gl.vertexAttribPointer(texCoordAttributeLocation, 2, gl.FLOAT, false, 0, 0)
+
+  return program
+}
+
 export function createProgram(
   gl: WebGL2RenderingContext,
   vertexShader: WebGLShader,
@@ -38,4 +60,20 @@ export function compileShader(
     throw new Error(`Could not compile shader: ${gl.getShaderInfoLog(shader)}`)
   }
   return shader
+}
+
+export function createTexture(
+  gl: WebGL2RenderingContext,
+  internalformat: number,
+  width: number,
+  height: number
+) {
+  const texture = gl.createTexture()
+  gl.bindTexture(gl.TEXTURE_2D, texture)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+  gl.texStorage2D(gl.TEXTURE_2D, 1, internalformat, width, height)
+  return texture
 }
