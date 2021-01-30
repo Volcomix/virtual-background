@@ -72,7 +72,7 @@ export function buildJointBilateralFilterStage(
       }
       newColor /= vec3(totalWeight);
 
-      outColor = vec4(newColor, 1.0);
+      outColor = vec4(newColor * centerColor, 1.0);
     }
   `
 
