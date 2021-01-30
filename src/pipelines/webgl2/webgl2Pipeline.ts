@@ -1,9 +1,13 @@
 import { Background } from '../../core/helpers/backgroundHelper'
 import { PostProcessingConfig } from '../../core/helpers/postProcessingHelper'
-import { SegmentationConfig } from '../../core/helpers/segmentationHelper'
+import {
+  inputResolutions,
+  SegmentationConfig,
+} from '../../core/helpers/segmentationHelper'
 import { SourcePlayback } from '../../core/helpers/sourceHelper'
 import { TFLite } from '../../core/hooks/useTFLite'
-import { compileShader, glsl } from '../helpers/webglHelper'
+import { compileShader, createTexture, glsl } from '../helpers/webglHelper'
+import { buildJointBilateralFilterStage } from './jointBilateralFilterStage'
 import { buildResizingStage } from './resizingStage'
 import { buildSoftmaxStage } from './softmaxStage'
 
@@ -16,6 +20,10 @@ export function buildWebGL2Pipeline(
   postProcessingConfig: PostProcessingConfig,
   addFrameEvent: () => void
 ) {
+  const [segmentationWidth, segmentationHeight] = inputResolutions[
+    segmentationConfig.inputResolution
+  ]
+
   const gl = canvas.getContext('webgl2')!
 
   // TODO Check if the extension is available otherwise convert to floats on CPU
@@ -42,6 +50,13 @@ export function buildWebGL2Pipeline(
     gl.STATIC_DRAW
   )
 
+  const segmentationTexture = createTexture(
+    gl,
+    gl.RGBA8,
+    segmentationWidth,
+    segmentationHeight
+  )!
+
   const resizingStage = buildResizingStage(
     gl,
     vertexShader,
@@ -58,6 +73,15 @@ export function buildWebGL2Pipeline(
     texCoordBuffer,
     segmentationConfig,
     tflite,
+    segmentationTexture
+  )
+  const jointBilateralFilterStage = buildJointBilateralFilterStage(
+    gl,
+    vertexShader,
+    positionBuffer,
+    texCoordBuffer,
+    segmentationConfig,
+    segmentationTexture,
     canvas
   )
 
@@ -76,12 +100,15 @@ export function buildWebGL2Pipeline(
     addFrameEvent()
 
     softmaxStage.render()
+    jointBilateralFilterStage.render()
   }
 
   function cleanUp() {
+    jointBilateralFilterStage.cleanUp()
     softmaxStage.cleanUp()
     resizingStage.cleanUp()
 
+    gl.deleteTexture(segmentationTexture)
     gl.deleteBuffer(texCoordBuffer)
     gl.deleteBuffer(positionBuffer)
     gl.deleteVertexArray(vertexArray)

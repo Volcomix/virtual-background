@@ -17,15 +17,14 @@ export function buildSoftmaxStage(
   texCoordBuffer: WebGLBuffer,
   segmentationConfig: SegmentationConfig,
   tflite: TFLite,
-  canvas: HTMLCanvasElement
+  outputTexture: WebGLTexture
 ) {
   // TFLite memory will be accessed as float32
   const tfliteOutputMemoryOffset = tflite._getOutputMemoryOffset() / 4
 
-  const [inputWidth, inputHeight] = inputResolutions[
+  const [segmentationWidth, segmentationHeight] = inputResolutions[
     segmentationConfig.inputResolution
   ]
-  const { width: outputWidth, height: outputHeight } = canvas
 
   const fragmentShader = compileShader(
     gl,
@@ -40,7 +39,22 @@ export function buildSoftmaxStage(
     texCoordBuffer
   )
   const inputLocation = gl.getUniformLocation(program, 'u_inputSegmentation')
-  const inputTexture = createTexture(gl, gl.RG32F, inputWidth, inputHeight)
+  const inputTexture = createTexture(
+    gl,
+    gl.RG32F,
+    segmentationWidth,
+    segmentationHeight
+  )
+
+  const frameBuffer = gl.createFramebuffer()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    outputTexture,
+    0
+  )
 
   function render() {
     gl.useProgram(program)
@@ -51,20 +65,21 @@ export function buildSoftmaxStage(
       0,
       0,
       0,
-      inputWidth,
-      inputHeight,
+      segmentationWidth,
+      segmentationHeight,
       gl.RG,
       gl.FLOAT,
       tflite.HEAPF32,
       tfliteOutputMemoryOffset
     )
     gl.uniform1i(inputLocation, 0)
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-    gl.viewport(0, 0, outputWidth, outputHeight)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
+    gl.viewport(0, 0, segmentationWidth, segmentationHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 
   function cleanUp() {
+    gl.deleteFramebuffer(frameBuffer)
     gl.deleteTexture(inputTexture)
     gl.deleteProgram(program)
     gl.deleteShader(fragmentShader)
