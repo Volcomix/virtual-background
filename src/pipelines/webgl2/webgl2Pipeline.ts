@@ -20,6 +20,19 @@ export function buildWebGL2Pipeline(
   postProcessingConfig: PostProcessingConfig,
   addFrameEvent: () => void
 ) {
+  const vertexShaderSource = glsl`#version 300 es
+  
+    in vec4 a_position;
+    in vec2 a_texCoord;
+  
+    out vec2 v_texCoord;
+  
+    void main() {
+      gl_Position = a_position;
+      v_texCoord = a_texCoord;
+    }
+  `
+
   const [segmentationWidth, segmentationHeight] = inputResolutions[
     segmentationConfig.inputResolution
   ]
@@ -81,6 +94,7 @@ export function buildWebGL2Pipeline(
     positionBuffer,
     texCoordBuffer,
     segmentationTexture,
+    postProcessingConfig,
     canvas
   )
 
@@ -116,16 +130,3 @@ export function buildWebGL2Pipeline(
 
   return { render, cleanUp }
 }
-
-export const vertexShaderSource = glsl`#version 300 es
-
-in vec4 a_position;
-in vec2 a_texCoord;
-
-out vec2 v_texCoord;
-
-void main() {
-  gl_Position = a_position;
-  v_texCoord = a_texCoord;
-}
-`

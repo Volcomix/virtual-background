@@ -40,7 +40,10 @@ function App() {
   const [
     postProcessingConfig,
     setPostProcessingConfig,
-  ] = useState<PostProcessingConfig>({ smoothSegmentationMask: true })
+  ] = useState<PostProcessingConfig>({
+    smoothSegmentationMask: true,
+    jointBilateralFilter: { sigmaSpace: 8, sigmaColor: 2 },
+  })
 
   // FIXME Animation stops, starts and stops again when changing segmentation config
   const isMeetModelLoaded = useMeetModel(tflite, segmentationConfig)
@@ -71,6 +74,7 @@ function App() {
       />
       <PostProcessingConfigCard
         config={postProcessingConfig}
+        pipeline={segmentationConfig.pipeline}
         onChange={setPostProcessingConfig}
       />
     </div>

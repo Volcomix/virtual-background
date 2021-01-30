@@ -20,6 +20,21 @@ export function buildResizingStage(
   segmentationConfig: SegmentationConfig,
   tflite: TFLite
 ) {
+  const fragmentShaderSource = glsl`#version 300 es
+
+    precision highp float;
+
+    uniform sampler2D u_inputFrame;
+
+    in vec2 v_texCoord;
+
+    out vec4 outColor;
+
+    void main() {
+      outColor = texture(u_inputFrame, v_texCoord);
+    }
+  `
+
   // TFLite memory will be accessed as float32
   const tfliteInputMemoryOffset = tflite._getInputMemoryOffset() / 4
 
@@ -102,18 +117,3 @@ export function buildResizingStage(
 
   return { render, cleanUp }
 }
-
-const fragmentShaderSource = glsl`#version 300 es
-
-  precision highp float;
-
-  uniform sampler2D u_inputFrame;
-
-  in vec2 v_texCoord;
-
-  out vec4 outColor;
-
-  void main() {
-    outColor = texture(u_inputFrame, v_texCoord);
-  }
-`

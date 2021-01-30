@@ -19,6 +19,25 @@ export function buildSoftmaxStage(
   tflite: TFLite,
   outputTexture: WebGLTexture
 ) {
+  const fragmentShaderSource = glsl`#version 300 es
+  
+    precision highp float;
+  
+    uniform sampler2D u_inputSegmentation;
+  
+    in vec2 v_texCoord;
+  
+    out vec4 outColor;
+  
+    void main() {
+      vec2 segmentation = texture(u_inputSegmentation, vec2(v_texCoord.x, 1.0 - v_texCoord.y)).rg;
+      float shift = max(segmentation.r, segmentation.g);
+      float backgroundExp = exp(segmentation.r - shift);
+      float personExp = exp(segmentation.g - shift);
+      outColor = vec4(vec3(personExp / (backgroundExp + personExp)), 1.0);
+    }
+  `
+
   // TFLite memory will be accessed as float32
   const tfliteOutputMemoryOffset = tflite._getOutputMemoryOffset() / 4
 
@@ -87,22 +106,3 @@ export function buildSoftmaxStage(
 
   return { render, cleanUp }
 }
-
-const fragmentShaderSource = glsl`#version 300 es
-
-  precision highp float;
-
-  uniform sampler2D u_inputSegmentation;
-
-  in vec2 v_texCoord;
-
-  out vec4 outColor;
-
-  void main() {
-    vec2 segmentation = texture(u_inputSegmentation, vec2(v_texCoord.x, 1.0 - v_texCoord.y)).rg;
-    float shift = max(segmentation.r, segmentation.g);
-    float backgroundExp = exp(segmentation.r - shift);
-    float personExp = exp(segmentation.g - shift);
-    outColor = vec4(vec3(personExp / (backgroundExp + personExp)), 1.0);
-  }
-`
