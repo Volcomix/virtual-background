@@ -7,6 +7,7 @@ import {
 import { SourcePlayback } from '../../core/helpers/sourceHelper'
 import { TFLite } from '../../core/hooks/useTFLite'
 import { compileShader, createTexture, glsl } from '../helpers/webglHelper'
+import { buildBackgroundStage } from './backgroundStage'
 import { buildJointBilateralFilterStage } from './jointBilateralFilterStage'
 import { buildResizingStage } from './resizingStage'
 import { buildSoftmaxStage } from './softmaxStage'
@@ -35,7 +36,7 @@ export function buildWebGL2Pipeline(
     }
   `
 
-  const { width: inputWidth, height: inputHeight } = sourcePlayback
+  const { width: frameWidth, height: frameHeight } = sourcePlayback
   const [segmentationWidth, segmentationHeight] = inputResolutions[
     segmentationConfig.inputResolution
   ]
@@ -66,12 +67,19 @@ export function buildWebGL2Pipeline(
     gl.STATIC_DRAW
   )
 
-  const inputFrameTexture = createTexture(gl, gl.RGBA8, inputWidth, inputHeight)
+  const inputFrameTexture = createTexture(gl, gl.RGBA8, frameWidth, frameHeight)
+  // TODO Rename segmentation and person mask to be more specific
   const segmentationTexture = createTexture(
     gl,
     gl.RGBA8,
     segmentationWidth,
     segmentationHeight
+  )!
+  const personMaskTexture = createTexture(
+    gl,
+    gl.RGBA8,
+    frameWidth,
+    frameHeight
   )!
 
   const resizingStage = buildResizingStage(
@@ -98,6 +106,15 @@ export function buildWebGL2Pipeline(
     texCoordBuffer,
     segmentationTexture,
     postProcessingConfig,
+    personMaskTexture,
+    canvas
+  )
+  const backgroundStage = buildBackgroundStage(
+    gl,
+    vertexShader,
+    positionBuffer,
+    texCoordBuffer,
+    personMaskTexture,
     canvas
   )
 
@@ -129,13 +146,16 @@ export function buildWebGL2Pipeline(
 
     softmaxStage.render()
     jointBilateralFilterStage.render()
+    backgroundStage.render()
   }
 
   function cleanUp() {
+    backgroundStage.cleanUp()
     jointBilateralFilterStage.cleanUp()
     softmaxStage.cleanUp()
     resizingStage.cleanUp()
 
+    gl.deleteTexture(personMaskTexture)
     gl.deleteTexture(segmentationTexture)
     gl.deleteTexture(inputFrameTexture)
     gl.deleteBuffer(texCoordBuffer)

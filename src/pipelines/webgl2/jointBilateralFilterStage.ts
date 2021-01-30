@@ -12,6 +12,7 @@ export function buildJointBilateralFilterStage(
   texCoordBuffer: WebGLBuffer,
   inputTexture: WebGLTexture,
   postProcessingConfig: PostProcessingConfig,
+  outputTexture: WebGLTexture,
   canvas: HTMLCanvasElement
 ) {
   const fragmentShaderSource = glsl`#version 300 es
@@ -72,7 +73,7 @@ export function buildJointBilateralFilterStage(
       }
       newVal /= totalWeight;
 
-      outColor = vec4(vec3(newVal), 1.0);
+      outColor = vec4(vec3(0.0), newVal);
     }
   `
 
@@ -101,15 +102,25 @@ export function buildJointBilateralFilterStage(
   )
   const texelSizeLocation = gl.getUniformLocation(program, 'u_texelSize')
 
+  const frameBuffer = gl.createFramebuffer()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    outputTexture,
+    0
+  )
+
   function render() {
     gl.useProgram(program)
-    gl.uniform1f(flipYLocation, -1)
+    gl.uniform1f(flipYLocation, 1)
     gl.uniform1i(inputFrameLocation, 0)
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, inputTexture)
     gl.uniform1i(segmentationMaskLocation, 1)
     gl.uniform2f(texelSizeLocation, texelWidth, texelHeight)
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
