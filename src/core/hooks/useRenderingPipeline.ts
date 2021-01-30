@@ -54,7 +54,7 @@ function useRenderingPipeline(
         return
       }
       beginFrame()
-      await pipeline.run()
+      await pipeline.render()
       endFrame()
       renderRequestId = requestAnimationFrame(render)
     }

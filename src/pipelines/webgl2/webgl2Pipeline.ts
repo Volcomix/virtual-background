@@ -102,7 +102,7 @@ export function buildWebGL2Pipeline(
     segmentationConfig
   )
 
-  async function run() {
+  async function render() {
     gl.clearColor(0, 0, 0, 0)
     gl.clear(gl.COLOR_BUFFER_BIT)
 
@@ -152,7 +152,7 @@ export function buildWebGL2Pipeline(
     resizingStage.cleanUp()
   }
 
-  return { run, cleanUp }
+  return { render, cleanUp }
 }
 
 const postProcessingFragmentShaderSource = glsl`#version 300 es

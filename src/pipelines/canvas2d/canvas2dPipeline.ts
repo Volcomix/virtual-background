@@ -33,7 +33,7 @@ export function buildCanvas2dPipeline(
   const inputMemoryOffset = tflite._getInputMemoryOffset() / 4
   const outputMemoryOffset = tflite._getOutputMemoryOffset() / 4
 
-  async function run() {
+  async function render() {
     if (background.type !== 'none') {
       resizeSource()
     }
@@ -162,5 +162,5 @@ export function buildCanvas2dPipeline(
     ctx.drawImage(sourcePlayback.htmlElement, 0, 0)
   }
 
-  return { run, cleanUp }
+  return { render, cleanUp }
 }

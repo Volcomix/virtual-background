@@ -1,4 +1,4 @@
 export type RenderingPipeline = {
-  run: () => Promise<void>
+  render: () => Promise<void>
   cleanUp: () => void
 }
