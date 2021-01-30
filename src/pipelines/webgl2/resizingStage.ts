@@ -2,7 +2,6 @@ import {
   inputResolutions,
   SegmentationConfig,
 } from '../../core/helpers/segmentationHelper'
-import { SourcePlayback } from '../../core/helpers/sourceHelper'
 import { TFLite } from '../../core/hooks/useTFLite'
 import {
   compileShader,
@@ -16,7 +15,6 @@ export function buildResizingStage(
   vertexShader: WebGLShader,
   positionBuffer: WebGLBuffer,
   texCoordBuffer: WebGLBuffer,
-  sourcePlayback: SourcePlayback,
   segmentationConfig: SegmentationConfig,
   tflite: TFLite
 ) {
@@ -38,7 +36,6 @@ export function buildResizingStage(
   // TFLite memory will be accessed as float32
   const tfliteInputMemoryOffset = tflite._getInputMemoryOffset() / 4
 
-  const { width: inputWidth, height: inputHeight } = sourcePlayback
   const [outputWidth, outputHeight] = inputResolutions[
     segmentationConfig.inputResolution
   ]
@@ -56,8 +53,8 @@ export function buildResizingStage(
     positionBuffer,
     texCoordBuffer
   )
-  const inputLocation = gl.getUniformLocation(program, 'u_inputFrame')
-  const inputTexture = createTexture(gl, gl.RGBA8, inputWidth, inputHeight)
+  const flipYLocation = gl.getUniformLocation(program, 'u_flipY')
+  const inputFrameLocation = gl.getUniformLocation(program, 'u_inputFrame')
   const outputTexture = createTexture(gl, gl.RGBA32F, outputWidth, outputHeight)
 
   const frameBuffer = gl.createFramebuffer()
@@ -73,18 +70,8 @@ export function buildResizingStage(
 
   function render() {
     gl.useProgram(program)
-    gl.activeTexture(gl.TEXTURE0)
-    gl.bindTexture(gl.TEXTURE_2D, inputTexture)
-    gl.texSubImage2D(
-      gl.TEXTURE_2D,
-      0,
-      0,
-      0,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      sourcePlayback.htmlElement
-    )
-    gl.uniform1i(inputLocation, 0)
+    gl.uniform1f(flipYLocation, 1)
+    gl.uniform1i(inputFrameLocation, 0)
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
@@ -110,7 +97,6 @@ export function buildResizingStage(
   function cleanUp() {
     gl.deleteFramebuffer(frameBuffer)
     gl.deleteTexture(outputTexture)
-    gl.deleteTexture(inputTexture)
     gl.deleteProgram(program)
     gl.deleteShader(fragmentShader)
   }

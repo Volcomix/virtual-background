@@ -42,7 +42,7 @@ function App() {
     setPostProcessingConfig,
   ] = useState<PostProcessingConfig>({
     smoothSegmentationMask: true,
-    jointBilateralFilter: { sigmaSpace: 8, sigmaColor: 2 },
+    jointBilateralFilter: { sigmaSpace: 8, sigmaColor: 0.1 },
   })
 
   // FIXME Animation stops, starts and stops again when changing segmentation config

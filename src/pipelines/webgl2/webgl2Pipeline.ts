@@ -21,18 +21,21 @@ export function buildWebGL2Pipeline(
   addFrameEvent: () => void
 ) {
   const vertexShaderSource = glsl`#version 300 es
-  
+
     in vec4 a_position;
     in vec2 a_texCoord;
-  
+
+    uniform float u_flipY;
+
     out vec2 v_texCoord;
-  
+
     void main() {
-      gl_Position = a_position;
+      gl_Position = vec4(a_position.x, a_position.y * u_flipY, 0, 1);
       v_texCoord = a_texCoord;
     }
   `
 
+  const { width: inputWidth, height: inputHeight } = sourcePlayback
   const [segmentationWidth, segmentationHeight] = inputResolutions[
     segmentationConfig.inputResolution
   ]
@@ -63,6 +66,7 @@ export function buildWebGL2Pipeline(
     gl.STATIC_DRAW
   )
 
+  const inputFrameTexture = createTexture(gl, gl.RGBA8, inputWidth, inputHeight)
   const segmentationTexture = createTexture(
     gl,
     gl.RGBA8,
@@ -75,7 +79,6 @@ export function buildWebGL2Pipeline(
     vertexShader,
     positionBuffer,
     texCoordBuffer,
-    sourcePlayback,
     segmentationConfig,
     tflite
   )
@@ -102,6 +105,18 @@ export function buildWebGL2Pipeline(
     gl.clearColor(0, 0, 0, 0)
     gl.clear(gl.COLOR_BUFFER_BIT)
 
+    gl.activeTexture(gl.TEXTURE0)
+    gl.bindTexture(gl.TEXTURE_2D, inputFrameTexture)
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      0,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      sourcePlayback.htmlElement
+    )
+
     gl.bindVertexArray(vertexArray)
 
     resizingStage.render()
@@ -122,6 +137,7 @@ export function buildWebGL2Pipeline(
     resizingStage.cleanUp()
 
     gl.deleteTexture(segmentationTexture)
+    gl.deleteTexture(inputFrameTexture)
     gl.deleteBuffer(texCoordBuffer)
     gl.deleteBuffer(positionBuffer)
     gl.deleteVertexArray(vertexArray)

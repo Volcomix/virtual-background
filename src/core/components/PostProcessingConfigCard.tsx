@@ -64,7 +64,7 @@ function PostProcessingConfigCard(props: PostProcessingConfigCardProps) {
             <Slider
               value={props.config.jointBilateralFilter.sigmaColor}
               min={0}
-              max={10}
+              max={2}
               step={0.01}
               valueLabelDisplay="auto"
               onChange={handleSigmaColorChange}

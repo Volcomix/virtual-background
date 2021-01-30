@@ -18,7 +18,8 @@ export function buildJointBilateralFilterStage(
 
     precision highp float;
 
-    uniform sampler2D u_inputSegmentationMask;
+    uniform sampler2D u_inputFrame;
+    uniform sampler2D u_segmentationMask;
     uniform vec2 u_texelSize;
 
     in vec2 v_texCoord;
@@ -45,7 +46,7 @@ export function buildJointBilateralFilterStage(
 
     void main() {
       vec2 centerCoord = v_texCoord;
-      vec3 centerColor = texture(u_inputSegmentationMask, centerCoord).rgb;
+      vec3 centerColor = texture(u_inputFrame, centerCoord).rgb;
       vec3 newColor = vec3(0.0);
 
       float spaceWeight = 0.0;
@@ -59,10 +60,11 @@ export function buildJointBilateralFilterStage(
         for (float j = -radius + offset; j <= radius; j += step) {
           vec2 shift = vec2(j, i) * u_texelSize;
           vec2 coord = vec2(centerCoord + shift);
-          vec3 color = texture(u_inputSegmentationMask, coord).rgb;
+          vec3 frameColor = texture(u_inputFrame, coord).rgb;
+          vec3 color = texture(u_segmentationMask, coord).rgb;
 
           spaceWeight = gaussian(distance(centerCoord, coord), sigmaTexel);
-          colorWeight = gaussian(distance(centerColor, color), sigmaColor);
+          colorWeight = gaussian(distance(centerColor, frameColor), sigmaColor);
           totalWeight += spaceWeight * colorWeight;
 
           newColor += vec3(spaceWeight * colorWeight) * color;
@@ -91,17 +93,21 @@ export function buildJointBilateralFilterStage(
     positionBuffer,
     texCoordBuffer
   )
-  const inputLocation = gl.getUniformLocation(
+  const flipYLocation = gl.getUniformLocation(program, 'u_flipY')
+  const inputFrameLocation = gl.getUniformLocation(program, 'u_inputFrame')
+  const segmentationMaskLocation = gl.getUniformLocation(
     program,
-    'u_inputSegmentationMask'
+    'u_segmentationMask'
   )
   const texelSizeLocation = gl.getUniformLocation(program, 'u_texelSize')
 
   function render() {
     gl.useProgram(program)
-    gl.activeTexture(gl.TEXTURE0)
+    gl.uniform1f(flipYLocation, -1)
+    gl.uniform1i(inputFrameLocation, 0)
+    gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, inputTexture)
-    gl.uniform1i(inputLocation, 0)
+    gl.uniform1i(segmentationMaskLocation, 1)
     gl.uniform2f(texelSizeLocation, texelWidth, texelHeight)
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.viewport(0, 0, outputWidth, outputHeight)

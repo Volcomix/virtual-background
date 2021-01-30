@@ -20,17 +20,17 @@ export function buildSoftmaxStage(
   outputTexture: WebGLTexture
 ) {
   const fragmentShaderSource = glsl`#version 300 es
-  
+
     precision highp float;
-  
+
     uniform sampler2D u_inputSegmentation;
-  
+
     in vec2 v_texCoord;
-  
+
     out vec4 outColor;
-  
+
     void main() {
-      vec2 segmentation = texture(u_inputSegmentation, vec2(v_texCoord.x, 1.0 - v_texCoord.y)).rg;
+      vec2 segmentation = texture(u_inputSegmentation, v_texCoord).rg;
       float shift = max(segmentation.r, segmentation.g);
       float backgroundExp = exp(segmentation.r - shift);
       float personExp = exp(segmentation.g - shift);
@@ -57,6 +57,7 @@ export function buildSoftmaxStage(
     positionBuffer,
     texCoordBuffer
   )
+  const flipYLocation = gl.getUniformLocation(program, 'u_flipY')
   const inputLocation = gl.getUniformLocation(program, 'u_inputSegmentation')
   const inputTexture = createTexture(
     gl,
@@ -77,7 +78,8 @@ export function buildSoftmaxStage(
 
   function render() {
     gl.useProgram(program)
-    gl.activeTexture(gl.TEXTURE0)
+    gl.uniform1f(flipYLocation, 1)
+    gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, inputTexture)
     gl.texSubImage2D(
       gl.TEXTURE_2D,
@@ -91,7 +93,7 @@ export function buildSoftmaxStage(
       tflite.HEAPF32,
       tfliteOutputMemoryOffset
     )
-    gl.uniform1i(inputLocation, 0)
+    gl.uniform1i(inputLocation, 1)
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
     gl.viewport(0, 0, segmentationWidth, segmentationHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
