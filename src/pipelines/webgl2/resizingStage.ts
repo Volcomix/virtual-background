@@ -53,7 +53,6 @@ export function buildResizingStage(
     positionBuffer,
     texCoordBuffer
   )
-  const flipYLocation = gl.getUniformLocation(program, 'u_flipY')
   const inputFrameLocation = gl.getUniformLocation(program, 'u_inputFrame')
   const outputTexture = createTexture(gl, gl.RGBA32F, outputWidth, outputHeight)
 
@@ -70,7 +69,6 @@ export function buildResizingStage(
 
   function render() {
     gl.useProgram(program)
-    gl.uniform1f(flipYLocation, 1)
     gl.uniform1i(inputFrameLocation, 0)
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
     gl.viewport(0, 0, outputWidth, outputHeight)

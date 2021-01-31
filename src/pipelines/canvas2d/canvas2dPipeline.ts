@@ -71,7 +71,6 @@ export function buildCanvas2dPipeline(
     )
 
     if (segmentationConfig.model === 'meet') {
-      // TODO Use a shader to directly output the resizing result in memory
       const imageData = segmentationMaskCtx.getImageData(
         0,
         0,
@@ -101,9 +100,7 @@ export function buildCanvas2dPipeline(
   function runTFLiteInference() {
     tflite._runInference()
 
-    // TODO Use shaders to completely avoid this kind of CPU manipulations
     for (let i = 0; i < segmentationPixelCount; i++) {
-      // TODO Implement softmax on GPU instead
       const background = tflite.HEAPF32[outputMemoryOffset + i * 2]
       const person = tflite.HEAPF32[outputMemoryOffset + i * 2 + 1]
       const shift = Math.max(background, person)

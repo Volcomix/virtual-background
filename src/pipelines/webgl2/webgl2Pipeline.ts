@@ -23,15 +23,13 @@ export function buildWebGL2Pipeline(
 ) {
   const vertexShaderSource = glsl`#version 300 es
 
-    in vec4 a_position;
+    in vec2 a_position;
     in vec2 a_texCoord;
-
-    uniform float u_flipY;
 
     out vec2 v_texCoord;
 
     void main() {
-      gl_Position = vec4(a_position.x, a_position.y * u_flipY, 0.0, 1.0);
+      gl_Position = vec4(a_position, 0.0, 1.0);
       v_texCoord = a_texCoord;
     }
   `
@@ -111,7 +109,6 @@ export function buildWebGL2Pipeline(
   )
   const backgroundStage = buildBackgroundStage(
     gl,
-    vertexShader,
     positionBuffer,
     texCoordBuffer,
     personMaskTexture,

@@ -57,7 +57,6 @@ export function buildSoftmaxStage(
     positionBuffer,
     texCoordBuffer
   )
-  const flipYLocation = gl.getUniformLocation(program, 'u_flipY')
   const inputLocation = gl.getUniformLocation(program, 'u_inputSegmentation')
   const inputTexture = createTexture(
     gl,
@@ -78,7 +77,6 @@ export function buildSoftmaxStage(
 
   function render() {
     gl.useProgram(program)
-    gl.uniform1f(flipYLocation, 1)
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, inputTexture)
     gl.texSubImage2D(

@@ -94,7 +94,6 @@ export function buildJointBilateralFilterStage(
     positionBuffer,
     texCoordBuffer
   )
-  const flipYLocation = gl.getUniformLocation(program, 'u_flipY')
   const inputFrameLocation = gl.getUniformLocation(program, 'u_inputFrame')
   const segmentationMaskLocation = gl.getUniformLocation(
     program,
@@ -114,7 +113,6 @@ export function buildJointBilateralFilterStage(
 
   function render() {
     gl.useProgram(program)
-    gl.uniform1f(flipYLocation, 1)
     gl.uniform1i(inputFrameLocation, 0)
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, inputTexture)
