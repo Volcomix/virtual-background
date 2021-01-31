@@ -126,6 +126,7 @@ export function buildJointBilateralFilterStage(
   }
 
   function cleanUp() {
+    gl.deleteFramebuffer(frameBuffer)
     gl.deleteProgram(program)
     gl.deleteShader(fragmentShader)
   }
