@@ -103,6 +103,7 @@ export function buildWebGL2Pipeline(
     positionBuffer,
     texCoordBuffer,
     segmentationTexture,
+    segmentationConfig,
     postProcessingConfig,
     personMaskTexture,
     canvas

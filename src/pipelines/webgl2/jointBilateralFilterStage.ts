@@ -1,5 +1,9 @@
 import { PostProcessingConfig } from '../../core/helpers/postProcessingHelper'
 import {
+  inputResolutions,
+  SegmentationConfig,
+} from '../../core/helpers/segmentationHelper'
+import {
   compileShader,
   createPiplelineStageProgram,
   glsl,
@@ -11,10 +15,22 @@ export function buildJointBilateralFilterStage(
   positionBuffer: WebGLBuffer,
   texCoordBuffer: WebGLBuffer,
   inputTexture: WebGLTexture,
+  segmentationConfig: SegmentationConfig,
   postProcessingConfig: PostProcessingConfig,
   outputTexture: WebGLTexture,
   canvas: HTMLCanvasElement
 ) {
+  const [segmentationWidth, segmentationHeight] = inputResolutions[
+    segmentationConfig.inputResolution
+  ]
+  const { width: outputWidth, height: outputHeight } = canvas
+
+  let { sigmaSpace, sigmaColor } = postProcessingConfig.jointBilateralFilter
+  sigmaSpace *= Math.max(
+    outputWidth / segmentationWidth,
+    outputHeight / segmentationHeight
+  )
+
   const fragmentShaderSource = glsl`#version 300 es
 
     precision highp float;
@@ -27,12 +43,8 @@ export function buildJointBilateralFilterStage(
 
     out vec4 outColor;
 
-    const float sigmaSpace = ${postProcessingConfig.jointBilateralFilter.sigmaSpace.toFixed(
-      2
-    )};
-    const float sigmaColor = ${postProcessingConfig.jointBilateralFilter.sigmaColor.toFixed(
-      2
-    )};
+    const float sigmaSpace = ${sigmaSpace.toFixed(2)};
+    const float sigmaColor = ${sigmaColor.toFixed(2)};
 
     const float kSparsityFactor = 0.66;  // Higher is more sparse.
     const float sparsity = max(1.0, sqrt(sigmaSpace) * kSparsityFactor);
@@ -76,8 +88,6 @@ export function buildJointBilateralFilterStage(
       outColor = vec4(vec3(0.0), newVal);
     }
   `
-
-  const { width: outputWidth, height: outputHeight } = canvas
 
   const texelWidth = 1 / outputWidth
   const texelHeight = 1 / outputHeight

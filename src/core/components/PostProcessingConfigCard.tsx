@@ -56,6 +56,8 @@ function PostProcessingConfigCard(props: PostProcessingConfigCardProps) {
             <Typography variant="body2">Sigma space</Typography>
             <Slider
               value={props.config.jointBilateralFilter.sigmaSpace}
+              min={0}
+              max={10}
               step={0.1}
               valueLabelDisplay="auto"
               onChange={handleSigmaSpaceChange}
