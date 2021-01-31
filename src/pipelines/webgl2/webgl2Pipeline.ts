@@ -1,4 +1,3 @@
-import { Background } from '../../core/helpers/backgroundHelper'
 import { PostProcessingConfig } from '../../core/helpers/postProcessingHelper'
 import {
   inputResolutions,
@@ -14,7 +13,7 @@ import { buildSoftmaxStage } from './softmaxStage'
 
 export function buildWebGL2Pipeline(
   sourcePlayback: SourcePlayback,
-  background: Background,
+  background: HTMLImageElement | null,
   canvas: HTMLCanvasElement,
   tflite: TFLite,
   segmentationConfig: SegmentationConfig,
@@ -113,6 +112,7 @@ export function buildWebGL2Pipeline(
     positionBuffer,
     texCoordBuffer,
     personMaskTexture,
+    background,
     canvas
   )
 

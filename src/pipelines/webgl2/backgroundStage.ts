@@ -1,6 +1,7 @@
 import {
   compileShader,
   createPiplelineStageProgram,
+  createTexture,
   glsl,
 } from '../helpers/webglHelper'
 
@@ -9,6 +10,7 @@ export function buildBackgroundStage(
   positionBuffer: WebGLBuffer,
   texCoordBuffer: WebGLBuffer,
   personMaskTexture: WebGLTexture,
+  background: HTMLImageElement | null,
   canvas: HTMLCanvasElement
 ) {
   const vertexShaderSource = glsl`#version 300 es
@@ -31,16 +33,31 @@ export function buildBackgroundStage(
 
     uniform sampler2D u_inputFrame;
     uniform sampler2D u_personMask;
+    uniform sampler2D u_background;
 
     in vec2 v_texCoord;
 
     out vec4 outColor;
 
+    vec3 screen(vec3 a, vec3 b) {
+      return 1.0 - (1.0 - a) * (1.0 - b);
+    }
+
+    vec3 linearDodge(vec3 a, vec3 b) {
+      return a + b;
+    }
+
     void main() {
       vec3 frameColor = texture(u_inputFrame, v_texCoord).rgb;
+      vec3 backgroundColor = texture(u_background, v_texCoord).rgb;
       float personMask = texture(u_personMask, v_texCoord).a;
-      float edges = smoothstep(0.0, 0.5, personMask) - smoothstep(0.8, 1.0, personMask);
-      outColor = vec4(mix(frameColor * personMask, vec3(1.0), edges), 1.0);
+      float edge = smoothstep(1.0, 0.8, personMask);
+      personMask = smoothstep(0.5, 0.7, personMask);
+      vec3 lightWrap = backgroundColor * edge * 0.4;
+      vec3 person = screen(frameColor, lightWrap);
+      // TODO Switch between screen and linearDodge based on use configuration
+      // vec3 person = linearDodge(frameColor, lightWrap);
+      outColor = vec4(person * personMask + backgroundColor * (1.0 - personMask), 1.0);
     }
   `
 
@@ -61,6 +78,46 @@ export function buildBackgroundStage(
   )
   const inputFrameLocation = gl.getUniformLocation(program, 'u_inputFrame')
   const personMaskLocation = gl.getUniformLocation(program, 'u_personMask')
+  const backgroundLocation = gl.getUniformLocation(program, 'u_background')
+
+  let backgroundTexture: WebGLTexture | null = null
+  // TODO Find a better to handle background being loaded
+  // TODO Fix background image deformation and interpolation
+  if (background?.complete) {
+    backgroundTexture = createTexture(
+      gl,
+      gl.RGBA8,
+      background.naturalWidth,
+      background.naturalHeight
+    )
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      0,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      background
+    )
+  } else if (background) {
+    background.onload = () => {
+      backgroundTexture = createTexture(
+        gl,
+        gl.RGBA8,
+        background.naturalWidth,
+        background.naturalHeight
+      )
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        0,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        background
+      )
+    }
+  }
 
   function render() {
     gl.useProgram(program)
@@ -68,12 +125,18 @@ export function buildBackgroundStage(
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, personMaskTexture)
     gl.uniform1i(personMaskLocation, 1)
+    if (backgroundTexture !== null) {
+      gl.activeTexture(gl.TEXTURE2)
+      gl.bindTexture(gl.TEXTURE_2D, backgroundTexture)
+      gl.uniform1i(backgroundLocation, 2)
+    }
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 
   function cleanUp() {
+    gl.deleteTexture(backgroundTexture)
     gl.deleteProgram(program)
     gl.deleteShader(fragmentShader)
     gl.deleteShader(vertexShader)

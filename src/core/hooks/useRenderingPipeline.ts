@@ -18,6 +18,7 @@ function useRenderingPipeline(
   postProcessingConfig: PostProcessingConfig
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null!)
+  const backgroundImageRef = useRef<HTMLImageElement>(null)
   const { fps, durations, beginFrame, addFrameEvent, endFrame } = useStats()
 
   useEffect(() => {
@@ -31,7 +32,7 @@ function useRenderingPipeline(
       segmentationConfig.pipeline === 'webgl2'
         ? buildWebGL2Pipeline(
             sourcePlayback,
-            background,
+            backgroundImageRef.current,
             canvasRef.current,
             tflite,
             segmentationConfig,
@@ -92,7 +93,7 @@ function useRenderingPipeline(
     endFrame,
   ])
 
-  return { canvasRef, fps, durations }
+  return { canvasRef, backgroundImageRef, fps, durations }
 }
 
 export default useRenderingPipeline

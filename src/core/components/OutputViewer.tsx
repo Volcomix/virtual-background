@@ -22,6 +22,7 @@ function OutputViewer(props: OutputViewerProps) {
   const classes = useStyles()
   const {
     canvasRef,
+    backgroundImageRef,
     fps,
     durations: [resizingDuration, inferenceDuration, postProcessingDuration],
   } = useRenderingPipeline(
@@ -42,10 +43,15 @@ function OutputViewer(props: OutputViewerProps) {
 
   return (
     <div className={classes.root}>
-      {props.segmentationConfig.pipeline === 'canvas2dCpu' &&
-        props.background.type === 'image' && (
-          <img className={classes.render} src={props.background.url} alt="" />
-        )}
+      {props.background.type === 'image' && (
+        <img
+          ref={backgroundImageRef}
+          className={classes.render}
+          src={props.background.url}
+          alt=""
+          hidden={props.segmentationConfig.pipeline === 'webgl2'}
+        />
+      )}
       <canvas
         // The key attribute is required to create a new canvas when switching
         // context mode
