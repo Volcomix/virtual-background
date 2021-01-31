@@ -39,7 +39,8 @@ export function buildBackgroundStage(
     void main() {
       vec3 frameColor = texture(u_inputFrame, v_texCoord).rgb;
       float personMask = texture(u_personMask, v_texCoord).a;
-      outColor = vec4(frameColor * personMask, 1.0);
+      float edges = smoothstep(0.0, 0.5, personMask) - smoothstep(0.8, 1.0, personMask);
+      outColor = vec4(mix(frameColor * personMask, vec3(1.0), edges), 1.0);
     }
   `
 
