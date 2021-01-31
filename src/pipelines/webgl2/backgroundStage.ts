@@ -51,12 +51,11 @@ export function buildBackgroundStage(
       vec3 frameColor = texture(u_inputFrame, v_texCoord).rgb;
       vec3 backgroundColor = texture(u_background, v_texCoord).rgb;
       float personMask = texture(u_personMask, v_texCoord).a;
-      float edge = smoothstep(1.0, 0.8, personMask);
-      personMask = smoothstep(0.5, 0.7, personMask);
+      float edge = smoothstep(1.0, 0.5, personMask);
+      personMask = smoothstep(0.5, 1.0, personMask);
       vec3 lightWrap = backgroundColor * edge * 0.4;
-      vec3 person = screen(frameColor, lightWrap);
       // TODO Switch between screen and linearDodge based on use configuration
-      // vec3 person = linearDodge(frameColor, lightWrap);
+      vec3 person = screen(frameColor, lightWrap);
       outColor = vec4(person * personMask + backgroundColor * (1.0 - personMask), 1.0);
     }
   `
