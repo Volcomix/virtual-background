@@ -6,6 +6,19 @@
 
 [![](./docs/screenshot.png)](https://volcomix.github.io/virtual-background)
 
+## Table of contents
+
+- [Implementation details](#implementation-details)
+  - [BodyPix](#bodypix)
+  - [MediaPipe Meet Segmentation](#mediapipe-meet-segmentation)
+    - [Building TFLite to WebAssembly](#building-tflite-to-webassembly)
+    - [Canvas 2D + CPU](#canvas-2d---cpu)
+    - [WebGL 2 (work in progress)](#webgl-2--work-in-progress-)
+- [Possible improvements](#possible-improvements)
+- [Related work](#related-work)
+- [Running locally](#running-locally)
+- [Building TensorFlow Lite tool](#building-tensorflow-lite-tool)
+
 ## Implementation details
 
 In this demo you can switch between 2 different ML pre-trained segmentation models: [BodyPix](https://github.com/tensorflow/tfjs-models/blob/master/body-pix) and [MediaPipe Meet Segmentation](https://mediapipe.page.link/meet-mc).
