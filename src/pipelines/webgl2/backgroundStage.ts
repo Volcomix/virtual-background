@@ -54,7 +54,7 @@ export function buildBackgroundStage(
       float edge = smoothstep(1.0, 0.5, personMask);
       personMask = smoothstep(0.5, 1.0, personMask);
       vec3 lightWrap = backgroundColor * edge * 0.4;
-      // TODO Switch between screen and linearDodge based on use configuration
+      // TODO Switch between screen and linearDodge based on user configuration
       vec3 person = screen(frameColor, lightWrap);
       outColor = vec4(person * personMask + backgroundColor * (1.0 - personMask), 1.0);
     }
