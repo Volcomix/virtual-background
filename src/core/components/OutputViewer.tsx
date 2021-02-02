@@ -2,7 +2,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import { BodyPix } from '@tensorflow-models/body-pix'
 import React from 'react'
-import { Background } from '../helpers/backgroundHelper'
+import { BackgroundConfig } from '../helpers/backgroundHelper'
 import { PostProcessingConfig } from '../helpers/postProcessingHelper'
 import { SegmentationConfig } from '../helpers/segmentationHelper'
 import { SourcePlayback } from '../helpers/sourceHelper'
@@ -11,11 +11,11 @@ import { TFLite } from '../hooks/useTFLite'
 
 type OutputViewerProps = {
   sourcePlayback: SourcePlayback
-  background: Background
-  bodyPix: BodyPix
-  tflite: TFLite
+  backgroundConfig: BackgroundConfig
   segmentationConfig: SegmentationConfig
   postProcessingConfig: PostProcessingConfig
+  bodyPix: BodyPix
+  tflite: TFLite
 }
 
 function OutputViewer(props: OutputViewerProps) {
@@ -27,11 +27,11 @@ function OutputViewer(props: OutputViewerProps) {
     durations: [resizingDuration, inferenceDuration, postProcessingDuration],
   } = useRenderingPipeline(
     props.sourcePlayback,
-    props.background,
-    props.bodyPix,
-    props.tflite,
+    props.backgroundConfig,
     props.segmentationConfig,
-    props.postProcessingConfig
+    props.postProcessingConfig,
+    props.bodyPix,
+    props.tflite
   )
 
   const statDetails = [
@@ -43,11 +43,11 @@ function OutputViewer(props: OutputViewerProps) {
 
   return (
     <div className={classes.root}>
-      {props.background.type === 'image' && (
+      {props.backgroundConfig.type === 'image' && (
         <img
           ref={backgroundImageRef}
           className={classes.render}
-          src={props.background.url}
+          src={props.backgroundConfig.url}
           alt=""
           hidden={props.segmentationConfig.pipeline === 'webgl2'}
         />

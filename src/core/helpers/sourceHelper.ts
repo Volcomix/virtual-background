@@ -1,4 +1,4 @@
-export type Source = {
+export type SourceConfig = {
   type: 'image' | 'video' | 'camera'
   url?: string
 }

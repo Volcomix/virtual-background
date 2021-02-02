@@ -1,17 +1,17 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { useState } from 'react'
-import BackgroundSelectionCard from './core/components/BackgroundSelectionCard'
+import BackgroundConfigCard from './core/components/BackgroundConfigCard'
 import PostProcessingConfigCard from './core/components/PostProcessingConfigCard'
 import SegmentationConfigCard from './core/components/SegmentationConfigCard'
-import SourceSelectionCard from './core/components/SourceSelectionCard'
+import SourceConfigCard from './core/components/SourceConfigCard'
 import ViewerCard from './core/components/ViewerCard'
 import {
-  Background,
+  BackgroundConfig,
   backgroundImageUrls,
 } from './core/helpers/backgroundHelper'
 import { PostProcessingConfig } from './core/helpers/postProcessingHelper'
 import { SegmentationConfig } from './core/helpers/segmentationHelper'
-import { Source, sourceImageUrls } from './core/helpers/sourceHelper'
+import { SourceConfig, sourceImageUrls } from './core/helpers/sourceHelper'
 import useBodyPix from './core/hooks/useBodyPix'
 import useMeetModel from './core/hooks/useMeetModel'
 import useTFLite from './core/hooks/useTFLite'
@@ -21,11 +21,11 @@ function App() {
   const tflite = useTFLite()
 
   const classes = useStyles()
-  const [source, setSource] = useState<Source>({
+  const [sourceConfig, setSourceConfig] = useState<SourceConfig>({
     type: 'image',
     url: sourceImageUrls[0],
   })
-  const [background, setBackground] = useState<Background>({
+  const [backgroundConfig, setBackgroundConfig] = useState<BackgroundConfig>({
     type: 'image',
     url: backgroundImageUrls[0],
   })
@@ -51,8 +51,10 @@ function App() {
   return (
     <div className={classes.root}>
       <ViewerCard
-        source={source}
-        background={background}
+        sourceConfig={sourceConfig}
+        backgroundConfig={backgroundConfig}
+        segmentationConfig={segmentationConfig}
+        postProcessingConfig={postProcessingConfig}
         bodyPix={bodyPix}
         tflite={
           // TODO Find a better way to handle both bodyPix and tflite props
@@ -60,13 +62,11 @@ function App() {
             ? tflite
             : undefined
         }
-        segmentationConfig={segmentationConfig}
-        postProcessingConfig={postProcessingConfig}
       />
-      <SourceSelectionCard source={source} onChange={setSource} />
-      <BackgroundSelectionCard
-        background={background}
-        onChange={setBackground}
+      <SourceConfigCard config={sourceConfig} onChange={setSourceConfig} />
+      <BackgroundConfigCard
+        config={backgroundConfig}
+        onChange={setBackgroundConfig}
       />
       <SegmentationConfigCard
         config={segmentationConfig}

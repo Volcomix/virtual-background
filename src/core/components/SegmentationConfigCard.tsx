@@ -9,14 +9,14 @@ import Typography from '@material-ui/core/Typography'
 import { ChangeEvent } from 'react'
 import {
   InputResolution,
-  Pipeline,
+  PipelineName,
   SegmentationConfig,
   SegmentationModel,
 } from '../helpers/segmentationHelper'
 
 type SegmentationConfigCardProps = {
   config: SegmentationConfig
-  onChange: (segmentationConfig: SegmentationConfig) => void
+  onChange: (config: SegmentationConfig) => void
 }
 
 function SegmentationConfigCard(props: SegmentationConfigCardProps) {
@@ -45,7 +45,7 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
   function handlePipelineChange(event: ChangeEvent<{ value: unknown }>) {
     props.onChange({
       ...props.config,
-      pipeline: event.target.value as Pipeline,
+      pipeline: event.target.value as PipelineName,
     })
   }
 

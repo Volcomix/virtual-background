@@ -13,11 +13,11 @@ import { buildSoftmaxStage } from './softmaxStage'
 
 export function buildWebGL2Pipeline(
   sourcePlayback: SourcePlayback,
-  background: HTMLImageElement | null,
-  canvas: HTMLCanvasElement,
-  tflite: TFLite,
+  backgroundImage: HTMLImageElement | null,
   segmentationConfig: SegmentationConfig,
   postProcessingConfig: PostProcessingConfig,
+  canvas: HTMLCanvasElement,
+  tflite: TFLite,
   addFrameEvent: () => void
 ) {
   const vertexShaderSource = glsl`#version 300 es
@@ -112,7 +112,7 @@ export function buildWebGL2Pipeline(
     positionBuffer,
     texCoordBuffer,
     personMaskTexture,
-    background,
+    backgroundImage,
     canvas
   )
 

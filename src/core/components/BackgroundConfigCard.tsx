@@ -6,14 +6,17 @@ import BlockIcon from '@material-ui/icons/Block'
 import BlurOnIcon from '@material-ui/icons/BlurOn'
 import ImageButton from '../../shared/components/ImageButton'
 import SelectionIconButton from '../../shared/components/SelectionIconButton'
-import { Background, backgroundImageUrls } from '../helpers/backgroundHelper'
+import {
+  BackgroundConfig,
+  backgroundImageUrls,
+} from '../helpers/backgroundHelper'
 
-type BackgroundSelectionCardProps = {
-  background: Background
-  onChange: (background: Background) => void
+type BackgroundConfigCardProps = {
+  config: BackgroundConfig
+  onChange: (config: BackgroundConfig) => void
 }
 
-function BackgroundSelectionCard(props: BackgroundSelectionCardProps) {
+function BackgroundConfigCard(props: BackgroundConfigCardProps) {
   const classes = useStyles()
 
   return (
@@ -23,13 +26,13 @@ function BackgroundSelectionCard(props: BackgroundSelectionCardProps) {
           Background
         </Typography>
         <SelectionIconButton
-          active={props.background.type === 'none'}
+          active={props.config.type === 'none'}
           onClick={() => props.onChange({ type: 'none' })}
         >
           <BlockIcon />
         </SelectionIconButton>
         <SelectionIconButton
-          active={props.background.type === 'blur'}
+          active={props.config.type === 'blur'}
           onClick={() => props.onChange({ type: 'blur' })}
         >
           <BlurOnIcon />
@@ -38,7 +41,7 @@ function BackgroundSelectionCard(props: BackgroundSelectionCardProps) {
           <ImageButton
             key={imageUrl}
             imageUrl={imageUrl}
-            active={imageUrl === props.background.url}
+            active={imageUrl === props.config.url}
             onClick={() => props.onChange({ type: 'image', url: imageUrl })}
           />
         ))}
@@ -55,4 +58,4 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default BackgroundSelectionCard
+export default BackgroundConfigCard

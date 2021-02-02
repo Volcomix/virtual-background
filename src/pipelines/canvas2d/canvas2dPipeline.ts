@@ -1,5 +1,5 @@
 import { BodyPix } from '@tensorflow-models/body-pix'
-import { Background } from '../../core/helpers/backgroundHelper'
+import { BackgroundConfig } from '../../core/helpers/backgroundHelper'
 import { PostProcessingConfig } from '../../core/helpers/postProcessingHelper'
 import {
   inputResolutions,
@@ -10,12 +10,12 @@ import { TFLite } from '../../core/hooks/useTFLite'
 
 export function buildCanvas2dPipeline(
   sourcePlayback: SourcePlayback,
-  background: Background,
+  backgroundConfig: BackgroundConfig,
+  segmentationConfig: SegmentationConfig,
+  postProcessingConfig: PostProcessingConfig,
   canvas: HTMLCanvasElement,
   bodyPix: BodyPix,
   tflite: TFLite,
-  segmentationConfig: SegmentationConfig,
-  postProcessingConfig: PostProcessingConfig,
   addFrameEvent: () => void
 ) {
   const ctx = canvas.getContext('2d')!
@@ -34,13 +34,13 @@ export function buildCanvas2dPipeline(
   const outputMemoryOffset = tflite._getOutputMemoryOffset() / 4
 
   async function render() {
-    if (background.type !== 'none') {
+    if (backgroundConfig.type !== 'none') {
       resizeSource()
     }
 
     addFrameEvent()
 
-    if (background.type !== 'none') {
+    if (backgroundConfig.type !== 'none') {
       if (segmentationConfig.model === 'bodyPix') {
         await runBodyPixInference()
       } else {
@@ -119,14 +119,14 @@ export function buildCanvas2dPipeline(
     ctx.filter = 'none'
 
     if (postProcessingConfig.smoothSegmentationMask) {
-      if (background.type === 'blur') {
+      if (backgroundConfig.type === 'blur') {
         ctx.filter = 'blur(8px)' // FIXME Does not work on Safari
-      } else if (background.type === 'image') {
+      } else if (backgroundConfig.type === 'image') {
         ctx.filter = 'blur(4px)' // FIXME Does not work on Safari
       }
     }
 
-    if (background.type !== 'none') {
+    if (backgroundConfig.type !== 'none') {
       drawSegmentationMask()
       ctx.globalCompositeOperation = 'source-in'
       ctx.filter = 'none'
@@ -134,7 +134,7 @@ export function buildCanvas2dPipeline(
 
     ctx.drawImage(sourcePlayback.htmlElement, 0, 0)
 
-    if (background.type === 'blur') {
+    if (backgroundConfig.type === 'blur') {
       blurBackground()
     }
   }

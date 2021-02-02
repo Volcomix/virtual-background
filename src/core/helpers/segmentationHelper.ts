@@ -10,10 +10,10 @@ export const inputResolutions: {
   '96p': [160, 96],
 }
 
-export type Pipeline = 'canvas2dCpu' | 'webgl2'
+export type PipelineName = 'canvas2dCpu' | 'webgl2'
 
 export type SegmentationConfig = {
   model: SegmentationModel
   inputResolution: InputResolution
-  pipeline: Pipeline
+  pipeline: PipelineName
 }

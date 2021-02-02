@@ -6,12 +6,12 @@ import Switch from '@material-ui/core/Switch'
 import Typography from '@material-ui/core/Typography'
 import React, { ChangeEvent } from 'react'
 import { PostProcessingConfig } from '../helpers/postProcessingHelper'
-import { Pipeline } from '../helpers/segmentationHelper'
+import { PipelineName } from '../helpers/segmentationHelper'
 
 type PostProcessingConfigCardProps = {
   config: PostProcessingConfig
-  pipeline: Pipeline
-  onChange: (postProcessingConfig: PostProcessingConfig) => void
+  pipeline: PipelineName
+  onChange: (config: PostProcessingConfig) => void
 }
 
 function PostProcessingConfigCard(props: PostProcessingConfigCardProps) {

@@ -2,7 +2,7 @@ import { BodyPix } from '@tensorflow-models/body-pix'
 import { useEffect, useRef } from 'react'
 import { buildCanvas2dPipeline } from '../../pipelines/canvas2d/canvas2dPipeline'
 import { buildWebGL2Pipeline } from '../../pipelines/webgl2/webgl2Pipeline'
-import { Background } from '../helpers/backgroundHelper'
+import { BackgroundConfig } from '../helpers/backgroundHelper'
 import { PostProcessingConfig } from '../helpers/postProcessingHelper'
 import { SegmentationConfig } from '../helpers/segmentationHelper'
 import { SourcePlayback } from '../helpers/sourceHelper'
@@ -11,11 +11,11 @@ import { TFLite } from './useTFLite'
 
 function useRenderingPipeline(
   sourcePlayback: SourcePlayback,
-  background: Background,
-  bodyPix: BodyPix,
-  tflite: TFLite,
+  backgroundConfig: BackgroundConfig,
   segmentationConfig: SegmentationConfig,
-  postProcessingConfig: PostProcessingConfig
+  postProcessingConfig: PostProcessingConfig,
+  bodyPix: BodyPix,
+  tflite: TFLite
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const backgroundImageRef = useRef<HTMLImageElement>(null)
@@ -33,20 +33,20 @@ function useRenderingPipeline(
         ? buildWebGL2Pipeline(
             sourcePlayback,
             backgroundImageRef.current,
-            canvasRef.current,
-            tflite,
             segmentationConfig,
             postProcessingConfig,
+            canvasRef.current,
+            tflite,
             addFrameEvent
           )
         : buildCanvas2dPipeline(
             sourcePlayback,
-            background,
+            backgroundConfig,
+            segmentationConfig,
+            postProcessingConfig,
             canvasRef.current,
             bodyPix,
             tflite,
-            segmentationConfig,
-            postProcessingConfig,
             addFrameEvent
           )
 
@@ -64,7 +64,7 @@ function useRenderingPipeline(
     console.log(
       'Animation started:',
       sourcePlayback,
-      background,
+      backgroundConfig,
       segmentationConfig,
       postProcessingConfig
     )
@@ -76,18 +76,18 @@ function useRenderingPipeline(
       console.log(
         'Animation stopped:',
         sourcePlayback,
-        background,
+        backgroundConfig,
         segmentationConfig,
         postProcessingConfig
       )
     }
   }, [
     sourcePlayback,
-    background,
-    bodyPix,
-    tflite,
+    backgroundConfig,
     segmentationConfig,
     postProcessingConfig,
+    bodyPix,
+    tflite,
     beginFrame,
     addFrameEvent,
     endFrame,

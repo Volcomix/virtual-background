@@ -2,10 +2,10 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import VideocamOffIcon from '@material-ui/icons/VideocamOff'
 import React, { SyntheticEvent, useEffect, useRef, useState } from 'react'
-import { Source, SourcePlayback } from '../helpers/sourceHelper'
+import { SourceConfig, SourcePlayback } from '../helpers/sourceHelper'
 
 type SourceViewerProps = {
-  source: Source
+  sourceConfig: SourceConfig
   onLoad: (sourcePlayback: SourcePlayback) => void
 }
 
@@ -24,8 +24,8 @@ function SourceViewer(props: SourceViewerProps) {
     // Enforces reloading the resource, otherwise
     // onLoad event is not always dispatched and the
     // progress indicator never disappears
-    setTimeout(() => setSourceUrl(props.source.url))
-  }, [props.source])
+    setTimeout(() => setSourceUrl(props.sourceConfig.url))
+  }, [props.sourceConfig])
 
   useEffect(() => {
     async function getCameraStream() {
@@ -43,12 +43,12 @@ function SourceViewer(props: SourceViewerProps) {
       setCameraError(true)
     }
 
-    if (props.source.type === 'camera') {
+    if (props.sourceConfig.type === 'camera') {
       getCameraStream()
     } else if (videoRef.current) {
       videoRef.current.srcObject = null
     }
-  }, [props.source])
+  }, [props.sourceConfig])
 
   function handleImageLoad(event: SyntheticEvent) {
     const image = event.target as HTMLImageElement
@@ -73,7 +73,7 @@ function SourceViewer(props: SourceViewerProps) {
   return (
     <div className={classes.root}>
       {isLoading && <CircularProgress />}
-      {props.source.type === 'image' ? (
+      {props.sourceConfig.type === 'image' ? (
         <img
           className={classes.sourcePlayback}
           src={sourceUrl}

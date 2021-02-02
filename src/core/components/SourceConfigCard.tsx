@@ -7,17 +7,17 @@ import ImageButton from '../../shared/components/ImageButton'
 import SelectionIconButton from '../../shared/components/SelectionIconButton'
 import VideoButton from '../../shared/components/VideoButton'
 import {
-  Source,
+  SourceConfig,
   sourceImageUrls,
   sourceVideoUrls,
 } from '../helpers/sourceHelper'
 
-type SourceSelectionCardProps = {
-  source: Source
-  onChange: (source: Source) => void
+type SourceConfigCardProps = {
+  config: SourceConfig
+  onChange: (config: SourceConfig) => void
 }
 
-function SourceSelectionCard(props: SourceSelectionCardProps) {
+function SourceConfigCard(props: SourceConfigCardProps) {
   const classes = useStyles()
 
   return (
@@ -27,7 +27,7 @@ function SourceSelectionCard(props: SourceSelectionCardProps) {
           Source
         </Typography>
         <SelectionIconButton
-          active={props.source.type === 'camera'}
+          active={props.config.type === 'camera'}
           onClick={() => props.onChange({ type: 'camera' })}
         >
           <VideocamIcon />
@@ -36,7 +36,7 @@ function SourceSelectionCard(props: SourceSelectionCardProps) {
           <ImageButton
             key={imageUrl}
             imageUrl={imageUrl}
-            active={imageUrl === props.source.url}
+            active={imageUrl === props.config.url}
             onClick={() => props.onChange({ type: 'image', url: imageUrl })}
           />
         ))}
@@ -44,7 +44,7 @@ function SourceSelectionCard(props: SourceSelectionCardProps) {
           <VideoButton
             key={videoUrl}
             videoUrl={videoUrl}
-            active={videoUrl === props.source.url}
+            active={videoUrl === props.config.url}
             onClick={() => props.onChange({ type: 'video', url: videoUrl })}
           />
         ))}
@@ -61,4 +61,4 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default SourceSelectionCard
+export default SourceConfigCard

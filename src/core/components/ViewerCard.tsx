@@ -3,21 +3,21 @@ import Paper from '@material-ui/core/Paper'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { BodyPix } from '@tensorflow-models/body-pix'
 import { useEffect, useState } from 'react'
-import { Background } from '../helpers/backgroundHelper'
+import { BackgroundConfig } from '../helpers/backgroundHelper'
 import { PostProcessingConfig } from '../helpers/postProcessingHelper'
 import { SegmentationConfig } from '../helpers/segmentationHelper'
-import { Source, SourcePlayback } from '../helpers/sourceHelper'
+import { SourceConfig, SourcePlayback } from '../helpers/sourceHelper'
 import { TFLite } from '../hooks/useTFLite'
 import OutputViewer from './OutputViewer'
 import SourceViewer from './SourceViewer'
 
 type ViewerCardProps = {
-  source: Source
-  background: Background
-  bodyPix?: BodyPix
-  tflite?: TFLite
+  sourceConfig: SourceConfig
+  backgroundConfig: BackgroundConfig
   segmentationConfig: SegmentationConfig
   postProcessingConfig: PostProcessingConfig
+  bodyPix?: BodyPix
+  tflite?: TFLite
 }
 
 function ViewerCard(props: ViewerCardProps) {
@@ -26,19 +26,22 @@ function ViewerCard(props: ViewerCardProps) {
 
   useEffect(() => {
     setSourcePlayback(undefined)
-  }, [props.source])
+  }, [props.sourceConfig])
 
   return (
     <Paper className={classes.root}>
-      <SourceViewer source={props.source} onLoad={setSourcePlayback} />
+      <SourceViewer
+        sourceConfig={props.sourceConfig}
+        onLoad={setSourcePlayback}
+      />
       {sourcePlayback && props.bodyPix && props.tflite ? (
         <OutputViewer
           sourcePlayback={sourcePlayback}
-          background={props.background}
-          bodyPix={props.bodyPix}
-          tflite={props.tflite}
+          backgroundConfig={props.backgroundConfig}
           segmentationConfig={props.segmentationConfig}
           postProcessingConfig={props.postProcessingConfig}
+          bodyPix={props.bodyPix}
+          tflite={props.tflite}
         />
       ) : (
         <div className={classes.noOutput}>

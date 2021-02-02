@@ -10,7 +10,7 @@ export function buildBackgroundStage(
   positionBuffer: WebGLBuffer,
   texCoordBuffer: WebGLBuffer,
   personMaskTexture: WebGLTexture,
-  background: HTMLImageElement | null,
+  backgroundImage: HTMLImageElement | null,
   canvas: HTMLCanvasElement
 ) {
   const vertexShaderSource = glsl`#version 300 es
@@ -82,12 +82,12 @@ export function buildBackgroundStage(
   let backgroundTexture: WebGLTexture | null = null
   // TODO Find a better to handle background being loaded
   // TODO Fix background image deformation and interpolation
-  if (background?.complete) {
+  if (backgroundImage?.complete) {
     backgroundTexture = createTexture(
       gl,
       gl.RGBA8,
-      background.naturalWidth,
-      background.naturalHeight
+      backgroundImage.naturalWidth,
+      backgroundImage.naturalHeight
     )
     gl.texSubImage2D(
       gl.TEXTURE_2D,
@@ -96,15 +96,15 @@ export function buildBackgroundStage(
       0,
       gl.RGBA,
       gl.UNSIGNED_BYTE,
-      background
+      backgroundImage
     )
-  } else if (background) {
-    background.onload = () => {
+  } else if (backgroundImage) {
+    backgroundImage.onload = () => {
       backgroundTexture = createTexture(
         gl,
         gl.RGBA8,
-        background.naturalWidth,
-        background.naturalHeight
+        backgroundImage.naturalWidth,
+        backgroundImage.naturalHeight
       )
       gl.texSubImage2D(
         gl.TEXTURE_2D,
@@ -113,7 +113,7 @@ export function buildBackgroundStage(
         0,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        background
+        backgroundImage
       )
     }
   }
