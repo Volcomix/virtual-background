@@ -1,4 +1,5 @@
 import { BodyPix } from '@tensorflow-models/body-pix'
+import { MutableRefObject } from 'react'
 import { BackgroundConfig } from '../../core/helpers/backgroundHelper'
 import { PostProcessingConfig } from '../../core/helpers/postProcessingHelper'
 import {
@@ -12,7 +13,7 @@ export function buildCanvas2dPipeline(
   sourcePlayback: SourcePlayback,
   backgroundConfig: BackgroundConfig,
   segmentationConfig: SegmentationConfig,
-  postProcessingConfig: PostProcessingConfig,
+  postProcessingConfigRef: MutableRefObject<PostProcessingConfig>,
   canvas: HTMLCanvasElement,
   bodyPix: BodyPix,
   tflite: TFLite,
@@ -118,7 +119,7 @@ export function buildCanvas2dPipeline(
     ctx.globalCompositeOperation = 'copy'
     ctx.filter = 'none'
 
-    if (postProcessingConfig.smoothSegmentationMask) {
+    if (postProcessingConfigRef.current.smoothSegmentationMask) {
       if (backgroundConfig.type === 'blur') {
         ctx.filter = 'blur(8px)' // FIXME Does not work on Safari
       } else if (backgroundConfig.type === 'image') {

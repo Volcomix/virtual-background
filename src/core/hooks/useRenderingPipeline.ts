@@ -1,5 +1,5 @@
 import { BodyPix } from '@tensorflow-models/body-pix'
-import { useEffect, useRef } from 'react'
+import { MutableRefObject, useEffect, useRef } from 'react'
 import { buildCanvas2dPipeline } from '../../pipelines/canvas2d/canvas2dPipeline'
 import { buildWebGL2Pipeline } from '../../pipelines/webgl2/webgl2Pipeline'
 import { BackgroundConfig } from '../helpers/backgroundHelper'
@@ -13,12 +13,13 @@ function useRenderingPipeline(
   sourcePlayback: SourcePlayback,
   backgroundConfig: BackgroundConfig,
   segmentationConfig: SegmentationConfig,
-  postProcessingConfig: PostProcessingConfig,
+  // Post-processing config change must not rebuild the pipeline
+  postProcessingConfigRef: MutableRefObject<PostProcessingConfig>,
   bodyPix: BodyPix,
   tflite: TFLite
 ) {
-  const canvasRef = useRef<HTMLCanvasElement>(null!)
   const backgroundImageRef = useRef<HTMLImageElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null!)
   const { fps, durations, beginFrame, addFrameEvent, endFrame } = useStats()
 
   useEffect(() => {
@@ -34,7 +35,7 @@ function useRenderingPipeline(
             sourcePlayback,
             backgroundImageRef.current,
             segmentationConfig,
-            postProcessingConfig,
+            postProcessingConfigRef,
             canvasRef.current,
             tflite,
             addFrameEvent
@@ -43,7 +44,7 @@ function useRenderingPipeline(
             sourcePlayback,
             backgroundConfig,
             segmentationConfig,
-            postProcessingConfig,
+            postProcessingConfigRef,
             canvasRef.current,
             bodyPix,
             tflite,
@@ -65,8 +66,7 @@ function useRenderingPipeline(
       'Animation started:',
       sourcePlayback,
       backgroundConfig,
-      segmentationConfig,
-      postProcessingConfig
+      segmentationConfig
     )
 
     return () => {
@@ -77,15 +77,14 @@ function useRenderingPipeline(
         'Animation stopped:',
         sourcePlayback,
         backgroundConfig,
-        segmentationConfig,
-        postProcessingConfig
+        segmentationConfig
       )
     }
   }, [
     sourcePlayback,
     backgroundConfig,
     segmentationConfig,
-    postProcessingConfig,
+    postProcessingConfigRef,
     bodyPix,
     tflite,
     beginFrame,
@@ -93,7 +92,12 @@ function useRenderingPipeline(
     endFrame,
   ])
 
-  return { canvasRef, backgroundImageRef, fps, durations }
+  return {
+    backgroundImageRef,
+    canvasRef,
+    fps,
+    durations,
+  }
 }
 
 export default useRenderingPipeline

@@ -1,7 +1,7 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import { BodyPix } from '@tensorflow-models/body-pix'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { BackgroundConfig } from '../helpers/backgroundHelper'
 import { PostProcessingConfig } from '../helpers/postProcessingHelper'
 import { SegmentationConfig } from '../helpers/segmentationHelper'
@@ -20,19 +20,26 @@ type OutputViewerProps = {
 
 function OutputViewer(props: OutputViewerProps) {
   const classes = useStyles()
+  const postProcessingConfigRef = useRef(props.postProcessingConfig)
   const {
-    canvasRef,
     backgroundImageRef,
+    canvasRef,
     fps,
     durations: [resizingDuration, inferenceDuration, postProcessingDuration],
   } = useRenderingPipeline(
     props.sourcePlayback,
     props.backgroundConfig,
     props.segmentationConfig,
-    props.postProcessingConfig,
+    postProcessingConfigRef,
     props.bodyPix,
     props.tflite
   )
+
+  // Update the post-processing config without re-rendering and
+  // without rebuilding the rendering pipeline
+  useEffect(() => {
+    postProcessingConfigRef.current = props.postProcessingConfig
+  }, [postProcessingConfigRef, props.postProcessingConfig])
 
   const statDetails = [
     `resizing ${resizingDuration}ms`,

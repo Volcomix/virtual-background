@@ -1,3 +1,4 @@
+import { MutableRefObject } from 'react'
 import { PostProcessingConfig } from '../../core/helpers/postProcessingHelper'
 import {
   inputResolutions,
@@ -15,7 +16,7 @@ export function buildWebGL2Pipeline(
   sourcePlayback: SourcePlayback,
   backgroundImage: HTMLImageElement | null,
   segmentationConfig: SegmentationConfig,
-  postProcessingConfig: PostProcessingConfig,
+  postProcessingConfigRef: MutableRefObject<PostProcessingConfig>,
   canvas: HTMLCanvasElement,
   tflite: TFLite,
   addFrameEvent: () => void
@@ -103,7 +104,7 @@ export function buildWebGL2Pipeline(
     texCoordBuffer,
     segmentationTexture,
     segmentationConfig,
-    postProcessingConfig,
+    postProcessingConfigRef,
     personMaskTexture,
     canvas
   )
