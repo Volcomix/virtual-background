@@ -13,7 +13,7 @@
   - [MediaPipe Meet Segmentation](#mediapipe-meet-segmentation)
     - [Building TFLite to WebAssembly](#building-tflite-to-webassembly)
     - [Canvas 2D + CPU](#canvas-2d--cpu)
-    - [WebGL 2 (work in progress)](#webgl-2-work-in-progress-)
+    - [WebGL 2 (work in progress)](#webgl-2-work-in-progress)
 - [Possible improvements](#possible-improvements)
 - [Related work](#related-work)
 - [Running locally](#running-locally)
