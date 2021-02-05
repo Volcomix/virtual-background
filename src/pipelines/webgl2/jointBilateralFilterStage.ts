@@ -1,5 +1,3 @@
-import { MutableRefObject } from 'react'
-import { PostProcessingConfig } from '../../core/helpers/postProcessingHelper'
 import {
   inputResolutions,
   SegmentationConfig,
@@ -17,7 +15,6 @@ export function buildJointBilateralFilterStage(
   texCoordBuffer: WebGLBuffer,
   inputTexture: WebGLTexture,
   segmentationConfig: SegmentationConfig,
-  postProcessingConfigRef: MutableRefObject<PostProcessingConfig>,
   outputTexture: WebGLTexture,
   canvas: HTMLCanvasElement
 ) {
@@ -117,16 +114,10 @@ export function buildJointBilateralFilterStage(
     0
   )
 
-  function render() {
-    let {
-      sigmaSpace,
-      sigmaColor,
-    } = postProcessingConfigRef.current.jointBilateralFilter
-    sigmaSpace *= Math.max(
-      outputWidth / segmentationWidth,
-      outputHeight / segmentationHeight
-    )
+  let sigmaSpace = 0
+  let sigmaColor = 0
 
+  function render() {
     gl.useProgram(program)
     gl.uniform1i(inputFrameLocation, 0)
     gl.activeTexture(gl.TEXTURE1)
@@ -140,11 +131,23 @@ export function buildJointBilateralFilterStage(
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 
+  function updateSigmaSpace(newSigmaSpace: number) {
+    sigmaSpace = newSigmaSpace
+    sigmaSpace *= Math.max(
+      outputWidth / segmentationWidth,
+      outputHeight / segmentationHeight
+    )
+  }
+
+  function updateSigmaColor(newSigmaColor: number) {
+    sigmaColor = newSigmaColor
+  }
+
   function cleanUp() {
     gl.deleteFramebuffer(frameBuffer)
     gl.deleteProgram(program)
     gl.deleteShader(fragmentShader)
   }
 
-  return { render, cleanUp }
+  return { render, updateSigmaSpace, updateSigmaColor, cleanUp }
 }

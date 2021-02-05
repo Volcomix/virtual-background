@@ -1,9 +1,9 @@
 import { BodyPix } from '@tensorflow-models/body-pix'
-import { MutableRefObject, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { buildCanvas2dPipeline } from '../../pipelines/canvas2d/canvas2dPipeline'
 import { buildWebGL2Pipeline } from '../../pipelines/webgl2/webgl2Pipeline'
 import { BackgroundConfig } from '../helpers/backgroundHelper'
-import { PostProcessingConfig } from '../helpers/postProcessingHelper'
+import { RenderingPipeline } from '../helpers/renderingPipelineHelper'
 import { SegmentationConfig } from '../helpers/segmentationHelper'
 import { SourcePlayback } from '../helpers/sourceHelper'
 import useStats from './useStats'
@@ -13,11 +13,10 @@ function useRenderingPipeline(
   sourcePlayback: SourcePlayback,
   backgroundConfig: BackgroundConfig,
   segmentationConfig: SegmentationConfig,
-  // Post-processing config change must not rebuild the pipeline
-  postProcessingConfigRef: MutableRefObject<PostProcessingConfig>,
   bodyPix: BodyPix,
   tflite: TFLite
 ) {
+  const [pipeline, setPipeline] = useState<RenderingPipeline | null>(null)
   const backgroundImageRef = useRef<HTMLImageElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const { fps, durations, beginFrame, addFrameEvent, endFrame } = useStats()
@@ -29,13 +28,12 @@ function useRenderingPipeline(
 
     let renderRequestId: number
 
-    const pipeline =
+    const newPipeline =
       segmentationConfig.pipeline === 'webgl2'
         ? buildWebGL2Pipeline(
             sourcePlayback,
             backgroundImageRef.current,
             segmentationConfig,
-            postProcessingConfigRef,
             canvasRef.current,
             tflite,
             addFrameEvent
@@ -44,7 +42,6 @@ function useRenderingPipeline(
             sourcePlayback,
             backgroundConfig,
             segmentationConfig,
-            postProcessingConfigRef,
             canvasRef.current,
             bodyPix,
             tflite,
@@ -56,7 +53,7 @@ function useRenderingPipeline(
         return
       }
       beginFrame()
-      await pipeline.render()
+      await newPipeline.render()
       endFrame()
       renderRequestId = requestAnimationFrame(render)
     }
@@ -69,30 +66,35 @@ function useRenderingPipeline(
       segmentationConfig
     )
 
+    setPipeline(newPipeline)
+
     return () => {
       shouldRender = false
       cancelAnimationFrame(renderRequestId)
-      pipeline.cleanUp()
+      newPipeline.cleanUp()
       console.log(
         'Animation stopped:',
         sourcePlayback,
         backgroundConfig,
         segmentationConfig
       )
+
+      setPipeline(null)
     }
   }, [
     sourcePlayback,
     backgroundConfig,
     segmentationConfig,
-    postProcessingConfigRef,
     bodyPix,
     tflite,
+    setPipeline,
     beginFrame,
     addFrameEvent,
     endFrame,
   ])
 
   return {
+    pipeline,
     backgroundImageRef,
     canvasRef,
     fps,

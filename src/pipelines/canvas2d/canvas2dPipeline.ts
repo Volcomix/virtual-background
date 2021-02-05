@@ -1,5 +1,4 @@
 import { BodyPix } from '@tensorflow-models/body-pix'
-import { MutableRefObject } from 'react'
 import { BackgroundConfig } from '../../core/helpers/backgroundHelper'
 import { PostProcessingConfig } from '../../core/helpers/postProcessingHelper'
 import {
@@ -13,7 +12,6 @@ export function buildCanvas2dPipeline(
   sourcePlayback: SourcePlayback,
   backgroundConfig: BackgroundConfig,
   segmentationConfig: SegmentationConfig,
-  postProcessingConfigRef: MutableRefObject<PostProcessingConfig>,
   canvas: HTMLCanvasElement,
   bodyPix: BodyPix,
   tflite: TFLite,
@@ -34,6 +32,8 @@ export function buildCanvas2dPipeline(
   const inputMemoryOffset = tflite._getInputMemoryOffset() / 4
   const outputMemoryOffset = tflite._getOutputMemoryOffset() / 4
 
+  let postProcessingConfig: PostProcessingConfig
+
   async function render() {
     if (backgroundConfig.type !== 'none') {
       resizeSource()
@@ -52,6 +52,12 @@ export function buildCanvas2dPipeline(
     addFrameEvent()
 
     runPostProcessing()
+  }
+
+  function updatePostProcessingConfig(
+    newPostProcessingConfig: PostProcessingConfig
+  ) {
+    postProcessingConfig = newPostProcessingConfig
   }
 
   function cleanUp() {
@@ -119,7 +125,7 @@ export function buildCanvas2dPipeline(
     ctx.globalCompositeOperation = 'copy'
     ctx.filter = 'none'
 
-    if (postProcessingConfigRef.current.smoothSegmentationMask) {
+    if (postProcessingConfig?.smoothSegmentationMask) {
       if (backgroundConfig.type === 'blur') {
         ctx.filter = 'blur(8px)' // FIXME Does not work on Safari
       } else if (backgroundConfig.type === 'image') {
@@ -160,5 +166,5 @@ export function buildCanvas2dPipeline(
     ctx.drawImage(sourcePlayback.htmlElement, 0, 0)
   }
 
-  return { render, cleanUp }
+  return { render, updatePostProcessingConfig, cleanUp }
 }

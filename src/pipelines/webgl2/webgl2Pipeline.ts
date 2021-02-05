@@ -1,4 +1,3 @@
-import { MutableRefObject } from 'react'
 import { PostProcessingConfig } from '../../core/helpers/postProcessingHelper'
 import {
   inputResolutions,
@@ -16,7 +15,6 @@ export function buildWebGL2Pipeline(
   sourcePlayback: SourcePlayback,
   backgroundImage: HTMLImageElement | null,
   segmentationConfig: SegmentationConfig,
-  postProcessingConfigRef: MutableRefObject<PostProcessingConfig>,
   canvas: HTMLCanvasElement,
   tflite: TFLite,
   addFrameEvent: () => void
@@ -104,7 +102,6 @@ export function buildWebGL2Pipeline(
     texCoordBuffer,
     segmentationTexture,
     segmentationConfig,
-    postProcessingConfigRef,
     personMaskTexture,
     canvas
   )
@@ -148,6 +145,17 @@ export function buildWebGL2Pipeline(
     backgroundStage.render()
   }
 
+  function updatePostProcessingConfig(
+    newPostProcessingConfig: PostProcessingConfig
+  ) {
+    jointBilateralFilterStage.updateSigmaSpace(
+      newPostProcessingConfig.jointBilateralFilter.sigmaSpace
+    )
+    jointBilateralFilterStage.updateSigmaColor(
+      newPostProcessingConfig.jointBilateralFilter.sigmaColor
+    )
+  }
+
   function cleanUp() {
     backgroundStage.cleanUp()
     jointBilateralFilterStage.cleanUp()
@@ -163,5 +171,5 @@ export function buildWebGL2Pipeline(
     gl.deleteShader(vertexShader)
   }
 
-  return { render, cleanUp }
+  return { render, updatePostProcessingConfig, cleanUp }
 }
