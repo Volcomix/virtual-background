@@ -27,6 +27,8 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
     let inputResolution = props.config.inputResolution
     if (model === 'meet' && inputResolution === '360p') {
       inputResolution = '144p'
+    } else if (model === 'bodyPix') {
+      inputResolution = '360p'
     }
     let pipeline = props.config.pipeline
     if (model === 'bodyPix' && pipeline === 'webgl2') {
@@ -76,8 +78,12 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
             <MenuItem value="360p" disabled={props.config.model === 'meet'}>
               360p
             </MenuItem>
-            <MenuItem value="144p">144p</MenuItem>
-            <MenuItem value="96p">96p</MenuItem>
+            <MenuItem value="144p" disabled={props.config.model === 'bodyPix'}>
+              144p
+            </MenuItem>
+            <MenuItem value="96p" disabled={props.config.model === 'bodyPix'}>
+              96p
+            </MenuItem>
           </Select>
         </FormControl>
         <FormControl className={classes.formControl} variant="outlined">
