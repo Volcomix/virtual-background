@@ -75,6 +75,9 @@ export function buildSoftmaxStage(
     0
   )
 
+  gl.useProgram(program)
+  gl.uniform1i(inputLocation, 1)
+
   function render() {
     gl.useProgram(program)
     gl.activeTexture(gl.TEXTURE1)
@@ -91,7 +94,6 @@ export function buildSoftmaxStage(
       tflite.HEAPF32,
       tfliteOutputMemoryOffset
     )
-    gl.uniform1i(inputLocation, 1)
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
     gl.viewport(0, 0, segmentationWidth, segmentationHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)

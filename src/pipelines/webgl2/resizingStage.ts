@@ -67,9 +67,11 @@ export function buildResizingStage(
   )
   const outputPixels = new Float32Array(outputPixelCount * 4)
 
+  gl.useProgram(program)
+  gl.uniform1i(inputFrameLocation, 0)
+
   function render() {
     gl.useProgram(program)
-    gl.uniform1i(inputFrameLocation, 0)
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)

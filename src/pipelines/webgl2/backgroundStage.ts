@@ -118,15 +118,18 @@ export function buildBackgroundStage(
     }
   }
 
+  gl.useProgram(program)
+  gl.uniform1i(inputFrameLocation, 0)
+  gl.uniform1i(personMaskLocation, 1)
+
   function render() {
     gl.useProgram(program)
-    gl.uniform1i(inputFrameLocation, 0)
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, personMaskTexture)
-    gl.uniform1i(personMaskLocation, 1)
     if (backgroundTexture !== null) {
       gl.activeTexture(gl.TEXTURE2)
       gl.bindTexture(gl.TEXTURE_2D, backgroundTexture)
+      // TODO Handle correctly the background not loaded yet
       gl.uniform1i(backgroundLocation, 2)
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)

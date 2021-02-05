@@ -25,14 +25,15 @@ export function buildJointBilateralFilterStage(
     uniform sampler2D u_inputFrame;
     uniform sampler2D u_segmentationMask;
     uniform vec2 u_texelSize;
-    uniform float u_sigmaSpace;
+    uniform float u_step;
+    uniform float u_radius;
+    uniform float u_offset;
+    uniform float u_sigmaTexel;
     uniform float u_sigmaColor;
 
     in vec2 v_texCoord;
 
     out vec4 outColor;
-
-    const float kSparsityFactor = 0.66;  // Higher is more sparse.
 
     float gaussian(float x, float sigma) {
       float coeff = -0.5 / (sigma * sigma * 4.0 + 1.0e-6);
@@ -40,11 +41,6 @@ export function buildJointBilateralFilterStage(
     }
 
     void main() {
-      float sparsity = max(1.0, sqrt(u_sigmaSpace) * kSparsityFactor);
-      float step = sparsity;
-      float radius = u_sigmaSpace;
-      float offset = (step > 1.0) ? (step * 0.5) : (0.0);
-
       vec2 centerCoord = v_texCoord;
       vec3 centerColor = texture(u_inputFrame, centerCoord).rgb;
       float newVal = 0.0;
@@ -53,17 +49,15 @@ export function buildJointBilateralFilterStage(
       float colorWeight = 0.0;
       float totalWeight = 0.0;
 
-      float sigmaTexel = max(u_texelSize.x, u_texelSize.y) * u_sigmaSpace;
-
       // Subsample kernel space.
-      for (float i = -radius + offset; i <= radius; i += step) {
-        for (float j = -radius + offset; j <= radius; j += step) {
+      for (float i = -u_radius + u_offset; i <= u_radius; i += u_step) {
+        for (float j = -u_radius + u_offset; j <= u_radius; j += u_step) {
           vec2 shift = vec2(j, i) * u_texelSize;
           vec2 coord = vec2(centerCoord + shift);
           vec3 frameColor = texture(u_inputFrame, coord).rgb;
           float outVal = texture(u_segmentationMask, coord).a;
 
-          spaceWeight = gaussian(distance(centerCoord, coord), sigmaTexel);
+          spaceWeight = gaussian(distance(centerCoord, coord), u_sigmaTexel);
           colorWeight = gaussian(distance(centerColor, frameColor), u_sigmaColor);
           totalWeight += spaceWeight * colorWeight;
 
@@ -101,7 +95,10 @@ export function buildJointBilateralFilterStage(
     'u_segmentationMask'
   )
   const texelSizeLocation = gl.getUniformLocation(program, 'u_texelSize')
-  const sigmaSpaceLocation = gl.getUniformLocation(program, 'u_sigmaSpace')
+  const stepLocation = gl.getUniformLocation(program, 'u_step')
+  const radiusLocation = gl.getUniformLocation(program, 'u_radius')
+  const offsetLocation = gl.getUniformLocation(program, 'u_offset')
+  const sigmaTexelLocation = gl.getUniformLocation(program, 'u_sigmaTexel')
   const sigmaColorLocation = gl.getUniformLocation(program, 'u_sigmaColor')
 
   const frameBuffer = gl.createFramebuffer()
@@ -114,33 +111,48 @@ export function buildJointBilateralFilterStage(
     0
   )
 
-  let sigmaSpace = 0
-  let sigmaColor = 0
+  gl.useProgram(program)
+  gl.uniform1i(inputFrameLocation, 0)
+  gl.uniform1i(segmentationMaskLocation, 1)
+  gl.uniform2f(texelSizeLocation, texelWidth, texelHeight)
+
+  // Ensures default values are configured to prevent infinite
+  // loop in fragment shader
+  updateSigmaSpace(0)
+  updateSigmaColor(0)
 
   function render() {
     gl.useProgram(program)
-    gl.uniform1i(inputFrameLocation, 0)
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, inputTexture)
-    gl.uniform1i(segmentationMaskLocation, 1)
-    gl.uniform2f(texelSizeLocation, texelWidth, texelHeight)
-    gl.uniform1f(sigmaSpaceLocation, sigmaSpace)
-    gl.uniform1f(sigmaColorLocation, sigmaColor)
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 
-  function updateSigmaSpace(newSigmaSpace: number) {
-    sigmaSpace = newSigmaSpace
+  function updateSigmaSpace(sigmaSpace: number) {
     sigmaSpace *= Math.max(
       outputWidth / segmentationWidth,
       outputHeight / segmentationHeight
     )
+
+    const kSparsityFactor = 0.66 // Higher is more sparse.
+    const sparsity = Math.max(1, Math.sqrt(sigmaSpace) * kSparsityFactor)
+    const step = sparsity
+    const radius = sigmaSpace
+    const offset = step > 1 ? step * 0.5 : 0
+    const sigmaTexel = Math.max(texelWidth, texelHeight) * sigmaSpace
+
+    gl.useProgram(program)
+    gl.uniform1f(stepLocation, step)
+    gl.uniform1f(radiusLocation, radius)
+    gl.uniform1f(offsetLocation, offset)
+    gl.uniform1f(sigmaTexelLocation, sigmaTexel)
   }
 
-  function updateSigmaColor(newSigmaColor: number) {
-    sigmaColor = newSigmaColor
+  function updateSigmaColor(sigmaColor: number) {
+    gl.useProgram(program)
+    gl.uniform1f(sigmaColorLocation, sigmaColor)
   }
 
   function cleanUp() {
