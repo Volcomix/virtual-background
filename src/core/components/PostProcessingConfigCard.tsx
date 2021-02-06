@@ -44,6 +44,13 @@ function PostProcessingConfigCard(props: PostProcessingConfigCardProps) {
     })
   }
 
+  function handleCoverageChange(_event: any, value: number | number[]) {
+    props.onChange({
+      ...props.config,
+      coverage: value as [number, number],
+    })
+  }
+
   return (
     <Card>
       <CardContent>
@@ -70,6 +77,15 @@ function PostProcessingConfigCard(props: PostProcessingConfigCardProps) {
               step={0.01}
               valueLabelDisplay="auto"
               onChange={handleSigmaColorChange}
+            />
+            <Typography gutterBottom>Coverage</Typography>
+            <Slider
+              value={props.config.coverage}
+              min={0}
+              max={1}
+              step={0.01}
+              valueLabelDisplay="auto"
+              onChange={handleCoverageChange}
             />
           </React.Fragment>
         ) : (

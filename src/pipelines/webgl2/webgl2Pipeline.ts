@@ -156,6 +156,7 @@ export function buildWebGL2Pipeline(
     jointBilateralFilterStage.updateSigmaColor(
       newPostProcessingConfig.jointBilateralFilter.sigmaColor
     )
+    backgroundStage.updateCoverage(newPostProcessingConfig.coverage)
   }
 
   function cleanUp() {
