@@ -40,6 +40,7 @@ export function buildBackgroundStage(
     uniform sampler2D u_personMask;
     uniform sampler2D u_background;
     uniform vec2 u_coverage;
+    uniform float u_lightWrapping;
 
     in vec2 v_texCoord;
     in vec2 v_backgroundCoord;
@@ -58,13 +59,9 @@ export function buildBackgroundStage(
       vec3 frameColor = texture(u_inputFrame, v_texCoord).rgb;
       vec3 backgroundColor = texture(u_background, v_backgroundCoord).rgb;
       float personMask = texture(u_personMask, v_texCoord).a;
-      // float edge = smoothstep(1.0, 0.5, personMask);
-      // personMask = smoothstep(0.5, 1.0, personMask);
-      // vec3 lightWrap = backgroundColor * edge * 0.4;
-      // // TODO Switch between screen and linearDodge based on user configuration
-      // vec3 person = screen(frameColor, lightWrap);
-      // outColor = vec4(person * personMask + backgroundColor * (1.0 - personMask), 1.0);
-      // float edge = smoothstep(0.0, 0.5, personMask) - 2.0 * (max(0.5, personMask) - 0.5);
+      float lightWrap = 1.0 - max(0.0, personMask - u_coverage.y) / (1.0 - u_coverage.y);
+      // TODO Switch between screen and linearDodge based on user configuration
+      frameColor = screen(frameColor, u_lightWrapping * lightWrap * backgroundColor);
       personMask = smoothstep(u_coverage.x, u_coverage.y, personMask);
       outColor = vec4(frameColor * personMask + backgroundColor * (1.0 - personMask), 1.0);
     }
@@ -98,6 +95,10 @@ export function buildBackgroundStage(
   const personMaskLocation = gl.getUniformLocation(program, 'u_personMask')
   const backgroundLocation = gl.getUniformLocation(program, 'u_background')
   const coverageLocation = gl.getUniformLocation(program, 'u_coverage')
+  const lightWrappingLocation = gl.getUniformLocation(
+    program,
+    'u_lightWrapping'
+  )
 
   gl.useProgram(program)
   gl.uniform2f(backgroundScaleLocation, 1, 1)
@@ -105,6 +106,7 @@ export function buildBackgroundStage(
   gl.uniform1i(inputFrameLocation, 0)
   gl.uniform1i(personMaskLocation, 1)
   gl.uniform2f(coverageLocation, 0, 1)
+  gl.uniform1f(lightWrappingLocation, 0.4)
 
   let backgroundTexture: WebGLTexture | null = null
   // TODO Find a better to handle background being loaded
@@ -179,6 +181,11 @@ export function buildBackgroundStage(
     gl.uniform2f(coverageLocation, coverage[0], coverage[1])
   }
 
+  function updateLightWrapping(lightWrapping: number) {
+    gl.useProgram(program)
+    gl.uniform1f(lightWrappingLocation, lightWrapping)
+  }
+
   function cleanUp() {
     gl.deleteTexture(backgroundTexture)
     gl.deleteProgram(program)
@@ -186,5 +193,5 @@ export function buildBackgroundStage(
     gl.deleteShader(vertexShader)
   }
 
-  return { render, updateCoverage, cleanUp }
+  return { render, updateCoverage, updateLightWrapping, cleanUp }
 }

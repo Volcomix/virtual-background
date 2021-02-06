@@ -51,6 +51,13 @@ function PostProcessingConfigCard(props: PostProcessingConfigCardProps) {
     })
   }
 
+  function handleLightWrappingChange(_event: any, value: number | number[]) {
+    props.onChange({
+      ...props.config,
+      lightWrapping: value as number,
+    })
+  }
+
   return (
     <Card>
       <CardContent>
@@ -78,7 +85,8 @@ function PostProcessingConfigCard(props: PostProcessingConfigCardProps) {
               valueLabelDisplay="auto"
               onChange={handleSigmaColorChange}
             />
-            <Typography gutterBottom>Coverage</Typography>
+            <Typography gutterBottom>Background</Typography>
+            <Typography variant="body2">Coverage</Typography>
             <Slider
               value={props.config.coverage}
               min={0}
@@ -86,6 +94,15 @@ function PostProcessingConfigCard(props: PostProcessingConfigCardProps) {
               step={0.01}
               valueLabelDisplay="auto"
               onChange={handleCoverageChange}
+            />
+            <Typography variant="body2">Light wrapping</Typography>
+            <Slider
+              value={props.config.lightWrapping}
+              min={0}
+              max={1}
+              step={0.01}
+              valueLabelDisplay="auto"
+              onChange={handleLightWrappingChange}
             />
           </React.Fragment>
         ) : (

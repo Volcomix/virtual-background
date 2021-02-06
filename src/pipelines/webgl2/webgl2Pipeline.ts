@@ -148,15 +148,16 @@ export function buildWebGL2Pipeline(
   }
 
   function updatePostProcessingConfig(
-    newPostProcessingConfig: PostProcessingConfig
+    postProcessingConfig: PostProcessingConfig
   ) {
     jointBilateralFilterStage.updateSigmaSpace(
-      newPostProcessingConfig.jointBilateralFilter.sigmaSpace
+      postProcessingConfig.jointBilateralFilter.sigmaSpace
     )
     jointBilateralFilterStage.updateSigmaColor(
-      newPostProcessingConfig.jointBilateralFilter.sigmaColor
+      postProcessingConfig.jointBilateralFilter.sigmaColor
     )
-    backgroundStage.updateCoverage(newPostProcessingConfig.coverage)
+    backgroundStage.updateCoverage(postProcessingConfig.coverage)
+    backgroundStage.updateLightWrapping(postProcessingConfig.lightWrapping)
   }
 
   function cleanUp() {
