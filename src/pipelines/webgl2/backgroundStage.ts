@@ -15,15 +15,20 @@ export function buildBackgroundStage(
 ) {
   const vertexShaderSource = glsl`#version 300 es
 
+    uniform vec2 u_backgroundScale;
+    uniform vec2 u_backgroundOffset;
+
     in vec2 a_position;
     in vec2 a_texCoord;
 
     out vec2 v_texCoord;
+    out vec2 v_backgroundCoord;
 
     void main() {
       // Flipping Y is required when rendering to canvas
       gl_Position = vec4(a_position * vec2(1.0, -1.0), 0.0, 1.0);
       v_texCoord = a_texCoord;
+      v_backgroundCoord = a_texCoord * u_backgroundScale + u_backgroundOffset;
     }
   `
 
@@ -36,6 +41,7 @@ export function buildBackgroundStage(
     uniform sampler2D u_background;
 
     in vec2 v_texCoord;
+    in vec2 v_backgroundCoord;
 
     out vec4 outColor;
 
@@ -49,7 +55,7 @@ export function buildBackgroundStage(
 
     void main() {
       vec3 frameColor = texture(u_inputFrame, v_texCoord).rgb;
-      vec3 backgroundColor = texture(u_background, v_texCoord).rgb;
+      vec3 backgroundColor = texture(u_background, v_backgroundCoord).rgb;
       float personMask = texture(u_personMask, v_texCoord).a;
       float edge = smoothstep(1.0, 0.5, personMask);
       personMask = smoothstep(0.5, 1.0, personMask);
@@ -61,6 +67,7 @@ export function buildBackgroundStage(
   `
 
   const { width: outputWidth, height: outputHeight } = canvas
+  const outputRatio = outputWidth / outputHeight
 
   const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
   const fragmentShader = compileShader(
@@ -75,52 +82,33 @@ export function buildBackgroundStage(
     positionBuffer,
     texCoordBuffer
   )
+  const backgroundScaleLocation = gl.getUniformLocation(
+    program,
+    'u_backgroundScale'
+  )
+  const backgroundOffsetLocation = gl.getUniformLocation(
+    program,
+    'u_backgroundOffset'
+  )
   const inputFrameLocation = gl.getUniformLocation(program, 'u_inputFrame')
   const personMaskLocation = gl.getUniformLocation(program, 'u_personMask')
   const backgroundLocation = gl.getUniformLocation(program, 'u_background')
 
-  let backgroundTexture: WebGLTexture | null = null
-  // TODO Find a better to handle background being loaded
-  // TODO Fix background image deformation and interpolation
-  if (backgroundImage?.complete) {
-    backgroundTexture = createTexture(
-      gl,
-      gl.RGBA8,
-      backgroundImage.naturalWidth,
-      backgroundImage.naturalHeight
-    )
-    gl.texSubImage2D(
-      gl.TEXTURE_2D,
-      0,
-      0,
-      0,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      backgroundImage
-    )
-  } else if (backgroundImage) {
-    backgroundImage.onload = () => {
-      backgroundTexture = createTexture(
-        gl,
-        gl.RGBA8,
-        backgroundImage.naturalWidth,
-        backgroundImage.naturalHeight
-      )
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        0,
-        0,
-        0,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        backgroundImage
-      )
-    }
-  }
-
   gl.useProgram(program)
+  gl.uniform2f(backgroundScaleLocation, 1, 1)
+  gl.uniform2f(backgroundOffsetLocation, 0, 0)
   gl.uniform1i(inputFrameLocation, 0)
   gl.uniform1i(personMaskLocation, 1)
+
+  let backgroundTexture: WebGLTexture | null = null
+  // TODO Find a better to handle background being loaded
+  if (backgroundImage?.complete) {
+    updateBackgroundImage(backgroundImage)
+  } else if (backgroundImage) {
+    backgroundImage.onload = () => {
+      updateBackgroundImage(backgroundImage)
+    }
+  }
 
   function render() {
     gl.useProgram(program)
@@ -135,6 +123,49 @@ export function buildBackgroundStage(
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+  }
+
+  function updateBackgroundImage(backgroundImage: HTMLImageElement) {
+    backgroundTexture = createTexture(
+      gl,
+      gl.RGBA8,
+      backgroundImage.naturalWidth,
+      backgroundImage.naturalHeight,
+      gl.LINEAR,
+      gl.LINEAR
+    )
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      0,
+      0,
+      backgroundImage.naturalWidth,
+      backgroundImage.naturalHeight,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      backgroundImage
+    )
+
+    let xOffset = 0
+    let yOffset = 0
+    let backgroundWidth = backgroundImage.naturalWidth
+    let backgroundHeight = backgroundImage.naturalHeight
+    const backgroundRatio = backgroundWidth / backgroundHeight
+    if (backgroundRatio < outputRatio) {
+      backgroundHeight = backgroundWidth / outputRatio
+      yOffset = (backgroundImage.naturalHeight - backgroundHeight) / 2
+    } else {
+      backgroundWidth = backgroundHeight * outputRatio
+      xOffset = (backgroundImage.naturalWidth - backgroundWidth) / 2
+    }
+
+    const xScale = backgroundWidth / backgroundImage.naturalWidth
+    const yScale = backgroundHeight / backgroundImage.naturalHeight
+    xOffset /= backgroundImage.naturalWidth
+    yOffset /= backgroundImage.naturalHeight
+
+    gl.uniform2f(backgroundScaleLocation, xScale, yScale)
+    gl.uniform2f(backgroundOffsetLocation, xOffset, yOffset)
   }
 
   function cleanUp() {

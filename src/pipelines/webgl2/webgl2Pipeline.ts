@@ -125,6 +125,8 @@ export function buildWebGL2Pipeline(
       0,
       0,
       0,
+      frameWidth,
+      frameHeight,
       gl.RGBA,
       gl.UNSIGNED_BYTE,
       sourcePlayback.htmlElement
