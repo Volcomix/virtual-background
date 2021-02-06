@@ -158,6 +158,7 @@ export function buildWebGL2Pipeline(
     )
     backgroundStage.updateCoverage(postProcessingConfig.coverage)
     backgroundStage.updateLightWrapping(postProcessingConfig.lightWrapping)
+    backgroundStage.updateBlendMode(postProcessingConfig.blendMode)
   }
 
   function cleanUp() {

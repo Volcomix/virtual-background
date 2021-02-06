@@ -1,3 +1,4 @@
+import { BlendMode } from '../../core/helpers/postProcessingHelper'
 import {
   compileShader,
   createPiplelineStageProgram,
@@ -41,6 +42,7 @@ export function buildBackgroundStage(
     uniform sampler2D u_background;
     uniform vec2 u_coverage;
     uniform float u_lightWrapping;
+    uniform float u_blendMode;
 
     in vec2 v_texCoord;
     in vec2 v_backgroundCoord;
@@ -59,9 +61,10 @@ export function buildBackgroundStage(
       vec3 frameColor = texture(u_inputFrame, v_texCoord).rgb;
       vec3 backgroundColor = texture(u_background, v_backgroundCoord).rgb;
       float personMask = texture(u_personMask, v_texCoord).a;
-      float lightWrap = 1.0 - max(0.0, personMask - u_coverage.y) / (1.0 - u_coverage.y);
-      // TODO Switch between screen and linearDodge based on user configuration
-      frameColor = screen(frameColor, u_lightWrapping * lightWrap * backgroundColor);
+      float lightWrapMask = 1.0 - max(0.0, personMask - u_coverage.y) / (1.0 - u_coverage.y);
+      vec3 lightWrap = u_lightWrapping * lightWrapMask * backgroundColor;
+      frameColor = u_blendMode * linearDodge(frameColor, lightWrap) +
+        (1.0 - u_blendMode) * screen(frameColor, lightWrap);
       personMask = smoothstep(u_coverage.x, u_coverage.y, personMask);
       outColor = vec4(frameColor * personMask + backgroundColor * (1.0 - personMask), 1.0);
     }
@@ -99,6 +102,7 @@ export function buildBackgroundStage(
     program,
     'u_lightWrapping'
   )
+  const blendModeLocation = gl.getUniformLocation(program, 'u_blendMode')
 
   gl.useProgram(program)
   gl.uniform2f(backgroundScaleLocation, 1, 1)
@@ -106,7 +110,8 @@ export function buildBackgroundStage(
   gl.uniform1i(inputFrameLocation, 0)
   gl.uniform1i(personMaskLocation, 1)
   gl.uniform2f(coverageLocation, 0, 1)
-  gl.uniform1f(lightWrappingLocation, 0.4)
+  gl.uniform1f(lightWrappingLocation, 0)
+  gl.uniform1f(blendModeLocation, 0)
 
   let backgroundTexture: WebGLTexture | null = null
   // TODO Find a better to handle background being loaded
@@ -186,6 +191,11 @@ export function buildBackgroundStage(
     gl.uniform1f(lightWrappingLocation, lightWrapping)
   }
 
+  function updateBlendMode(blendMode: BlendMode) {
+    gl.useProgram(program)
+    gl.uniform1f(blendModeLocation, blendMode === 'screen' ? 0 : 1)
+  }
+
   function cleanUp() {
     gl.deleteTexture(backgroundTexture)
     gl.deleteProgram(program)
@@ -193,5 +203,11 @@ export function buildBackgroundStage(
     gl.deleteShader(vertexShader)
   }
 
-  return { render, updateCoverage, updateLightWrapping, cleanUp }
+  return {
+    render,
+    updateCoverage,
+    updateLightWrapping,
+    updateBlendMode,
+    cleanUp,
+  }
 }

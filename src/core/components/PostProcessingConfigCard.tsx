@@ -1,11 +1,19 @@
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
+import FormControl from '@material-ui/core/FormControl'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
+import InputLabel from '@material-ui/core/InputLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+import Select from '@material-ui/core/Select'
 import Slider from '@material-ui/core/Slider'
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Switch from '@material-ui/core/Switch'
 import Typography from '@material-ui/core/Typography'
 import React, { ChangeEvent } from 'react'
-import { PostProcessingConfig } from '../helpers/postProcessingHelper'
+import {
+  BlendMode,
+  PostProcessingConfig,
+} from '../helpers/postProcessingHelper'
 import { PipelineName } from '../helpers/segmentationHelper'
 
 type PostProcessingConfigCardProps = {
@@ -15,6 +23,8 @@ type PostProcessingConfigCardProps = {
 }
 
 function PostProcessingConfigCard(props: PostProcessingConfigCardProps) {
+  const classes = useStyles()
+
   function handleSmoothSegmentationMaskChange(
     event: ChangeEvent<HTMLInputElement>
   ) {
@@ -58,6 +68,13 @@ function PostProcessingConfigCard(props: PostProcessingConfigCardProps) {
     })
   }
 
+  function handleBlendModeChange(event: ChangeEvent<{ value: unknown }>) {
+    props.onChange({
+      ...props.config,
+      blendMode: event.target.value as BlendMode,
+    })
+  }
+
   return (
     <Card>
       <CardContent>
@@ -95,15 +112,30 @@ function PostProcessingConfigCard(props: PostProcessingConfigCardProps) {
               valueLabelDisplay="auto"
               onChange={handleCoverageChange}
             />
-            <Typography variant="body2">Light wrapping</Typography>
-            <Slider
-              value={props.config.lightWrapping}
-              min={0}
-              max={1}
-              step={0.01}
-              valueLabelDisplay="auto"
-              onChange={handleLightWrappingChange}
-            />
+            <Typography variant="body2" gutterBottom>
+              Light wrapping
+            </Typography>
+            <div className={classes.lightWrapping}>
+              <FormControl className={classes.formControl} variant="outlined">
+                <InputLabel>Blend mode</InputLabel>
+                <Select
+                  label="Blend mode"
+                  value={props.config.blendMode}
+                  onChange={handleBlendModeChange}
+                >
+                  <MenuItem value="screen">Screen</MenuItem>
+                  <MenuItem value="linearDodge">Linear dodge</MenuItem>
+                </Select>
+              </FormControl>
+              <Slider
+                value={props.config.lightWrapping}
+                min={0}
+                max={1}
+                step={0.01}
+                valueLabelDisplay="auto"
+                onChange={handleLightWrappingChange}
+              />
+            </div>
           </React.Fragment>
         ) : (
           <FormControlLabel
@@ -121,5 +153,20 @@ function PostProcessingConfigCard(props: PostProcessingConfigCardProps) {
     </Card>
   )
 }
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    lightWrapping: {
+      display: 'flex',
+      alignItems: 'center',
+    },
+    formControl: {
+      marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(1),
+      marginRight: theme.spacing(2),
+      minWidth: 160,
+    },
+  })
+)
 
 export default PostProcessingConfigCard
