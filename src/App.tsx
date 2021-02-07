@@ -13,13 +13,9 @@ import { PostProcessingConfig } from './core/helpers/postProcessingHelper'
 import { SegmentationConfig } from './core/helpers/segmentationHelper'
 import { SourceConfig, sourceImageUrls } from './core/helpers/sourceHelper'
 import useBodyPix from './core/hooks/useBodyPix'
-import useMeetModel from './core/hooks/useMeetModel'
 import useTFLite from './core/hooks/useTFLite'
 
 function App() {
-  const bodyPix = useBodyPix()
-  const tflite = useTFLite()
-
   const classes = useStyles()
   const [sourceConfig, setSourceConfig] = useState<SourceConfig>({
     type: 'image',
@@ -48,9 +44,8 @@ function App() {
     lightWrapping: 0.3,
     blendMode: 'screen',
   })
-
-  // FIXME Animation stops, starts and stops again when changing segmentation config
-  const isMeetModelLoaded = useMeetModel(tflite, segmentationConfig)
+  const bodyPix = useBodyPix()
+  const { tflite, isSIMDSupported } = useTFLite(segmentationConfig)
 
   return (
     <div className={classes.root}>
@@ -60,12 +55,7 @@ function App() {
         segmentationConfig={segmentationConfig}
         postProcessingConfig={postProcessingConfig}
         bodyPix={bodyPix}
-        tflite={
-          // TODO Find a better way to handle both bodyPix and tflite props
-          isMeetModelLoaded || segmentationConfig.model === 'bodyPix'
-            ? tflite
-            : undefined
-        }
+        tflite={tflite}
       />
       <SourceConfigCard config={sourceConfig} onChange={setSourceConfig} />
       <BackgroundConfigCard
@@ -74,6 +64,7 @@ function App() {
       />
       <SegmentationConfigCard
         config={segmentationConfig}
+        isSIMDSupported={isSIMDSupported}
         onChange={setSegmentationConfig}
       />
       <PostProcessingConfigCard

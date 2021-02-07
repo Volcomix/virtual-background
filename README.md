@@ -35,7 +35,7 @@ The result provides an interesting framerate on laptop (~20 FPS on MacBook Pro 2
 
 ### MediaPipe Meet Segmentation
 
-Meet segmentation model is only available as a [TensorFlow Lite](https://www.tensorflow.org/lite) model file. Few approaches are discussed in [this issue](https://github.com/tensorflow/tfjs/issues/4177) to convert and use it with TensorFlow.js but I decided to try implementing something closer to Google original approach described in [this post](https://ai.googleblog.com/2020/10/background-features-in-google-meet.html). Hence the demo relies on a small WebAssembly tool built on top of [TFLite](https://blog.tensorflow.org/2020/07/accelerating-tensorflow-lite-xnnpack-integration.html) along with [XNNPACK](https://github.com/google/XNNPACK) delegate.
+Meet segmentation model is only available as a [TensorFlow Lite](https://www.tensorflow.org/lite) model file. Few approaches are discussed in [this issue](https://github.com/tensorflow/tfjs/issues/4177) to convert and use it with TensorFlow.js but I decided to try implementing something closer to Google original approach described in [this post](https://ai.googleblog.com/2020/10/background-features-in-google-meet.html). Hence the demo relies on a small WebAssembly tool built on top of [TFLite](https://blog.tensorflow.org/2020/07/accelerating-tensorflow-lite-xnnpack-integration.html) along with [XNNPACK](https://github.com/google/XNNPACK) delegate and [SIMD](https://github.com/WebAssembly/simd) support.
 
 **Note: [Meet segmentation model card](https://mediapipe.page.link/meet-mc) was initially released under [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) license (read more [here](https://github.com/tensorflow/tfjs/issues/4177) and [here](https://github.com/google/mediapipe/issues/1460)) but seems to be switched to [Google Terms of Service](https://policies.google.com/terms?hl=en-US) since Jan 21, 2021. Not sure what it means for this demo.**
 
@@ -74,7 +74,9 @@ The WebGL 2 rendering pipeline relies entirely on `webgl2` canvas context and GL
 
 ## Possible improvements
 
-- Build TFLite and XNNPACK with SIMD and multithreading support. Few configuration examples are in [TensorFlow.js WASM backend](https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/BUILD).
+- Try [separable approximation](https://www.researchgate.net/publication/4181202_Separable_bilateral_filtering_for_fast_video_preprocessing) for joint bilateral filter.
+- Compute everything on lower source resolution (scaling down at the beginning of the pipeline).
+- Build TFLite and XNNPACK with multithreading support. Few configuration examples are in [TensorFlow.js WASM backend](https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/BUILD).
 - Detect WASM features to load automatically the right TFLite WASM runtime. Inspirations could be taken from [TensorFlow.js WASM backend](https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/flags_wasm.ts) which is based on [GoogleChromeLabs/wasm-feature-detect](https://github.com/GoogleChromeLabs/wasm-feature-detect).
 
 ## Related work

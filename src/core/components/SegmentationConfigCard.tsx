@@ -17,6 +17,7 @@ import {
 
 type SegmentationConfigCardProps = {
   config: SegmentationConfig
+  isSIMDSupported: boolean
   onChange: (config: SegmentationConfig) => void
 }
 
@@ -101,6 +102,14 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
               >
                 WebAssembly
               </MenuItem>
+              <MenuItem
+                value="wasmSimd"
+                disabled={
+                  props.config.model === 'bodyPix' || !props.isSIMDSupported
+                }
+              >
+                WebAssembly SIMD
+              </MenuItem>
               <MenuItem value="webgl" disabled={props.config.model === 'meet'}>
                 WebGL
               </MenuItem>
@@ -165,7 +174,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1),
       marginRight: theme.spacing(2),
-      minWidth: 160,
+      minWidth: 200,
       flex: 1,
     },
   })

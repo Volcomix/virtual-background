@@ -1,5 +1,5 @@
 export type SegmentationModel = 'bodyPix' | 'meet'
-export type SegmentationBackend = 'webgl' | 'wasm'
+export type SegmentationBackend = 'webgl' | 'wasm' | 'wasmSimd'
 export type InputResolution = '360p' | '144p' | '96p'
 
 export const inputResolutions: {

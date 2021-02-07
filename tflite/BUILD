@@ -7,6 +7,7 @@ cc_binary(
   name = "tflite",
   srcs = ["tflite.cc"],
   linkopts = tflite_linkopts() + [
+    "-s ALLOW_MEMORY_GROWTH=1",
     "-s USE_PTHREADS=0",
     "-s MODULARIZE=1",
     "-s EXPORT_NAME=createTFLiteModule",
@@ -23,6 +24,7 @@ cc_binary(
   name = "tflite-simd",
   srcs = ["tflite.cc"],
   linkopts = tflite_linkopts() + [
+    "-s ALLOW_MEMORY_GROWTH=1",
     "-s USE_PTHREADS=0",
     "-s MODULARIZE=1",
     "-s EXPORT_NAME=createTFLiteSIMDModule",
