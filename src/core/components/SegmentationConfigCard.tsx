@@ -10,6 +10,7 @@ import { ChangeEvent } from 'react'
 import {
   InputResolution,
   PipelineName,
+  SegmentationBackend,
   SegmentationConfig,
   SegmentationModel,
 } from '../helpers/segmentationHelper'
@@ -24,17 +25,35 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
 
   function handleModelChange(event: ChangeEvent<{ value: unknown }>) {
     const model = event.target.value as SegmentationModel
+    let backend = props.config.backend
     let inputResolution = props.config.inputResolution
-    if (model === 'meet' && inputResolution === '360p') {
-      inputResolution = '144p'
+    if (model === 'meet') {
+      backend = 'wasm'
+      if (inputResolution === '360p') {
+        inputResolution = '144p'
+      }
     } else if (model === 'bodyPix') {
+      backend = 'webgl'
       inputResolution = '360p'
     }
     let pipeline = props.config.pipeline
     if (model === 'bodyPix' && pipeline === 'webgl2') {
       pipeline = 'canvas2dCpu'
     }
-    props.onChange({ ...props.config, model, inputResolution, pipeline })
+    props.onChange({
+      ...props.config,
+      model,
+      backend,
+      inputResolution,
+      pipeline,
+    })
+  }
+
+  function handleBackendChange(event: ChangeEvent<{ value: unknown }>) {
+    props.onChange({
+      ...props.config,
+      backend: event.target.value as SegmentationBackend,
+    })
   }
 
   function handleInputResolutionChange(event: ChangeEvent<{ value: unknown }>) {
@@ -57,51 +76,74 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
         <Typography gutterBottom variant="h6" component="h2">
           Segmentation
         </Typography>
-        <FormControl className={classes.formControl} variant="outlined">
-          <InputLabel>Model</InputLabel>
-          <Select
-            label="Model"
-            value={props.config.model}
-            onChange={handleModelChange}
-          >
-            <MenuItem value="meet">Meet</MenuItem>
-            <MenuItem value="bodyPix">BodyPix</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl className={classes.formControl} variant="outlined">
-          <InputLabel>Input resolution</InputLabel>
-          <Select
-            label="Input resolution"
-            value={props.config.inputResolution}
-            onChange={handleInputResolutionChange}
-          >
-            <MenuItem value="360p" disabled={props.config.model === 'meet'}>
-              360p
-            </MenuItem>
-            <MenuItem value="144p" disabled={props.config.model === 'bodyPix'}>
-              144p
-            </MenuItem>
-            <MenuItem value="96p" disabled={props.config.model === 'bodyPix'}>
-              96p
-            </MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl className={classes.formControl} variant="outlined">
-          <InputLabel>Pipeline</InputLabel>
-          <Select
-            label="Pipeline"
-            value={props.config.pipeline}
-            onChange={handlePipelineChange}
-          >
-            <MenuItem
-              value="webgl2"
-              disabled={props.config.model === 'bodyPix'}
+        <div className={classes.formControls}>
+          <FormControl className={classes.formControl} variant="outlined">
+            <InputLabel>Model</InputLabel>
+            <Select
+              label="Model"
+              value={props.config.model}
+              onChange={handleModelChange}
             >
-              WebGL 2 (WIP)
-            </MenuItem>
-            <MenuItem value="canvas2dCpu">Canvas 2D + CPU</MenuItem>
-          </Select>
-        </FormControl>
+              <MenuItem value="meet">Meet</MenuItem>
+              <MenuItem value="bodyPix">BodyPix</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl className={classes.formControl} variant="outlined">
+            <InputLabel>Backend</InputLabel>
+            <Select
+              label="Backend"
+              value={props.config.backend}
+              onChange={handleBackendChange}
+            >
+              <MenuItem
+                value="wasm"
+                disabled={props.config.model === 'bodyPix'}
+              >
+                WebAssembly
+              </MenuItem>
+              <MenuItem value="webgl" disabled={props.config.model === 'meet'}>
+                WebGL
+              </MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl className={classes.formControl} variant="outlined">
+            <InputLabel>Input resolution</InputLabel>
+            <Select
+              label="Input resolution"
+              value={props.config.inputResolution}
+              onChange={handleInputResolutionChange}
+            >
+              <MenuItem value="360p" disabled={props.config.model === 'meet'}>
+                360p
+              </MenuItem>
+              <MenuItem
+                value="144p"
+                disabled={props.config.model === 'bodyPix'}
+              >
+                144p
+              </MenuItem>
+              <MenuItem value="96p" disabled={props.config.model === 'bodyPix'}>
+                96p
+              </MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl className={classes.formControl} variant="outlined">
+            <InputLabel>Pipeline</InputLabel>
+            <Select
+              label="Pipeline"
+              value={props.config.pipeline}
+              onChange={handlePipelineChange}
+            >
+              <MenuItem
+                value="webgl2"
+                disabled={props.config.model === 'bodyPix'}
+              >
+                WebGL 2 (WIP)
+              </MenuItem>
+              <MenuItem value="canvas2dCpu">Canvas 2D + CPU</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
       </CardContent>
     </Card>
   )
@@ -115,11 +157,16 @@ const useStyles = makeStyles((theme: Theme) =>
         gridRowStart: 2,
       },
     },
+    formControls: {
+      display: 'flex',
+      flexWrap: 'wrap',
+    },
     formControl: {
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1),
       marginRight: theme.spacing(2),
-      minWidth: 120,
+      minWidth: 160,
+      flex: 1,
     },
   })
 )

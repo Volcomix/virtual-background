@@ -34,6 +34,7 @@ function App() {
     setSegmentationConfig,
   ] = useState<SegmentationConfig>({
     model: 'meet',
+    backend: 'wasm',
     inputResolution: '96p',
     pipeline: 'canvas2dCpu',
   })
