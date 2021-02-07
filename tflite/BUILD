@@ -18,3 +18,19 @@ cc_binary(
     "@org_mediapipe//mediapipe/util/tflite/operations:transpose_conv_bias",
   ],
 )
+
+cc_binary(
+  name = "tflite-simd",
+  srcs = ["tflite.cc"],
+  linkopts = tflite_linkopts() + [
+    "-s USE_PTHREADS=0",
+    "-s MODULARIZE=1",
+    "-s EXPORT_NAME=createTFLiteSIMDModule",
+  ],
+  deps = [
+    "@org_tensorflow//tensorflow/lite:framework",
+    "@org_tensorflow//tensorflow/lite:tflite_with_xnnpack",
+    "@org_tensorflow//tensorflow/lite/kernels:builtin_ops",
+    "@org_mediapipe//mediapipe/util/tflite/operations:transpose_conv_bias",
+  ],
+)

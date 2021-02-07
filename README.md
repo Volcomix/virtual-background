@@ -131,6 +131,6 @@ Builds a Docker development image, starts the container and initializes dependen
 
 Starts the container, then updates TensorFlow and MediaPipe repositories inside the container.
 
-### `yarn build:tflite`
+### `yarn build:tflite:all`
 
-Builds WASM functions that can infer Meet segmentation models.
+Builds WASM functions that can infer Meet segmentation models. The TFLite tool is built both with and without SIMD support.
