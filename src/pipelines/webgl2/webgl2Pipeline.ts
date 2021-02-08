@@ -1,3 +1,4 @@
+import { BackgroundConfig } from '../../core/helpers/backgroundHelper'
 import { PostProcessingConfig } from '../../core/helpers/postProcessingHelper'
 import {
   inputResolutions,
@@ -6,7 +7,11 @@ import {
 import { SourcePlayback } from '../../core/helpers/sourceHelper'
 import { TFLite } from '../../core/hooks/useTFLite'
 import { compileShader, createTexture, glsl } from '../helpers/webglHelper'
-import { buildBackgroundStage } from './backgroundStage'
+import { buildBackgroundBlurStage } from './backgroundBlurStage'
+import {
+  BackgroundImageStage,
+  buildBackgroundImageStage,
+} from './backgroundImageStage'
 import { buildJointBilateralFilterStage } from './jointBilateralFilterStage'
 import { buildResizingStage } from './resizingStage'
 import { buildSoftmaxStage } from './softmaxStage'
@@ -14,6 +19,7 @@ import { buildSoftmaxStage } from './softmaxStage'
 export function buildWebGL2Pipeline(
   sourcePlayback: SourcePlayback,
   backgroundImage: HTMLImageElement | null,
+  backgroundConfig: BackgroundConfig,
   segmentationConfig: SegmentationConfig,
   canvas: HTMLCanvasElement,
   tflite: TFLite,
@@ -105,14 +111,23 @@ export function buildWebGL2Pipeline(
     personMaskTexture,
     canvas
   )
-  const backgroundStage = buildBackgroundStage(
-    gl,
-    positionBuffer,
-    texCoordBuffer,
-    personMaskTexture,
-    backgroundImage,
-    canvas
-  )
+  const backgroundStage =
+    backgroundConfig.type === 'blur'
+      ? buildBackgroundBlurStage(
+          gl,
+          positionBuffer,
+          texCoordBuffer,
+          personMaskTexture,
+          canvas
+        )
+      : buildBackgroundImageStage(
+          gl,
+          positionBuffer,
+          texCoordBuffer,
+          personMaskTexture,
+          backgroundImage,
+          canvas
+        )
 
   async function render() {
     gl.clearColor(0, 0, 0, 0)
@@ -156,9 +171,16 @@ export function buildWebGL2Pipeline(
     jointBilateralFilterStage.updateSigmaColor(
       postProcessingConfig.jointBilateralFilter.sigmaColor
     )
+
     backgroundStage.updateCoverage(postProcessingConfig.coverage)
-    backgroundStage.updateLightWrapping(postProcessingConfig.lightWrapping)
-    backgroundStage.updateBlendMode(postProcessingConfig.blendMode)
+
+    if (backgroundConfig.type === 'image') {
+      const backgroundImageStage = backgroundStage as BackgroundImageStage
+      backgroundImageStage.updateLightWrapping(
+        postProcessingConfig.lightWrapping
+      )
+      backgroundImageStage.updateBlendMode(postProcessingConfig.blendMode)
+    }
   }
 
   function cleanUp() {

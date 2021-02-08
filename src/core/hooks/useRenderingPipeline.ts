@@ -33,6 +33,7 @@ function useRenderingPipeline(
         ? buildWebGL2Pipeline(
             sourcePlayback,
             backgroundImageRef.current,
+            backgroundConfig,
             segmentationConfig,
             canvasRef.current,
             tflite,

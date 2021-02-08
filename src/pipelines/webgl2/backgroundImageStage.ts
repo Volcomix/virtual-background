@@ -6,14 +6,22 @@ import {
   glsl,
 } from '../helpers/webglHelper'
 
-export function buildBackgroundStage(
+export type BackgroundImageStage = {
+  render(): void
+  updateCoverage(coverage: [number, number]): void
+  updateLightWrapping(lightWrapping: number): void
+  updateBlendMode(blendMode: BlendMode): void
+  cleanUp(): void
+}
+
+export function buildBackgroundImageStage(
   gl: WebGL2RenderingContext,
   positionBuffer: WebGLBuffer,
   texCoordBuffer: WebGLBuffer,
   personMaskTexture: WebGLTexture,
   backgroundImage: HTMLImageElement | null,
   canvas: HTMLCanvasElement
-) {
+): BackgroundImageStage {
   const vertexShaderSource = glsl`#version 300 es
 
     uniform vec2 u_backgroundScale;
