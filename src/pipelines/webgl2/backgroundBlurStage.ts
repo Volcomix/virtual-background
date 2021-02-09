@@ -31,21 +31,41 @@ export function buildBackgroundBlurStage(
 
     uniform sampler2D u_inputFrame;
     uniform sampler2D u_personMask;
-    uniform vec2 u_coverage;
+    uniform vec2 u_texelSize;
 
     in vec2 v_texCoord;
 
     out vec4 outColor;
 
+    const float offset[5] = float[](0.0, 1.0, 2.0, 3.0, 4.0);
+    const float weight[5] = float[](0.2270270270, 0.1945945946, 0.1216216216,
+      0.0540540541, 0.0162162162);
+
     void main() {
-      vec3 frameColor = texture(u_inputFrame, v_texCoord).rgb;
+      vec3 initFrameColor = texture(u_inputFrame, v_texCoord).rgb;
       float personMask = texture(u_personMask, v_texCoord).a;
-      personMask = smoothstep(u_coverage.x, u_coverage.y, personMask);
-      outColor = vec4(frameColor * personMask, 1.0);
+
+      vec3 frameColor = initFrameColor * weight[0] * (1.0 - personMask);
+
+      for (int i = 1; i < 5; i++) {
+        vec2 offset = vec2(offset[i]) * u_texelSize;
+
+        vec2 texCoord = v_texCoord + offset;
+        frameColor += texture(u_inputFrame, texCoord).rgb * weight[i] *
+          (1.0 - texture(u_personMask, texCoord).a);
+
+        texCoord = v_texCoord - offset;
+        frameColor += texture(u_inputFrame, texCoord).rgb * weight[i] *
+          (1.0 - texture(u_personMask, texCoord).a);
+      }
+      outColor = vec4(frameColor + initFrameColor * personMask, 1.0);
     }
   `
 
   const { width: outputWidth, height: outputHeight } = canvas
+  // TODO Switch between texelWidth and texelHeight for blur passes
+  // const texelWidth = 1 / outputWidth
+  const texelHeight = 1 / outputHeight
 
   const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
   const fragmentShader = compileShader(
@@ -62,12 +82,12 @@ export function buildBackgroundBlurStage(
   )
   const inputFrameLocation = gl.getUniformLocation(program, 'u_inputFrame')
   const personMaskLocation = gl.getUniformLocation(program, 'u_personMask')
-  const coverageLocation = gl.getUniformLocation(program, 'u_coverage')
+  const texelSizeLocation = gl.getUniformLocation(program, 'u_texelSize')
 
   gl.useProgram(program)
   gl.uniform1i(inputFrameLocation, 0)
   gl.uniform1i(personMaskLocation, 1)
-  gl.uniform2f(coverageLocation, 0, 1)
+  gl.uniform2f(texelSizeLocation, 0, texelHeight)
 
   function render() {
     gl.useProgram(program)
@@ -78,11 +98,6 @@ export function buildBackgroundBlurStage(
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 
-  function updateCoverage(coverage: [number, number]) {
-    gl.useProgram(program)
-    gl.uniform2f(coverageLocation, coverage[0], coverage[1])
-  }
-
   function cleanUp() {
     gl.deleteProgram(program)
     gl.deleteShader(fragmentShader)
@@ -91,7 +106,6 @@ export function buildBackgroundBlurStage(
 
   return {
     render,
-    updateCoverage,
     cleanUp,
   }
 }
