@@ -1,5 +1,5 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import BackgroundConfigCard from './core/components/BackgroundConfigCard'
 import PostProcessingConfigCard from './core/components/PostProcessingConfigCard'
 import SegmentationConfigCard from './core/components/SegmentationConfigCard'
@@ -32,7 +32,7 @@ function App() {
     model: 'meet',
     backend: 'wasm',
     inputResolution: '96p',
-    pipeline: 'canvas2dCpu',
+    pipeline: 'webgl2',
   })
   const [
     postProcessingConfig,
@@ -46,6 +46,16 @@ function App() {
   })
   const bodyPix = useBodyPix()
   const { tflite, isSIMDSupported } = useTFLite(segmentationConfig)
+
+  useEffect(() => {
+    setSegmentationConfig((previousSegmentationConfig) => {
+      if (previousSegmentationConfig.backend === 'wasm' && isSIMDSupported) {
+        return { ...previousSegmentationConfig, backend: 'wasmSimd' }
+      } else {
+        return previousSegmentationConfig
+      }
+    })
+  }, [isSIMDSupported])
 
   return (
     <div className={classes.root}>

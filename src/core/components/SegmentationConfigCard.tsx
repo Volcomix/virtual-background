@@ -147,7 +147,7 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
                 value="webgl2"
                 disabled={props.config.model === 'bodyPix'}
               >
-                WebGL 2 (WIP)
+                WebGL 2
               </MenuItem>
               <MenuItem value="canvas2dCpu">Canvas 2D + CPU</MenuItem>
             </Select>
