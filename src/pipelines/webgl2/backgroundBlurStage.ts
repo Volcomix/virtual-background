@@ -45,23 +45,23 @@ export function buildBackgroundBlurStage(
       0.0540540541, 0.0162162162);
 
     void main() {
-      vec3 centerColor = texture(u_inputFrame, v_texCoord).rgb;
+      vec4 centerColor = texture(u_inputFrame, v_texCoord);
       float personMask = texture(u_personMask, v_texCoord).a;
 
-      vec3 frameColor = centerColor * weight[0] * (1.0 - personMask);
+      vec4 frameColor = centerColor * weight[0] * (1.0 - personMask);
 
       for (int i = 1; i < 5; i++) {
         vec2 offset = vec2(offset[i]) * u_texelSize;
 
         vec2 texCoord = v_texCoord + offset;
-        frameColor += texture(u_inputFrame, texCoord).rgb * weight[i] *
+        frameColor += texture(u_inputFrame, texCoord) * weight[i] *
           (1.0 - texture(u_personMask, texCoord).a);
 
         texCoord = v_texCoord - offset;
-        frameColor += texture(u_inputFrame, texCoord).rgb * weight[i] *
+        frameColor += texture(u_inputFrame, texCoord) * weight[i] *
           (1.0 - texture(u_personMask, texCoord).a);
       }
-      outColor = vec4(frameColor + centerColor * personMask, 1.0);
+      outColor = vec4(frameColor.rgb + (1.0 - frameColor.a) * centerColor.rgb, 1.0);
     }
   `
 
@@ -86,15 +86,26 @@ export function buildBackgroundBlurStage(
   const personMaskLocation = gl.getUniformLocation(program, 'u_personMask')
   const texelSizeLocation = gl.getUniformLocation(program, 'u_texelSize')
   const flipYLocation = gl.getUniformLocation(program, 'u_flipY')
-  const texture = createTexture(gl, gl.RGBA8, outputWidth, outputHeight)
+  const texture1 = createTexture(gl, gl.RGBA8, outputWidth, outputHeight)
+  const texture2 = createTexture(gl, gl.RGBA8, outputWidth, outputHeight)
 
-  const frameBuffer = gl.createFramebuffer()
-  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
+  const frameBuffer1 = gl.createFramebuffer()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer1)
   gl.framebufferTexture2D(
     gl.FRAMEBUFFER,
     gl.COLOR_ATTACHMENT0,
     gl.TEXTURE_2D,
-    texture,
+    texture1,
+    0
+  )
+
+  const frameBuffer2 = gl.createFramebuffer()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer2)
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    texture2,
     0
   )
 
@@ -107,14 +118,30 @@ export function buildBackgroundBlurStage(
 
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, personMaskTexture)
-    gl.uniform2f(texelSizeLocation, 0, texelHeight)
     gl.uniform1f(flipYLocation, 1.0)
-    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
+
+    gl.activeTexture(gl.TEXTURE0)
+
+    gl.uniform2f(texelSizeLocation, 0, texelHeight)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer1)
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 
-    gl.activeTexture(gl.TEXTURE0)
-    gl.bindTexture(gl.TEXTURE_2D, texture)
+    for (let i = 0; i < 9; i++) {
+      gl.bindTexture(gl.TEXTURE_2D, texture1)
+      gl.uniform2f(texelSizeLocation, texelWidth, 0)
+      gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer2)
+      gl.viewport(0, 0, outputWidth, outputHeight)
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+
+      gl.bindTexture(gl.TEXTURE_2D, texture2)
+      gl.uniform2f(texelSizeLocation, 0, texelHeight)
+      gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer1)
+      gl.viewport(0, 0, outputWidth, outputHeight)
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+    }
+
+    gl.bindTexture(gl.TEXTURE_2D, texture1)
     gl.uniform2f(texelSizeLocation, texelWidth, 0)
     gl.uniform1f(flipYLocation, -1.0)
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
@@ -123,8 +150,10 @@ export function buildBackgroundBlurStage(
   }
 
   function cleanUp() {
-    gl.deleteFramebuffer(frameBuffer)
-    gl.deleteTexture(texture)
+    gl.deleteFramebuffer(frameBuffer2)
+    gl.deleteFramebuffer(frameBuffer1)
+    gl.deleteTexture(texture2)
+    gl.deleteTexture(texture1)
     gl.deleteProgram(program)
     gl.deleteShader(fragmentShader)
     gl.deleteShader(vertexShader)
