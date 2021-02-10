@@ -13,7 +13,7 @@
   - [MediaPipe Meet Segmentation](#mediapipe-meet-segmentation)
     - [Building TFLite to WebAssembly](#building-tflite-to-webassembly)
     - [Canvas 2D + CPU](#canvas-2d--cpu)
-    - [WebGL 2 (work in progress)](#webgl-2-work-in-progress)
+    - [WebGL 2](#webgl-2)
 - [Possible improvements](#possible-improvements)
 - [Related work](#related-work)
 - [Running locally](#running-locally)
@@ -62,22 +62,28 @@ The framerate is higher and the quality looks better than BodyPix even with the 
 | 256x144 | ~36 FPS                   | ~14 FPS          |
 | 160x96  | ~60 FPS                   | ~29 FPS          |
 
-#### WebGL 2 (work in progress)
+#### WebGL 2
 
 The WebGL 2 rendering pipeline relies entirely on `webgl2` canvas context and GLSL shaders for:
 
-- Resizing inputs to fit the segmentation model (there are still CPU operations to copy from RGBA UInt8Array to RGB Float32Array in TFLite WASM memory - **to be improved**).
+- Resizing inputs to fit the segmentation model (there are still CPU operations to copy from RGBA UInt8Array to RGB Float32Array in TFLite WASM memory).
 - [Softmax](https://en.wikipedia.org/wiki/Softmax_function) on segmentation model output to get the probability of each pixel to be a person.
 - Joint bilateral filter to smooth the segmentation mask and to preserve edges from the original input frame (implementation based on [MediaPipe repository](https://github.com/google/mediapipe/blob/master/mediapipe/calculators/image/bilateral_filter_calculator.cc)).
-- Blending background image with [light wrapping](https://www.imaging-resource.com/news/2016/02/11/create-natural-looking-composite-images-using-light-wrapping-technique) (**implementation in progress**).
-- Original input frame background blur. Great articles [here](https://rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/) and [here](https://software.intel.com/content/www/us/en/develop/blogs/an-investigation-of-fast-real-time-gpu-based-image-blur-algorithms.html) (**implementation in progress**).
+- Blending background image with [light wrapping](https://www.imaging-resource.com/news/2016/02/11/create-natural-looking-composite-images-using-light-wrapping-technique).
+- Original input frame background blur. Great articles [here](https://rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/) and [here](https://software.intel.com/content/www/us/en/develop/blogs/an-investigation-of-fast-real-time-gpu-based-image-blur-algorithms.html).
 
 ## Possible improvements
 
+- Try a trick with `GL_DEPTH_COMPONENT32` to avoid enabling `EXT_color_buffer_float` WebGL 2 extension and to output the resizing stage directly in TFLite WASM memory.
+- Rely on alpha channel to save texture fetches from the segmentation mask.
+- Blur the background image outside of the rendering loop and use it for light wrapping instead of the original background image. This should produce better rendering results for large light wrapping masks.
+- Optimize joint bilateral filter shader to prevent unnecessary variables, calculations and costly functions like `exp`.
+- Blur the background at low resolution for efficiency. Also give [linear sampling](https://rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/) a try.
 - Try [separable approximation](https://www.researchgate.net/publication/4181202_Separable_bilateral_filtering_for_fast_video_preprocessing) for joint bilateral filter.
 - Compute everything on lower source resolution (scaling down at the beginning of the pipeline).
 - Build TFLite and XNNPACK with multithreading support. Few configuration examples are in [TensorFlow.js WASM backend](https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/BUILD).
 - Detect WASM features to load automatically the right TFLite WASM runtime. Inspirations could be taken from [TensorFlow.js WASM backend](https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/flags_wasm.ts) which is based on [GoogleChromeLabs/wasm-feature-detect](https://github.com/GoogleChromeLabs/wasm-feature-detect).
+- Experiment with [DeepLabv3+](https://github.com/tensorflow/models/tree/master/research/deeplab) and maybe retrain `MobileNetv3-small` model directly.
 
 ## Related work
 
