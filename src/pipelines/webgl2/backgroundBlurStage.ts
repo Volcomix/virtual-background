@@ -45,10 +45,10 @@ export function buildBackgroundBlurStage(
       0.0540540541, 0.0162162162);
 
     void main() {
-      vec3 initFrameColor = texture(u_inputFrame, v_texCoord).rgb;
+      vec3 centerColor = texture(u_inputFrame, v_texCoord).rgb;
       float personMask = texture(u_personMask, v_texCoord).a;
 
-      vec3 frameColor = initFrameColor * weight[0] * (1.0 - personMask);
+      vec3 frameColor = centerColor * weight[0] * (1.0 - personMask);
 
       for (int i = 1; i < 5; i++) {
         vec2 offset = vec2(offset[i]) * u_texelSize;
@@ -61,7 +61,7 @@ export function buildBackgroundBlurStage(
         frameColor += texture(u_inputFrame, texCoord).rgb * weight[i] *
           (1.0 - texture(u_personMask, texCoord).a);
       }
-      outColor = vec4(frameColor + initFrameColor * personMask, 1.0);
+      outColor = vec4(frameColor + centerColor * personMask, 1.0);
     }
   `
 
