@@ -1,6 +1,7 @@
 import {
   compileShader,
   createPiplelineStageProgram,
+  createTexture,
   glsl,
 } from '../helpers/webglHelper'
 
@@ -16,11 +17,13 @@ export function buildBackgroundBlurStage(
     in vec2 a_position;
     in vec2 a_texCoord;
 
+    uniform float u_flipY;
+
     out vec2 v_texCoord;
 
     void main() {
-      // Flipping Y is required when rendering to canvas
-      gl_Position = vec4(a_position * vec2(1.0, -1.0), 0.0, 1.0);
+      // Flipping Y is required for the last pass when rendering to canvas
+      gl_Position = vec4(a_position * vec2(1.0, u_flipY), 0.0, 1.0);
       v_texCoord = a_texCoord;
     }
   `
@@ -63,8 +66,7 @@ export function buildBackgroundBlurStage(
   `
 
   const { width: outputWidth, height: outputHeight } = canvas
-  // TODO Switch between texelWidth and texelHeight for blur passes
-  // const texelWidth = 1 / outputWidth
+  const texelWidth = 1 / outputWidth
   const texelHeight = 1 / outputHeight
 
   const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
@@ -83,22 +85,46 @@ export function buildBackgroundBlurStage(
   const inputFrameLocation = gl.getUniformLocation(program, 'u_inputFrame')
   const personMaskLocation = gl.getUniformLocation(program, 'u_personMask')
   const texelSizeLocation = gl.getUniformLocation(program, 'u_texelSize')
+  const flipYLocation = gl.getUniformLocation(program, 'u_flipY')
+  const texture = createTexture(gl, gl.RGBA8, outputWidth, outputHeight)
+
+  const frameBuffer = gl.createFramebuffer()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    texture,
+    0
+  )
 
   gl.useProgram(program)
   gl.uniform1i(inputFrameLocation, 0)
   gl.uniform1i(personMaskLocation, 1)
-  gl.uniform2f(texelSizeLocation, 0, texelHeight)
 
   function render() {
     gl.useProgram(program)
+
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, personMaskTexture)
+    gl.uniform2f(texelSizeLocation, 0, texelHeight)
+    gl.uniform1f(flipYLocation, 1.0)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
+    gl.viewport(0, 0, outputWidth, outputHeight)
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+
+    gl.activeTexture(gl.TEXTURE0)
+    gl.bindTexture(gl.TEXTURE_2D, texture)
+    gl.uniform2f(texelSizeLocation, texelWidth, 0)
+    gl.uniform1f(flipYLocation, -1.0)
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 
   function cleanUp() {
+    gl.deleteFramebuffer(frameBuffer)
+    gl.deleteTexture(texture)
     gl.deleteProgram(program)
     gl.deleteShader(fragmentShader)
     gl.deleteShader(vertexShader)

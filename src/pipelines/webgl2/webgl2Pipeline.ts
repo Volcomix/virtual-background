@@ -171,7 +171,12 @@ export function buildWebGL2Pipeline(
     jointBilateralFilterStage.updateSigmaColor(
       postProcessingConfig.jointBilateralFilter.sigmaColor
     )
-    if (backgroundConfig.type === 'image') {
+    // TODO Handle no background in a separate pipeline path
+    if (backgroundConfig.type === 'none') {
+      const backgroundImageStage = backgroundStage as BackgroundImageStage
+      backgroundImageStage.updateCoverage([0, 0.9999])
+      backgroundImageStage.updateLightWrapping(0)
+    } else if (backgroundConfig.type === 'image') {
       const backgroundImageStage = backgroundStage as BackgroundImageStage
       backgroundImageStage.updateCoverage(postProcessingConfig.coverage)
       backgroundImageStage.updateLightWrapping(
