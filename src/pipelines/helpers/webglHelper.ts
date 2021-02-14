@@ -112,6 +112,7 @@ async function getBufferSubDataAsync(
   length?: number
 ) {
   const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)!
+  gl.flush()
   const res = await clientWaitAsync(gl, sync)
   gl.deleteSync(sync)
 
