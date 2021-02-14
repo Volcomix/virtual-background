@@ -54,7 +54,7 @@ export function buildResizingStage(
     texCoordBuffer
   )
   const inputFrameLocation = gl.getUniformLocation(program, 'u_inputFrame')
-  const outputTexture = createTexture(gl, gl.RGBA32F, outputWidth, outputHeight)
+  const outputTexture = createTexture(gl, gl.RGBA8, outputWidth, outputHeight)
 
   const frameBuffer = gl.createFramebuffer()
   gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
@@ -65,7 +65,7 @@ export function buildResizingStage(
     outputTexture,
     0
   )
-  const outputPixels = new Float32Array(outputPixelCount * 4)
+  const outputPixels = new Uint8Array(outputPixelCount * 4)
 
   gl.useProgram(program)
   gl.uniform1i(inputFrameLocation, 0)
@@ -82,15 +82,15 @@ export function buildResizingStage(
       outputWidth,
       outputHeight,
       gl.RGBA,
-      gl.FLOAT,
+      gl.UNSIGNED_BYTE,
       outputPixels
     )
     for (let i = 0; i < outputPixelCount; i++) {
       const tfliteIndex = tfliteInputMemoryOffset + i * 3
       const outputIndex = i * 4
-      tflite.HEAPF32[tfliteIndex] = outputPixels[outputIndex]
-      tflite.HEAPF32[tfliteIndex + 1] = outputPixels[outputIndex + 1]
-      tflite.HEAPF32[tfliteIndex + 2] = outputPixels[outputIndex + 2]
+      tflite.HEAPF32[tfliteIndex] = outputPixels[outputIndex] / 255
+      tflite.HEAPF32[tfliteIndex + 1] = outputPixels[outputIndex + 1] / 255
+      tflite.HEAPF32[tfliteIndex + 2] = outputPixels[outputIndex + 2] / 255
     }
   }
 

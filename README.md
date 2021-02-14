@@ -74,7 +74,6 @@ The WebGL 2 rendering pipeline relies entirely on `webgl2` canvas context and GL
 
 ## Possible improvements
 
-- Try a trick with `GL_DEPTH_COMPONENT32` to avoid enabling `EXT_color_buffer_float` WebGL 2 extension and to output the resizing stage directly in TFLite WASM memory.
 - Rely on alpha channel to save texture fetches from the segmentation mask.
 - Blur the background image outside of the rendering loop and use it for light wrapping instead of the original background image. This should produce better rendering results for large light wrapping masks.
 - Optimize joint bilateral filter shader to prevent unnecessary variables, calculations and costly functions like `exp`.
