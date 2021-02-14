@@ -66,16 +66,7 @@ export function buildWebGL2Pipeline(
     gl.STATIC_DRAW
   )
 
-  // We don't use texStorage2D here because texImage2D seems faster
-  // to upload video texture than texSubImage2D even though the latter
-  // is supposed to be the recommande way:
-  // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#use_texstorage_to_create_textures
-  const inputFrameTexture = gl.createTexture()
-  gl.bindTexture(gl.TEXTURE_2D, inputFrameTexture)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+  const inputFrameTexture = createTexture(gl, gl.RGBA8, frameWidth, frameHeight)
 
   // TODO Rename segmentation and person mask to be more specific
   const segmentationTexture = createTexture(
@@ -142,12 +133,13 @@ export function buildWebGL2Pipeline(
 
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, inputFrameTexture)
-    // texImage2D seems faster than texSubImage2D to upload
-    // video texture
-    gl.texImage2D(
+    gl.texSubImage2D(
       gl.TEXTURE_2D,
       0,
-      gl.RGBA,
+      0,
+      0,
+      frameWidth,
+      frameHeight,
       gl.RGBA,
       gl.UNSIGNED_BYTE,
       sourcePlayback.htmlElement
