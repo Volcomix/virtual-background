@@ -76,6 +76,8 @@ export function buildResizingStage(
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+
+    // Downloads pixels asynchronously from GPU while rendering the current frame
     readPixelsAsync(
       gl,
       0,
@@ -86,6 +88,7 @@ export function buildResizingStage(
       gl.UNSIGNED_BYTE,
       outputPixels
     )
+
     for (let i = 0; i < outputPixelCount; i++) {
       const tfliteIndex = tfliteInputMemoryOffset + i * 3
       const outputIndex = i * 4

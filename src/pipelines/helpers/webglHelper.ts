@@ -112,37 +112,20 @@ async function getBufferSubDataAsync(
   length?: number
 ) {
   const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)!
-  gl.flush()
-  try {
-    await clientWaitAsync(gl, sync, 0, 10)
-  } catch (error) {
-    // Prevents error from showing in browser console and freezing it
-  }
+  const res = await clientWaitAsync(gl, sync)
   gl.deleteSync(sync)
-  gl.bindBuffer(target, buffer)
-  gl.getBufferSubData(target, srcByteOffset, dstBuffer, dstOffset, length)
-  gl.bindBuffer(target, null)
+
+  if (res !== gl.WAIT_FAILED && res !== gl.TIMEOUT_EXPIRED) {
+    gl.bindBuffer(target, buffer)
+    gl.getBufferSubData(target, srcByteOffset, dstBuffer, dstOffset, length)
+    gl.bindBuffer(target, null)
+  }
 }
 
-function clientWaitAsync(
-  gl: WebGL2RenderingContext,
-  sync: WebGLSync,
-  flags: number,
-  intervalMs: number
-) {
-  return new Promise<void>((resolve, reject) => {
-    function test() {
-      const res = gl.clientWaitSync(sync, flags, 0)
-      if (res === gl.WAIT_FAILED) {
-        reject()
-        return
-      }
-      if (res === gl.TIMEOUT_EXPIRED) {
-        setTimeout(test, intervalMs)
-        return
-      }
-      resolve()
-    }
-    test()
+function clientWaitAsync(gl: WebGL2RenderingContext, sync: WebGLSync) {
+  return new Promise<number>((resolve) => {
+    requestAnimationFrame(() => {
+      resolve(gl.clientWaitSync(sync, 0, 0))
+    })
   })
 }
