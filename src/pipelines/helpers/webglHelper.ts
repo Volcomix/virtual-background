@@ -113,10 +113,12 @@ async function getBufferSubDataAsync(
 ) {
   const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)!
   gl.flush()
-
-  await clientWaitAsync(gl, sync, 0, 10)
+  try {
+    await clientWaitAsync(gl, sync, 0, 10)
+  } catch (error) {
+    // Prevents error from showing in browser console and freezing it
+  }
   gl.deleteSync(sync)
-
   gl.bindBuffer(target, buffer)
   gl.getBufferSubData(target, srcByteOffset, dstBuffer, dstOffset, length)
   gl.bindBuffer(target, null)
