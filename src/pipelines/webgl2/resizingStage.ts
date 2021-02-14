@@ -70,13 +70,70 @@ export function buildResizingStage(
   gl.useProgram(program)
   gl.uniform1i(inputFrameLocation, 0)
 
+  function clientWaitAsync(sync: WebGLSync, flags: number, intervalMs: number) {
+    return new Promise<void>((resolve, reject) => {
+      function test() {
+        const res = gl.clientWaitSync(sync, flags, 0)
+        if (res === gl.WAIT_FAILED) {
+          reject()
+          return
+        }
+        if (res === gl.TIMEOUT_EXPIRED) {
+          setTimeout(test, intervalMs)
+          return
+        }
+        resolve()
+      }
+      test()
+    })
+  }
+
+  async function getBufferSubDataAsync(
+    target: number,
+    buffer: WebGLBuffer,
+    srcByteOffset: number,
+    dstBuffer: ArrayBufferView,
+    dstOffset?: number,
+    length?: number
+  ) {
+    const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)!
+    gl.flush()
+
+    await clientWaitAsync(sync, 0, 10)
+    gl.deleteSync(sync)
+
+    gl.bindBuffer(target, buffer)
+    gl.getBufferSubData(target, srcByteOffset, dstBuffer, dstOffset, length)
+    gl.bindBuffer(target, null)
+  }
+
+  async function readPixelsAsync(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    format: number,
+    type: number,
+    dest: ArrayBufferView
+  ) {
+    const buf = gl.createBuffer()!
+    gl.bindBuffer(gl.PIXEL_PACK_BUFFER, buf)
+    gl.bufferData(gl.PIXEL_PACK_BUFFER, dest.byteLength, gl.STREAM_READ)
+    gl.readPixels(x, y, width, height, format, type, 0)
+    gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null)
+
+    await getBufferSubDataAsync(gl.PIXEL_PACK_BUFFER, buf, 0, dest)
+
+    gl.deleteBuffer(buf)
+    return dest
+  }
+
   function render() {
     gl.useProgram(program)
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
-
-    gl.readPixels(
+    readPixelsAsync(
       0,
       0,
       outputWidth,
