@@ -116,7 +116,7 @@ async function getBufferSubDataAsync(
   const res = await clientWaitAsync(gl, sync)
   gl.deleteSync(sync)
 
-  if (res !== gl.WAIT_FAILED && res !== gl.TIMEOUT_EXPIRED) {
+  if (res !== gl.WAIT_FAILED) {
     gl.bindBuffer(target, buffer)
     gl.getBufferSubData(target, srcByteOffset, dstBuffer, dstOffset, length)
     gl.bindBuffer(target, null)
@@ -125,8 +125,18 @@ async function getBufferSubDataAsync(
 
 function clientWaitAsync(gl: WebGL2RenderingContext, sync: WebGLSync) {
   return new Promise<number>((resolve) => {
-    requestAnimationFrame(() => {
-      resolve(gl.clientWaitSync(sync, 0, 0))
-    })
+    function test() {
+      const res = gl.clientWaitSync(sync, 0, 0)
+      if (res === gl.WAIT_FAILED) {
+        resolve(res)
+        return
+      }
+      if (res === gl.TIMEOUT_EXPIRED) {
+        requestAnimationFrame(test)
+        return
+      }
+      resolve(res)
+    }
+    requestAnimationFrame(test)
   })
 }
