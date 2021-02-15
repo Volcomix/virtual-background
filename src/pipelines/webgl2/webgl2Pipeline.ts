@@ -68,7 +68,7 @@ export function buildWebGL2Pipeline(
 
   // We don't use texStorage2D here because texImage2D seems faster
   // to upload video texture than texSubImage2D even though the latter
-  // is supposed to be the recommande way:
+  // is supposed to be the recommended way:
   // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#use_texstorage_to_create_textures
   const inputFrameTexture = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, inputFrameTexture)
@@ -142,6 +142,7 @@ export function buildWebGL2Pipeline(
 
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, inputFrameTexture)
+
     // texImage2D seems faster than texSubImage2D to upload
     // video texture
     gl.texImage2D(
