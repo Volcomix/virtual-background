@@ -6,7 +6,6 @@ import { BackgroundConfig } from '../helpers/backgroundHelper'
 import { RenderingPipeline } from '../helpers/renderingPipelineHelper'
 import { SegmentationConfig } from '../helpers/segmentationHelper'
 import { SourcePlayback } from '../helpers/sourceHelper'
-import useStats from './useStats'
 import { TFLite } from './useTFLite'
 
 function useRenderingPipeline(
@@ -19,12 +18,20 @@ function useRenderingPipeline(
   const [pipeline, setPipeline] = useState<RenderingPipeline | null>(null)
   const backgroundImageRef = useRef<HTMLImageElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null!)
-  const { fps, durations, beginFrame, addFrameEvent, endFrame } = useStats()
+  const [fps, setFps] = useState(0)
+  const [durations, setDurations] = useState<number[]>([])
+  // const { fps, durations, beginFrame, addFrameEvent, endFrame } = useStats()
 
   useEffect(() => {
     // The useEffect cleanup function is not enough to stop
     // the rendering loop when the framerate is low
     let shouldRender = true
+
+    let previousTime = 0
+    let beginTime = 0
+    let eventCount = 0
+    let frameCount = 0
+    const frameDurations: number[] = []
 
     let renderRequestId: number
 
@@ -59,6 +66,30 @@ function useRenderingPipeline(
       renderRequestId = requestAnimationFrame(render)
     }
 
+    function beginFrame() {
+      beginTime = Date.now()
+    }
+
+    function addFrameEvent() {
+      const time = Date.now()
+      frameDurations[eventCount] = time - beginTime
+      beginTime = time
+      eventCount++
+    }
+
+    function endFrame() {
+      const time = Date.now()
+      frameDurations[eventCount] = time - beginTime
+      frameCount++
+      if (time >= previousTime + 1000) {
+        setFps((frameCount * 1000) / (time - previousTime))
+        setDurations(frameDurations)
+        previousTime = time
+        frameCount = 0
+      }
+      eventCount = 0
+    }
+
     render()
     console.log(
       'Animation started:',
@@ -82,17 +113,7 @@ function useRenderingPipeline(
 
       setPipeline(null)
     }
-  }, [
-    sourcePlayback,
-    backgroundConfig,
-    segmentationConfig,
-    bodyPix,
-    tflite,
-    setPipeline,
-    beginFrame,
-    addFrameEvent,
-    endFrame,
-  ])
+  }, [sourcePlayback, backgroundConfig, segmentationConfig, bodyPix, tflite])
 
   return {
     pipeline,
