@@ -20,7 +20,6 @@ function useRenderingPipeline(
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const [fps, setFps] = useState(0)
   const [durations, setDurations] = useState<number[]>([])
-  // const { fps, durations, beginFrame, addFrameEvent, endFrame } = useStats()
 
   useEffect(() => {
     // The useEffect cleanup function is not enough to stop
