@@ -14,6 +14,7 @@
     - [Building TFLite to WebAssembly](#building-tflite-to-webassembly)
     - [Canvas 2D + CPU](#canvas-2d--cpu)
     - [WebGL 2](#webgl-2)
+- [Performance](#performance)
 - [Possible improvements](#possible-improvements)
 - [Related work](#related-work)
 - [Running locally](#running-locally)
