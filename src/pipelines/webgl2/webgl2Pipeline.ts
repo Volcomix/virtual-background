@@ -7,7 +7,10 @@ import {
 import { SourcePlayback } from '../../core/helpers/sourceHelper'
 import { TFLite } from '../../core/hooks/useTFLite'
 import { compileShader, createTexture, glsl } from '../helpers/webglHelper'
-import { buildBackgroundBlurStage } from './backgroundBlurStage'
+import {
+  BackgroundBlurStage,
+  buildBackgroundBlurStage,
+} from './backgroundBlurStage'
 import {
   BackgroundImageStage,
   buildBackgroundImageStage,
@@ -179,18 +182,22 @@ export function buildWebGL2Pipeline(
     jointBilateralFilterStage.updateSigmaColor(
       postProcessingConfig.jointBilateralFilter.sigmaColor
     )
-    // TODO Handle no background in a separate pipeline path
-    if (backgroundConfig.type === 'none') {
-      const backgroundImageStage = backgroundStage as BackgroundImageStage
-      backgroundImageStage.updateCoverage([0, 0.9999])
-      backgroundImageStage.updateLightWrapping(0)
-    } else if (backgroundConfig.type === 'image') {
+
+    if (backgroundConfig.type === 'image') {
       const backgroundImageStage = backgroundStage as BackgroundImageStage
       backgroundImageStage.updateCoverage(postProcessingConfig.coverage)
       backgroundImageStage.updateLightWrapping(
         postProcessingConfig.lightWrapping
       )
       backgroundImageStage.updateBlendMode(postProcessingConfig.blendMode)
+    } else if (backgroundConfig.type === 'blur') {
+      const backgroundBlurStage = backgroundStage as BackgroundBlurStage
+      backgroundBlurStage.updateCoverage(postProcessingConfig.coverage)
+    } else {
+      // TODO Handle no background in a separate pipeline path
+      const backgroundImageStage = backgroundStage as BackgroundImageStage
+      backgroundImageStage.updateCoverage([0, 0.9999])
+      backgroundImageStage.updateLightWrapping(0)
     }
   }
 
