@@ -122,11 +122,11 @@ export function buildJointBilateralFilterStage(
   updateSigmaColor(0)
 
   function render() {
+    gl.viewport(0, 0, outputWidth, outputHeight)
     gl.useProgram(program)
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, inputTexture)
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
-    gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 

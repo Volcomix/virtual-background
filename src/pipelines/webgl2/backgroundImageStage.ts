@@ -132,6 +132,7 @@ export function buildBackgroundImageStage(
   }
 
   function render() {
+    gl.viewport(0, 0, outputWidth, outputHeight)
     gl.useProgram(program)
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, personMaskTexture)
@@ -142,7 +143,6 @@ export function buildBackgroundImageStage(
       gl.uniform1i(backgroundLocation, 2)
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-    gl.viewport(0, 0, outputWidth, outputHeight)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 

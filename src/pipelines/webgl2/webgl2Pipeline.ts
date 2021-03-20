@@ -122,6 +122,7 @@ export function buildWebGL2Pipeline(
     backgroundConfig.type === 'blur'
       ? buildBackgroundBlurStage(
           gl,
+          vertexShader,
           positionBuffer,
           texCoordBuffer,
           personMaskTexture,
