@@ -29,7 +29,7 @@ The drawing utils provided in BodyPix are not optimized for the simple backgroun
 
 The [drawBokehEffect](https://github.com/tensorflow/tfjs-models/tree/master/body-pix#bodypixdrawbokeheffect) method from BodyPix API is not used. Instead, [CanvasRenderingContext2D.filter](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter) property is configured with [blur](<https://developer.mozilla.org/en-US/docs/Web/CSS/filter#blur()>) and [CanvasRenderingContext2D.globalCompositeOperation](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation) is setup to blend the different layers according to the segmentation mask.
 
-The result provides an interesting framerate on laptop (~20 FPS on MacBook Pro 2017 in Chrome) but is not really usable on mobile (~8 FPS on Pixel 3 in Chrome). On both devices, the segmentation lacks precision compared to Meet segmentation model.
+The result provides an interesting framerate on laptop but is not really usable on mobile (see [Performance](#performance) for more details). On both devices, the segmentation lacks precision compared to Meet segmentation model.
 
 **Note: BodyPix relies on the default TensorFlow.js backend for your device (i.e. `webgl` usually). The [WASM backend](https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-wasm) seems to be slower for this model, at least on MacBook Pro.**
 
@@ -55,13 +55,6 @@ This rendering pipeline is pretty much the same as for BodyPix. It relies on Can
 
 Interactions with TFLite inference tool are executed on CPU to convert from UInt8 to Float32 for the model input and to apply softmax on the model output.
 
-The framerate is higher and the quality looks better than BodyPix even with the 160x96 model:
-
-| Model   | MacBook Pro 2017 (Chrome) | Pixel 3 (Chrome) |
-| ------- | ------------------------- | ---------------- |
-| 256x144 | ~36 FPS                   | ~14 FPS          |
-| 160x96  | ~60 FPS                   | ~29 FPS          |
-
 #### WebGL 2
 
 The WebGL 2 rendering pipeline relies entirely on `webgl2` canvas context and GLSL shaders for:
@@ -72,12 +65,27 @@ The WebGL 2 rendering pipeline relies entirely on `webgl2` canvas context and GL
 - Blending background image with [light wrapping](https://www.imaging-resource.com/news/2016/02/11/create-natural-looking-composite-images-using-light-wrapping-technique).
 - Original input frame background blur. Great articles [here](https://rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/) and [here](https://software.intel.com/content/www/us/en/develop/blogs/an-investigation-of-fast-real-time-gpu-based-image-blur-algorithms.html).
 
+## Performance
+
+Here are the performance observed for the whole rendering pipelines, including inference and post-processing, when using the device camera on smartphone **Pixel 3 (Chrome)**.
+
+| Model   | Input resolution | Backend          | Pipeline        | FPS |
+| ------- | ---------------- | ---------------- | --------------- | --- |
+| BodyPix | 640x360          | WebGL            | Canvas 2D + CPU | 11  |
+| Meet    | 256x144          | WebAssembly      | Canvas 2D + CPU | 14  |
+| Meet    | 256x144          | WebAssembly      | WebGL 2         | 16  |
+| Meet    | 256x144          | WebAssembly SIMD | Canvas 2D + CPU | 26  |
+| Meet    | 256x144          | WebAssembly SIMD | WebGL 2         | 31  |
+| Meet    | 160x96           | WebAssembly      | Canvas 2D + CPU | 29  |
+| Meet    | 160x96           | WebAssembly      | WebGL 2         | 35  |
+| Meet    | 160x96           | WebAssembly SIMD | Canvas 2D + CPU | 48  |
+| Meet    | 160x96           | WebAssembly SIMD | WebGL 2         | 60  |
+
 ## Possible improvements
 
 - Rely on alpha channel to save texture fetches from the segmentation mask.
 - Blur the background image outside of the rendering loop and use it for light wrapping instead of the original background image. This should produce better rendering results for large light wrapping masks.
 - Optimize joint bilateral filter shader to prevent unnecessary variables, calculations and costly functions like `exp`.
-- Blur the background at low resolution for efficiency. Also give [linear sampling](https://rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/) a try.
 - Try [separable approximation](https://www.researchgate.net/publication/4181202_Separable_bilateral_filtering_for_fast_video_preprocessing) for joint bilateral filter.
 - Compute everything on lower source resolution (scaling down at the beginning of the pipeline).
 - Build TFLite and XNNPACK with multithreading support. Few configuration examples are in [TensorFlow.js WASM backend](https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/BUILD).
