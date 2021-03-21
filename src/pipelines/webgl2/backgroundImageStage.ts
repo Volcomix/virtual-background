@@ -69,10 +69,11 @@ export function buildBackgroundImageStage(
 
     void main() {
       vec3 frameColor = texture(u_inputFrame, v_texCoord).rgb;
-      vec3 backgroundColor = texture(u_blurredBackground, v_backgroundCoord).rgb;
+      vec3 backgroundColor = texture(u_background, v_backgroundCoord).rgb;
+      vec3 blurredBackground = texture(u_blurredBackground, v_backgroundCoord).rgb;
       float personMask = texture(u_personMask, v_texCoord).a;
       float lightWrapMask = 1.0 - max(0.0, personMask - u_coverage.y) / (1.0 - u_coverage.y);
-      vec3 lightWrap = u_lightWrapping * lightWrapMask * backgroundColor;
+      vec3 lightWrap = u_lightWrapping * lightWrapMask * blurredBackground;
       frameColor = u_blendMode * linearDodge(frameColor, lightWrap) +
         (1.0 - u_blendMode) * screen(frameColor, lightWrap);
       personMask = smoothstep(u_coverage.x, u_coverage.y, personMask);
@@ -199,6 +200,9 @@ export function buildBackgroundImageStage(
     gl.uniform2f(backgroundOffsetLocation, xOffset, yOffset)
 
     if (backgroundImageBlurPass) {
+      // FIXME attempt to use a deleted object
+      // FIXME Could not link WebGL program: No compiled vertex shader
+      //       when at least one graphics shader is attached
       backgroundImageBlurPass.cleanUp()
     }
     gl.activeTexture(gl.TEXTURE3)
@@ -279,7 +283,7 @@ function buildBackgroundImageBlurPass(
     }
   `
 
-  const scale = 0.5
+  const scale = 0.2
   const outputWidth = backgroundImage.naturalWidth * scale
   const outputHeight = backgroundImage.naturalHeight * scale
   const texelWidth = 1 / outputWidth
@@ -343,7 +347,7 @@ function buildBackgroundImageBlurPass(
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.useProgram(program)
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
       gl.uniform2f(texelSizeLocation, 0, texelHeight)
       gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer1)
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
@@ -354,6 +358,8 @@ function buildBackgroundImageBlurPass(
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
       gl.bindTexture(gl.TEXTURE_2D, texture2)
     }
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   }
 
   function cleanUp() {
