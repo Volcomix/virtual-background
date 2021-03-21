@@ -16,13 +16,14 @@ export type BackgroundImageStage = {
 
 export function buildBackgroundImageStage(
   gl: WebGL2RenderingContext,
+  vertexShader: WebGLShader,
   positionBuffer: WebGLBuffer,
   texCoordBuffer: WebGLBuffer,
   personMaskTexture: WebGLTexture,
   backgroundImage: HTMLImageElement | null,
   canvas: HTMLCanvasElement
 ): BackgroundImageStage {
-  const vertexShaderSource = glsl`#version 300 es
+  const backgroundImageVertexShaderSource = glsl`#version 300 es
 
     uniform vec2 u_backgroundScale;
     uniform vec2 u_backgroundOffset;
@@ -48,6 +49,7 @@ export function buildBackgroundImageStage(
     uniform sampler2D u_inputFrame;
     uniform sampler2D u_personMask;
     uniform sampler2D u_background;
+    uniform sampler2D u_blurredBackground;
     uniform vec2 u_coverage;
     uniform float u_lightWrapping;
     uniform float u_blendMode;
@@ -67,7 +69,7 @@ export function buildBackgroundImageStage(
 
     void main() {
       vec3 frameColor = texture(u_inputFrame, v_texCoord).rgb;
-      vec3 backgroundColor = texture(u_background, v_backgroundCoord).rgb;
+      vec3 backgroundColor = texture(u_blurredBackground, v_backgroundCoord).rgb;
       float personMask = texture(u_personMask, v_texCoord).a;
       float lightWrapMask = 1.0 - max(0.0, personMask - u_coverage.y) / (1.0 - u_coverage.y);
       vec3 lightWrap = u_lightWrapping * lightWrapMask * backgroundColor;
@@ -81,7 +83,11 @@ export function buildBackgroundImageStage(
   const { width: outputWidth, height: outputHeight } = canvas
   const outputRatio = outputWidth / outputHeight
 
-  const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
+  const backgroundImageVertexShader = compileShader(
+    gl,
+    gl.VERTEX_SHADER,
+    backgroundImageVertexShaderSource
+  )
   const fragmentShader = compileShader(
     gl,
     gl.FRAGMENT_SHADER,
@@ -89,7 +95,7 @@ export function buildBackgroundImageStage(
   )
   const program = createPiplelineStageProgram(
     gl,
-    vertexShader,
+    backgroundImageVertexShader,
     fragmentShader,
     positionBuffer,
     texCoordBuffer
@@ -105,6 +111,10 @@ export function buildBackgroundImageStage(
   const inputFrameLocation = gl.getUniformLocation(program, 'u_inputFrame')
   const personMaskLocation = gl.getUniformLocation(program, 'u_personMask')
   const backgroundLocation = gl.getUniformLocation(program, 'u_background')
+  const blurredBackgroundLocation = gl.getUniformLocation(
+    program,
+    'u_blurredBackground'
+  )
   const coverageLocation = gl.getUniformLocation(program, 'u_coverage')
   const lightWrappingLocation = gl.getUniformLocation(
     program,
@@ -117,12 +127,15 @@ export function buildBackgroundImageStage(
   gl.uniform2f(backgroundOffsetLocation, 0, 0)
   gl.uniform1i(inputFrameLocation, 0)
   gl.uniform1i(personMaskLocation, 1)
+  gl.uniform1i(blurredBackgroundLocation, 3)
   gl.uniform2f(coverageLocation, 0, 1)
   gl.uniform1f(lightWrappingLocation, 0)
   gl.uniform1f(blendModeLocation, 0)
 
+  let backgroundImageBlurPass: ReturnType<typeof buildBackgroundImageBlurPass>
+
   let backgroundTexture: WebGLTexture | null = null
-  // TODO Find a better to handle background being loaded
+  // TODO Find a better way to handle background being loaded
   if (backgroundImage?.complete) {
     updateBackgroundImage(backgroundImage)
   } else if (backgroundImage) {
@@ -136,17 +149,12 @@ export function buildBackgroundImageStage(
     gl.useProgram(program)
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, personMaskTexture)
-    if (backgroundTexture !== null) {
-      gl.activeTexture(gl.TEXTURE2)
-      gl.bindTexture(gl.TEXTURE_2D, backgroundTexture)
-      // TODO Handle correctly the background not loaded yet
-      gl.uniform1i(backgroundLocation, 2)
-    }
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 
   function updateBackgroundImage(backgroundImage: HTMLImageElement) {
+    gl.activeTexture(gl.TEXTURE2)
     backgroundTexture = createTexture(
       gl,
       gl.RGBA8,
@@ -185,8 +193,24 @@ export function buildBackgroundImageStage(
     xOffset /= backgroundImage.naturalWidth
     yOffset /= backgroundImage.naturalHeight
 
+    gl.useProgram(program)
+    gl.uniform1i(backgroundLocation, 2)
     gl.uniform2f(backgroundScaleLocation, xScale, yScale)
     gl.uniform2f(backgroundOffsetLocation, xOffset, yOffset)
+
+    if (backgroundImageBlurPass) {
+      backgroundImageBlurPass.cleanUp()
+    }
+    gl.activeTexture(gl.TEXTURE3)
+    backgroundImageBlurPass = buildBackgroundImageBlurPass(
+      gl,
+      vertexShader,
+      positionBuffer,
+      texCoordBuffer,
+      backgroundImage
+    )
+    gl.bindTexture(gl.TEXTURE_2D, backgroundTexture)
+    backgroundImageBlurPass.render()
   }
 
   function updateCoverage(coverage: [number, number]) {
@@ -205,10 +229,13 @@ export function buildBackgroundImageStage(
   }
 
   function cleanUp() {
+    if (backgroundImageBlurPass) {
+      backgroundImageBlurPass.cleanUp()
+    }
     gl.deleteTexture(backgroundTexture)
     gl.deleteProgram(program)
     gl.deleteShader(fragmentShader)
-    gl.deleteShader(vertexShader)
+    gl.deleteShader(backgroundImageVertexShader)
   }
 
   return {
@@ -216,6 +243,130 @@ export function buildBackgroundImageStage(
     updateCoverage,
     updateLightWrapping,
     updateBlendMode,
+    cleanUp,
+  }
+}
+
+function buildBackgroundImageBlurPass(
+  gl: WebGL2RenderingContext,
+  vertexShader: WebGLShader,
+  positionBuffer: WebGLBuffer,
+  texCoordBuffer: WebGLBuffer,
+  backgroundImage: HTMLImageElement
+) {
+  const fragmentShaderSource = glsl`#version 300 es
+
+    precision highp float;
+
+    uniform sampler2D u_background;
+    uniform vec2 u_texelSize;
+
+    in vec2 v_texCoord;
+
+    out vec4 outColor;
+
+    const float offset[5] = float[](0.0, 1.0, 2.0, 3.0, 4.0);
+    const float weight[5] = float[](0.2270270270, 0.1945945946, 0.1216216216,
+      0.0540540541, 0.0162162162);
+
+    void main() {
+      outColor = texture(u_background, v_texCoord) * weight[0];
+      for (int i = 1; i < 5; i++) {
+        vec2 offset = vec2(offset[i]) * u_texelSize;
+        outColor += texture(u_background, v_texCoord + offset) * weight[i];
+        outColor += texture(u_background, v_texCoord - offset) * weight[i];
+      }
+    }
+  `
+
+  const scale = 0.5
+  const outputWidth = backgroundImage.naturalWidth * scale
+  const outputHeight = backgroundImage.naturalHeight * scale
+  const texelWidth = 1 / outputWidth
+  const texelHeight = 1 / outputHeight
+
+  const fragmentShader = compileShader(
+    gl,
+    gl.FRAGMENT_SHADER,
+    fragmentShaderSource
+  )
+  const program = createPiplelineStageProgram(
+    gl,
+    vertexShader,
+    fragmentShader,
+    positionBuffer,
+    texCoordBuffer
+  )
+  const backgroundLocation = gl.getUniformLocation(program, 'u_background')
+  const texelSizeLocation = gl.getUniformLocation(program, 'u_texelSize')
+  const texture1 = createTexture(
+    gl,
+    gl.RGBA8,
+    outputWidth,
+    outputHeight,
+    gl.NEAREST,
+    gl.LINEAR
+  )
+  const texture2 = createTexture(
+    gl,
+    gl.RGBA8,
+    outputWidth,
+    outputHeight,
+    gl.NEAREST,
+    gl.LINEAR
+  )
+
+  const frameBuffer1 = gl.createFramebuffer()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer1)
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    texture1,
+    0
+  )
+
+  const frameBuffer2 = gl.createFramebuffer()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer2)
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    texture2,
+    0
+  )
+
+  gl.useProgram(program)
+  gl.uniform1i(backgroundLocation, 3)
+
+  function render() {
+    gl.viewport(0, 0, outputWidth, outputHeight)
+    gl.useProgram(program)
+
+    for (let i = 0; i < 3; i++) {
+      gl.uniform2f(texelSizeLocation, 0, texelHeight)
+      gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer1)
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+      gl.bindTexture(gl.TEXTURE_2D, texture1)
+
+      gl.uniform2f(texelSizeLocation, texelWidth, 0)
+      gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer2)
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+      gl.bindTexture(gl.TEXTURE_2D, texture2)
+    }
+  }
+
+  function cleanUp() {
+    gl.deleteFramebuffer(frameBuffer2)
+    gl.deleteFramebuffer(frameBuffer1)
+    gl.deleteTexture(texture2)
+    gl.deleteTexture(texture1)
+    gl.deleteProgram(program)
+    gl.deleteShader(fragmentShader)
+  }
+
+  return {
+    render,
     cleanUp,
   }
 }

@@ -133,6 +133,7 @@ export function buildWebGL2Pipeline(
         )
       : buildBackgroundImageStage(
           gl,
+          vertexShader,
           positionBuffer,
           texCoordBuffer,
           personMaskTexture,
