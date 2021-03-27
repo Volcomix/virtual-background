@@ -9,8 +9,8 @@ filegroup(
         "emcc.sh",
         "emscripten_config",
         "env.sh",
-        "@emscripten//:all",
         "@nodejs//:node_files",
+        "@emscripten//:all",
         "@npm//:node_modules",
     ],
 )
@@ -49,7 +49,8 @@ cc_library(name = "malloc")
 emscripten_cc_toolchain_config_rule(
     name = "wasm",
     cpu = "wasm",
-    emscripten_version = "emscripten",
+    em_config = "emscripten_config",
+    emscripten_binaries = "@emscripten//:all",
 )
 
 cc_toolchain(
@@ -67,7 +68,7 @@ cc_toolchain(
 )
 
 cc_toolchain_suite(
-    name = "emscripten",
+    name = "everything",
     toolchains = {
         "wasm": ":cc-compiler-wasm",
         "wasm|emscripten": ":cc-compiler-wasm",
