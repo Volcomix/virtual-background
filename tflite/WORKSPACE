@@ -40,27 +40,17 @@ local_repository(
   path = "/mediapipe_src",
 )
 
-# Needed by Emscripten
+# emscripten 2.0.17
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
-  name = "build_bazel_rules_nodejs",
-  sha256 = "0f2de53628e848c1691e5729b515022f5a77369c76a09fbe55611e12731c90e3",
-  urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/2.0.1/rules_nodejs-2.0.1.tar.gz"],
+    name = "emsdk",
+    strip_prefix = "emsdk-c1589b55641787d55d53e883852035beea9aec3f/bazel",
+    url = "https://github.com/emscripten-core/emsdk/archive/c1589b55641787d55d53e883852035beea9aec3f.tar.gz",
+    sha256 = "7a58a9996b113d3e0675df30b5f17e28aa47de2e684a844f05394fe2f6f12e8e",
 )
 
-load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
+load("@emsdk//:deps.bzl", emsdk_deps = "deps")
+emsdk_deps()
 
-# emscripten 2.0.16
-http_archive(
-  name = "emscripten",
-  sha256 = "e527638b224d9a30dc7e5fa4b9bd2eb2ab76ad306739ba8cacf5a5e333933a2a",
-  strip_prefix = "install",
-  url = "https://storage.googleapis.com/webassembly/emscripten-releases-builds/linux/80d9674f2fafa6b9346d735c42d5c52b8cc8aa8e/wasm-binaries.tbz2",
-  build_file = "//emscripten_toolchain:emscripten.BUILD",
-  type = "tar.bz2",
-)
-
-npm_install(
-  name = "npm",
-  package_json = "@emscripten//:emscripten/package.json",
-  package_lock_json = "@emscripten//:emscripten/package-lock.json",
-)
+load("@emsdk//:emscripten_deps.bzl", emsdk_emscripten_deps = "emscripten_deps")
+emsdk_emscripten_deps()
