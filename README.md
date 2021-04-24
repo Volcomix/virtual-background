@@ -73,7 +73,7 @@ The WebGL 2 rendering pipeline relies entirely on `webgl2` canvas context and GL
 
 [Selfie segmentation](https://developers.google.com/ml-kit/vision/selfie-segmentation) model's architecture is very close to the one of Meet segmentation and they both seem to be generated from the same Keras model (see [this issue](https://github.com/Volcomix/virtual-background/issues/2) for more details). It is released under [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) and you can find in this repo a [copy of the model card](docs/mlkit-selfie-model-card-2021-02-16.pdf) matching the model used in this demo (here is the [original current model card](https://developers.google.com/ml-kit/images/vision/selfie-segmentation/selfie-model-card.pdf)). The model was extracted from its [official artifact](https://mvnrepository.com/artifact/com.google.mlkit/segmentation-selfie/16.0.0-beta1).
 
-Unlike what is described in the model card, the output of the model is a single channel allowing to get a float value of the segmentation mask. Besides that, the model is inferred using the exact same pipeline as Meet segmentation. However, the model does not perform as well as Meet segmentation because of its higher input resolution.
+Unlike what is described in the model card, the output of the model is a single channel allowing to get a float value of the segmentation mask. Besides that, the model is inferred using the exact same pipeline as Meet segmentation. However, the model does not perform as well as Meet segmentation because of its higher input resolution (see [Performance](#performance) for more details), even though it still offers better quality segmentation than BodyPix.
 
 ## Performance
 
@@ -82,6 +82,10 @@ Here are the performance observed for the whole rendering pipelines, including i
 | Model   | Input resolution | Backend          | Pipeline        | FPS |
 | ------- | ---------------- | ---------------- | --------------- | --- |
 | BodyPix | 640x360          | WebGL            | Canvas 2D + CPU | 11  |
+| ML Kit  | 256x256          | WebAssembly      | Canvas 2D + CPU | 9   |
+| ML Kit  | 256x256          | WebAssembly      | WebGL 2         | 9   |
+| ML Kit  | 256x256          | WebAssembly SIMD | Canvas 2D + CPU | 17  |
+| ML Kit  | 256x256          | WebAssembly SIMD | WebGL 2         | 19  |
 | Meet    | 256x144          | WebAssembly      | Canvas 2D + CPU | 14  |
 | Meet    | 256x144          | WebAssembly      | WebGL 2         | 16  |
 | Meet    | 256x144          | WebAssembly SIMD | Canvas 2D + CPU | 26  |
