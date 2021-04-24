@@ -128,7 +128,10 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
               >
                 WebAssembly SIMD
               </MenuItem>
-              <MenuItem value="webgl" disabled={props.config.model === 'meet'}>
+              <MenuItem
+                value="webgl"
+                disabled={props.config.model !== 'bodyPix'}
+              >
                 WebGL
               </MenuItem>
             </Select>

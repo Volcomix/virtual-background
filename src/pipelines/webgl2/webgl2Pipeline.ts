@@ -16,6 +16,7 @@ import {
   buildBackgroundImageStage,
 } from './backgroundImageStage'
 import { buildJointBilateralFilterStage } from './jointBilateralFilterStage'
+import { buildLoadSegmentationStage } from './loadSegmentationStage'
 import { buildResizingStage } from './resizingStage'
 import { buildSoftmaxStage } from './softmaxStage'
 
@@ -102,15 +103,26 @@ export function buildWebGL2Pipeline(
     segmentationConfig,
     tflite
   )
-  const softmaxStage = buildSoftmaxStage(
-    gl,
-    vertexShader,
-    positionBuffer,
-    texCoordBuffer,
-    segmentationConfig,
-    tflite,
-    segmentationTexture
-  )
+  const loadSegmentationStage =
+    segmentationConfig.model === 'meet'
+      ? buildSoftmaxStage(
+          gl,
+          vertexShader,
+          positionBuffer,
+          texCoordBuffer,
+          segmentationConfig,
+          tflite,
+          segmentationTexture
+        )
+      : buildLoadSegmentationStage(
+          gl,
+          vertexShader,
+          positionBuffer,
+          texCoordBuffer,
+          segmentationConfig,
+          tflite,
+          segmentationTexture
+        )
   const jointBilateralFilterStage = buildJointBilateralFilterStage(
     gl,
     vertexShader,
@@ -168,7 +180,7 @@ export function buildWebGL2Pipeline(
 
     addFrameEvent()
 
-    softmaxStage.render()
+    loadSegmentationStage.render()
     jointBilateralFilterStage.render()
     backgroundStage.render()
   }
@@ -204,7 +216,7 @@ export function buildWebGL2Pipeline(
   function cleanUp() {
     backgroundStage.cleanUp()
     jointBilateralFilterStage.cleanUp()
-    softmaxStage.cleanUp()
+    loadSegmentationStage.cleanUp()
     resizingStage.cleanUp()
 
     gl.deleteTexture(personMaskTexture)
