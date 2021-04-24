@@ -28,18 +28,35 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
     const model = event.target.value as SegmentationModel
     let backend = props.config.backend
     let inputResolution = props.config.inputResolution
-    if (model === 'meet') {
-      backend = 'wasm'
-      if (inputResolution === '360p') {
-        inputResolution = '144p'
-      }
-    } else if (model === 'bodyPix') {
-      backend = 'webgl'
-      inputResolution = '360p'
-    }
     let pipeline = props.config.pipeline
-    if (model === 'bodyPix' && pipeline === 'webgl2') {
-      pipeline = 'canvas2dCpu'
+    switch (model) {
+      case 'bodyPix':
+        backend = 'webgl'
+        inputResolution = '640x360'
+        pipeline = 'canvas2dCpu'
+        break
+
+      case 'meet':
+        if (
+          (backend !== 'wasm' && backend !== 'wasmSimd') ||
+          (inputResolution !== '256x144' && inputResolution !== '160x96')
+        ) {
+          backend = props.isSIMDSupported ? 'wasmSimd' : 'wasm'
+          inputResolution = '160x96'
+          pipeline = 'webgl2'
+        }
+        break
+
+      case 'mlkit':
+        if (
+          (backend !== 'wasm' && backend !== 'wasmSimd') ||
+          inputResolution !== '256x256'
+        ) {
+          backend = props.isSIMDSupported ? 'wasmSimd' : 'wasm'
+          inputResolution = '256x256'
+          pipeline = 'webgl2'
+        }
+        break
     }
     props.onChange({
       ...props.config,
@@ -86,6 +103,7 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
               onChange={handleModelChange}
             >
               <MenuItem value="meet">Meet</MenuItem>
+              <MenuItem value="mlkit">ML Kit</MenuItem>
               <MenuItem value="bodyPix">BodyPix</MenuItem>
             </Select>
           </FormControl>
@@ -110,7 +128,10 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
               >
                 WebAssembly SIMD
               </MenuItem>
-              <MenuItem value="webgl" disabled={props.config.model === 'meet'}>
+              <MenuItem
+                value="webgl"
+                disabled={props.config.model !== 'bodyPix'}
+              >
                 WebGL
               </MenuItem>
             </Select>
@@ -122,17 +143,26 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
               value={props.config.inputResolution}
               onChange={handleInputResolutionChange}
             >
-              <MenuItem value="360p" disabled={props.config.model === 'meet'}>
-                360p
+              <MenuItem
+                value="640x360"
+                disabled={props.config.model !== 'bodyPix'}
+              >
+                640x360
               </MenuItem>
               <MenuItem
-                value="144p"
-                disabled={props.config.model === 'bodyPix'}
+                value="256x256"
+                disabled={props.config.model !== 'mlkit'}
               >
-                144p
+                256x256
               </MenuItem>
-              <MenuItem value="96p" disabled={props.config.model === 'bodyPix'}>
-                96p
+              <MenuItem
+                value="256x144"
+                disabled={props.config.model !== 'meet'}
+              >
+                256x144
+              </MenuItem>
+              <MenuItem value="160x96" disabled={props.config.model !== 'meet'}>
+                160x96
               </MenuItem>
             </Select>
           </FormControl>

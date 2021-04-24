@@ -31,7 +31,7 @@ function App() {
   ] = useState<SegmentationConfig>({
     model: 'meet',
     backend: 'wasm',
-    inputResolution: '96p',
+    inputResolution: '160x96',
     pipeline: 'webgl2',
   })
   const [
