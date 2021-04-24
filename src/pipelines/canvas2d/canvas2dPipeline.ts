@@ -77,7 +77,10 @@ export function buildCanvas2dPipeline(
       segmentationHeight
     )
 
-    if (segmentationConfig.model === 'meet') {
+    if (
+      segmentationConfig.model === 'meet' ||
+      segmentationConfig.model === 'mlkit'
+    ) {
       const imageData = segmentationMaskCtx.getImageData(
         0,
         0,
@@ -108,15 +111,20 @@ export function buildCanvas2dPipeline(
     tflite._runInference()
 
     for (let i = 0; i < segmentationPixelCount; i++) {
-      const background = tflite.HEAPF32[outputMemoryOffset + i * 2]
-      const person = tflite.HEAPF32[outputMemoryOffset + i * 2 + 1]
-      const shift = Math.max(background, person)
-      const backgroundExp = Math.exp(background - shift)
-      const personExp = Math.exp(person - shift)
+      if (segmentationConfig.model === 'meet') {
+        const background = tflite.HEAPF32[outputMemoryOffset + i * 2]
+        const person = tflite.HEAPF32[outputMemoryOffset + i * 2 + 1]
+        const shift = Math.max(background, person)
+        const backgroundExp = Math.exp(background - shift)
+        const personExp = Math.exp(person - shift)
 
-      // Sets only the alpha component of each pixel
-      segmentationMask.data[i * 4 + 3] =
-        (255 * personExp) / (backgroundExp + personExp) // softmax
+        // Sets only the alpha component of each pixel
+        segmentationMask.data[i * 4 + 3] =
+          (255 * personExp) / (backgroundExp + personExp) // softmax
+      } else if (segmentationConfig.model === 'mlkit') {
+        const person = tflite.HEAPF32[outputMemoryOffset + i]
+        segmentationMask.data[i * 4 + 3] = 255 * person
+      }
     }
     segmentationMaskCtx.putImageData(segmentationMask, 0, 0)
   }
