@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
-import { SegmentationConfig } from '../helpers/segmentationHelper'
+import {
+  getTFLiteModelFileName,
+  SegmentationConfig,
+} from '../helpers/segmentationHelper'
 
 declare function createTFLiteModule(): Promise<TFLite>
 declare function createTFLiteSIMDModule(): Promise<TFLite>
@@ -40,12 +43,13 @@ function useTFLite(segmentationConfig: SegmentationConfig) {
   }, [])
 
   useEffect(() => {
-    async function loadMeetModel() {
+    async function loadTFLiteModel() {
       if (
         !tflite ||
         (isSIMDSupported && !tfliteSIMD) ||
         (!isSIMDSupported && segmentationConfig.backend === 'wasmSimd') ||
-        segmentationConfig.model !== 'meet'
+        (segmentationConfig.model !== 'meet' &&
+          segmentationConfig.model !== 'mlkit')
       ) {
         return
       }
@@ -61,11 +65,11 @@ function useTFLite(segmentationConfig: SegmentationConfig) {
         )
       }
 
-      const modelFileName =
-        segmentationConfig.inputResolution === '144p'
-          ? 'segm_full_v679'
-          : 'segm_lite_v681'
-      console.log('Loading meet model:', modelFileName)
+      const modelFileName = getTFLiteModelFileName(
+        segmentationConfig.model,
+        segmentationConfig.inputResolution
+      )
+      console.log('Loading tflite model:', modelFileName)
 
       const modelResponse = await fetch(
         `${process.env.PUBLIC_URL}/models/${modelFileName}.tflite`
@@ -104,7 +108,7 @@ function useTFLite(segmentationConfig: SegmentationConfig) {
       setSelectedTFLite(newSelectedTFLite)
     }
 
-    loadMeetModel()
+    loadTFLiteModel()
   }, [
     tflite,
     tfliteSIMD,
