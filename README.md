@@ -14,6 +14,7 @@
     - [Building TFLite to WebAssembly](#building-tflite-to-webassembly)
     - [Canvas 2D + CPU](#canvas-2d--cpu)
     - [WebGL 2](#webgl-2)
+  - [ML Kit Selfie Segmentation](#ml-kit-selfie-segmentation)
 - [Performance](#performance)
 - [Possible improvements](#possible-improvements)
 - [Related work](#related-work)
@@ -65,6 +66,14 @@ The WebGL 2 rendering pipeline relies entirely on `webgl2` canvas context and GL
 - Joint bilateral filter to smooth the segmentation mask and to preserve edges from the original input frame (implementation based on [MediaPipe repository](https://github.com/google/mediapipe/blob/master/mediapipe/calculators/image/bilateral_filter_calculator.cc)).
 - Blending background image with [light wrapping](https://www.imaging-resource.com/news/2016/02/11/create-natural-looking-composite-images-using-light-wrapping-technique).
 - Original input frame background blur. Great articles [here](https://rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/) and [here](https://software.intel.com/content/www/us/en/develop/blogs/an-investigation-of-fast-real-time-gpu-based-image-blur-algorithms.html).
+
+### ML Kit Selfie Segmentation
+
+[Thanks to @RemarkableGuy for pointing out this model.](https://github.com/Volcomix/virtual-background/issues/2)
+
+[Selfie segmentation](https://developers.google.com/ml-kit/vision/selfie-segmentation) model's architecture is very close to the one of Meet segmentation and they both seem to be generated from the same Keras model (see [this issue](https://github.com/Volcomix/virtual-background/issues/2) for more details). It is released under [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) and you can find in this repo a [copy of the model card](docs/mlkit-selfie-model-card-2021-02-16.pdf) matching the model used in this demo (here is the [original current model card](https://developers.google.com/ml-kit/images/vision/selfie-segmentation/selfie-model-card.pdf)). The model was extracted from its [official artifact](https://mvnrepository.com/artifact/com.google.mlkit/segmentation-selfie/16.0.0-beta1).
+
+Unlike what is described in the model card, the output of the model is a single channel allowing to get a float value of the segmentation mask. Besides that, the model is inferred using the exact same pipeline as Meet segmentation. However, the model does not perform as well as Meet segmentation because of its higher input resolution.
 
 ## Performance
 
