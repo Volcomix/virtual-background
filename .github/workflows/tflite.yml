@@ -1,5 +1,8 @@
 name: TFLite
-on: [push, workflow_dispatch]
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * *'
 jobs:
   build:
     name: Build
@@ -10,3 +13,9 @@ jobs:
 
       - name: Build
         uses: ./tflite
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: tflite
+          path: public/tflite

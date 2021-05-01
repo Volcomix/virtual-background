@@ -154,16 +154,8 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## Building TensorFlow Lite tool
 
-A Docker development environment must be initialized before building TensorFlow Lite inference tool.
+Docker is required to build TensorFlow Lite inference tool locally.
 
-### `yarn init:tflite`
+### `yarn build:tflite`
 
-Builds a Docker development image, starts the container and initializes dependencies required for building TFLite tool.
-
-### `yarn start:tflite:container`
-
-Starts the container, then updates TensorFlow and MediaPipe repositories inside the container.
-
-### `yarn build:tflite:all`
-
-Builds WASM functions that can infer Meet segmentation models. The TFLite tool is built both with and without SIMD support.
+Builds WASM functions that can infer Meet and ML Kit segmentation models. The TFLite tool is built both with and without SIMD support.
