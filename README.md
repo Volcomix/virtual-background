@@ -23,7 +23,11 @@
 
 ## Implementation details
 
-In this demo you can switch between 2 different ML pre-trained segmentation models: [BodyPix](https://github.com/tensorflow/tfjs-models/blob/master/body-pix) and [MediaPipe Meet Segmentation](https://mediapipe.page.link/meet-mc).
+In this demo you can switch between 3 different ML pre-trained segmentation models:
+
+- [BodyPix](https://github.com/tensorflow/tfjs-models/blob/master/body-pix)
+- [MediaPipe Meet Segmentation](https://mediapipe.page.link/meet-mc)
+- [ML Kit Selfie Segmentation](https://developers.google.com/ml-kit/vision/selfie-segmentation)
 
 ### BodyPix
 
