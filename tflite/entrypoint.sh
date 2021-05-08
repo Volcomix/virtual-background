@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+git -C /tensorflow_src pull --rebase
+git -C /mediapipe_src pull --rebase
+
 sed -i 's/"crosstool_top": "\/\/external:android\/emscripten"/"crosstool_top": "@emsdk\/\/emscripten_toolchain:everything"/' /tensorflow_src/tensorflow/BUILD
 
 cd tflite
