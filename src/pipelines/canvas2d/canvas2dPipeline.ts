@@ -3,7 +3,7 @@ import { BackgroundConfig } from '../../core/helpers/backgroundHelper'
 import { PostProcessingConfig } from '../../core/helpers/postProcessingHelper'
 import {
   inputResolutions,
-  SegmentationConfig,
+  SegmentationConfig
 } from '../../core/helpers/segmentationHelper'
 import { SourcePlayback } from '../../core/helpers/sourceHelper'
 import { TFLite } from '../../core/hooks/useTFLite'
@@ -100,6 +100,8 @@ export function buildCanvas2dPipeline(
 
   async function runBodyPixInference() {
     const segmentation = await bodyPix.segmentPerson(segmentationMaskCanvas)
+    console.log(segmentation)
+    console.log("Called")
     for (let i = 0; i < segmentationPixelCount; i++) {
       // Sets only the alpha component of each pixel
       segmentationMask.data[i * 4 + 3] = segmentation.data[i] ? 255 : 0

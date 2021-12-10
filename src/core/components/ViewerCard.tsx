@@ -29,7 +29,7 @@ function ViewerCard(props: ViewerCardProps) {
   }, [props.sourceConfig])
 
   return (
-    <Paper className={classes.root}>
+    <Paper className={classes.root} style={{ width: '100%' }}>
       <SourceViewer
         sourceConfig={props.sourceConfig}
         onLoad={setSourcePlayback}

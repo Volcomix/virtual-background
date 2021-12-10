@@ -1,9 +1,6 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { useEffect, useState } from 'react'
-import BackgroundConfigCard from './core/components/BackgroundConfigCard'
-import PostProcessingConfigCard from './core/components/PostProcessingConfigCard'
-import SegmentationConfigCard from './core/components/SegmentationConfigCard'
-import SourceConfigCard from './core/components/SourceConfigCard'
+import './App.css'
 import ViewerCard from './core/components/ViewerCard'
 import {
   BackgroundConfig,
@@ -11,39 +8,34 @@ import {
 } from './core/helpers/backgroundHelper'
 import { PostProcessingConfig } from './core/helpers/postProcessingHelper'
 import { SegmentationConfig } from './core/helpers/segmentationHelper'
-import { SourceConfig, sourceImageUrls } from './core/helpers/sourceHelper'
+import { SourceConfig } from './core/helpers/sourceHelper'
 import useBodyPix from './core/hooks/useBodyPix'
 import useTFLite from './core/hooks/useTFLite'
 
 function App() {
   const classes = useStyles()
   const [sourceConfig, setSourceConfig] = useState<SourceConfig>({
-    type: 'image',
-    url: sourceImageUrls[0],
+    type: 'camera',
   })
   const [backgroundConfig, setBackgroundConfig] = useState<BackgroundConfig>({
     type: 'image',
     url: backgroundImageUrls[0],
   })
-  const [
-    segmentationConfig,
-    setSegmentationConfig,
-  ] = useState<SegmentationConfig>({
-    model: 'meet',
-    backend: 'wasm',
-    inputResolution: '160x96',
-    pipeline: 'webgl2',
-  })
-  const [
-    postProcessingConfig,
-    setPostProcessingConfig,
-  ] = useState<PostProcessingConfig>({
-    smoothSegmentationMask: true,
-    jointBilateralFilter: { sigmaSpace: 1, sigmaColor: 0.1 },
-    coverage: [0.5, 0.75],
-    lightWrapping: 0.3,
-    blendMode: 'screen',
-  })
+  const [segmentationConfig, setSegmentationConfig] =
+    useState<SegmentationConfig>({
+      model: 'meet',
+      backend: 'wasm',
+      inputResolution: '160x96',
+      pipeline: 'webgl2',
+    })
+  const [postProcessingConfig, setPostProcessingConfig] =
+    useState<PostProcessingConfig>({
+      smoothSegmentationMask: true,
+      jointBilateralFilter: { sigmaSpace: 1, sigmaColor: 0.1 },
+      coverage: [0.5, 0.75],
+      lightWrapping: 0.3,
+      blendMode: 'screen',
+    })
   const bodyPix = useBodyPix()
   const { tflite, isSIMDSupported } = useTFLite(segmentationConfig)
 
@@ -58,7 +50,10 @@ function App() {
   }, [isSIMDSupported])
 
   return (
-    <div className={classes.root}>
+    <div
+      className={classes.root}
+      style={{ margin: '0', width: '100%', height: '100vh' }}
+    >
       <ViewerCard
         sourceConfig={sourceConfig}
         backgroundConfig={backgroundConfig}
@@ -67,21 +62,16 @@ function App() {
         bodyPix={bodyPix}
         tflite={tflite}
       />
-      <SourceConfigCard config={sourceConfig} onChange={setSourceConfig} />
-      <BackgroundConfigCard
+
+      {/* <BackgroundConfigCard
         config={backgroundConfig}
         onChange={setBackgroundConfig}
-      />
-      <SegmentationConfigCard
-        config={segmentationConfig}
-        isSIMDSupported={isSIMDSupported}
-        onChange={setSegmentationConfig}
       />
       <PostProcessingConfigCard
         config={postProcessingConfig}
         pipeline={segmentationConfig.pipeline}
         onChange={setPostProcessingConfig}
-      />
+      /> */}
     </div>
   )
 }

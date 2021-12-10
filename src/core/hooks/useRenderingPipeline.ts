@@ -37,23 +37,23 @@ function useRenderingPipeline(
     const newPipeline =
       segmentationConfig.pipeline === 'webgl2'
         ? buildWebGL2Pipeline(
-            sourcePlayback,
-            backgroundImageRef.current,
-            backgroundConfig,
-            segmentationConfig,
-            canvasRef.current,
-            tflite,
-            addFrameEvent
-          )
+          sourcePlayback,
+          backgroundImageRef.current,
+          backgroundConfig,
+          segmentationConfig,
+          canvasRef.current,
+          tflite,
+          addFrameEvent
+        )
         : buildCanvas2dPipeline(
-            sourcePlayback,
-            backgroundConfig,
-            segmentationConfig,
-            canvasRef.current,
-            bodyPix,
-            tflite,
-            addFrameEvent
-          )
+          sourcePlayback,
+          backgroundConfig,
+          segmentationConfig,
+          canvasRef.current,
+          bodyPix,
+          tflite,
+          addFrameEvent
+        )
 
     async function render() {
       if (!shouldRender) {
@@ -80,6 +80,7 @@ function useRenderingPipeline(
       const time = Date.now()
       frameDurations[eventCount] = time - beginTime
       frameCount++
+      console.log(frameCount)
       if (time >= previousTime + 1000) {
         setFps((frameCount * 1000) / (time - previousTime))
         setDurations(frameDurations)

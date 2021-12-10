@@ -34,6 +34,7 @@ function SourceViewer(props: SourceViewerProps) {
         const stream = await navigator.mediaDevices.getUserMedia(constraint)
         if (videoRef.current) {
           videoRef.current.srcObject = stream
+          console.log(videoRef)
           return
         }
       } catch (error) {
@@ -62,6 +63,7 @@ function SourceViewer(props: SourceViewerProps) {
 
   function handleVideoLoad(event: SyntheticEvent) {
     const video = event.target as HTMLVideoElement
+    console.log("Handle", video)
     props.onLoad({
       htmlElement: video,
       width: video.videoWidth,
@@ -84,19 +86,19 @@ function SourceViewer(props: SourceViewerProps) {
       ) : isCameraError ? (
         <VideocamOffIcon fontSize="large" />
       ) : (
-        <video
-          ref={videoRef}
-          className={classes.sourcePlayback}
-          src={sourceUrl}
-          hidden={isLoading}
-          autoPlay
-          playsInline
-          controls={false}
-          muted
-          loop
-          onLoadedData={handleVideoLoad}
-        />
-      )}
+            <video
+              ref={videoRef}
+              className={classes.sourcePlayback}
+              src={sourceUrl}
+              hidden={isLoading}
+              autoPlay
+              playsInline
+              controls={false}
+              muted
+              loop
+              onLoadedData={handleVideoLoad}
+            />
+          )}
     </div>
   )
 }
