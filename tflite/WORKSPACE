@@ -43,9 +43,9 @@ local_repository(
 # Emscripten
 http_archive(
   name = "emsdk",
-  strip_prefix = "emsdk-2.0.27/bazel",
-  url = "https://github.com/emscripten-core/emsdk/archive/2.0.27.tar.gz",
-  sha256 = "8439411fe684a3f59d387b84fc1699c494405d3b5001c48b19ad681fe441bcce",
+  strip_prefix = "emsdk-3.1.3/bazel",
+  url = "https://github.com/emscripten-core/emsdk/archive/3.1.3.tar.gz",
+  sha256 = "c03767ad4b6d24f143c0a4922735c80ec17d745191ebf54b8f97dbe5d81eb52f",
 )
 
 load("@emsdk//:deps.bzl", emsdk_deps = "deps")
