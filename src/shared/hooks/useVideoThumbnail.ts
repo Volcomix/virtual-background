@@ -19,7 +19,9 @@ function useVideoThumbnail(videoUrl: string): [string | undefined, () => void] {
         video.videoWidth,
         video.videoHeight
       )
-      setThumbnailUrl(URL.createObjectURL(blob))
+      if (blob) {
+        setThumbnailUrl(URL.createObjectURL(blob))
+      }
     }
   }, [videoUrl])
 

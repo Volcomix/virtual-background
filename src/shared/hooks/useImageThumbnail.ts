@@ -16,7 +16,9 @@ function useImageThumbnail(imageUrl: string): [string | undefined, () => void] {
         image.naturalWidth,
         image.naturalHeight
       )
-      setThumbnailUrl(URL.createObjectURL(blob))
+      if (blob) {
+        setThumbnailUrl(URL.createObjectURL(blob))
+      }
     }
   }, [imageUrl])
 
