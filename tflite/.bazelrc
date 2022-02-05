@@ -7,6 +7,9 @@ common --copt="-Wno-error=unused-function"
 # Unused variables in Tensorflow Lite XNNPACK delegate
 common --copt="-Wno-error=unused-but-set-variable"
 
+# Deprecated SIMD functions in gemmlowp
+common --copt="-Wno-error=deprecated-declarations"
+
 # Mediapipe custom operators are not public
 common --check_visibility=false
 
