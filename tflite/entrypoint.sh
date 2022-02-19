@@ -9,7 +9,7 @@ sed -i 's/"crosstool_top": "\/\/external:android\/emscripten"/"crosstool_top": "
 cd tflite
 
 bazel build --config=wasm -c opt :tflite
-bazel build --config=wasm -c opt --copt='-msimd128' :tflite-simd
+bazel build --config=wasm --features=wasm_simd -c opt --copt='-msimd128' :tflite-simd
 
 tar xvf bazel-bin/tflite -C ../public/tflite
 tar xvf bazel-bin/tflite-simd -C ../public/tflite
