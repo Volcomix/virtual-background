@@ -9,6 +9,7 @@ cc_binary(
   linkopts = tflite_linkopts() + [
     "-s ENVIRONMENT='web'",
     "-s ALLOW_MEMORY_GROWTH=1",
+    "-s FILESYSTEM=0",
     "-s USE_PTHREADS=0",
     "-s MODULARIZE=1",
     "-s EXPORT_NAME=createTFLiteModule",
@@ -27,6 +28,7 @@ cc_binary(
   linkopts = tflite_linkopts() + [
     "-s ENVIRONMENT='web'",
     "-s ALLOW_MEMORY_GROWTH=1",
+    "-s FILESYSTEM=0",
     "-s USE_PTHREADS=0",
     "-s MODULARIZE=1",
     "-s EXPORT_NAME=createTFLiteSIMDModule",
