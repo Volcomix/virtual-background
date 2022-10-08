@@ -1,5 +1,8 @@
 name: TFLite
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * *'
 jobs:
   build:
     name: Build
