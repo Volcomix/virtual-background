@@ -7,6 +7,7 @@ import { RenderingPipeline } from '../helpers/renderingPipelineHelper'
 import { SegmentationConfig } from '../helpers/segmentationHelper'
 import { SourcePlayback } from '../helpers/sourceHelper'
 import { TFLite } from './useTFLite'
+import {requestWorkerTimeout} from "../helpers/workerHelper";
 
 function useRenderingPipeline(
   sourcePlayback: SourcePlayback,
@@ -31,8 +32,6 @@ function useRenderingPipeline(
     let eventCount = 0
     let frameCount = 0
     const frameDurations: number[] = []
-
-    let renderRequestId: number
 
     const newPipeline =
       segmentationConfig.pipeline === 'webgl2'
@@ -62,7 +61,7 @@ function useRenderingPipeline(
       beginFrame()
       await newPipeline.render()
       endFrame()
-      renderRequestId = requestAnimationFrame(render)
+      requestWorkerTimeout(render)
     }
 
     function beginFrame() {
@@ -101,7 +100,6 @@ function useRenderingPipeline(
 
     return () => {
       shouldRender = false
-      cancelAnimationFrame(renderRequestId)
       newPipeline.cleanUp()
       console.log(
         'Animation stopped:',

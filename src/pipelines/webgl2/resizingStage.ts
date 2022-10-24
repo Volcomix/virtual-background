@@ -71,14 +71,14 @@ export function buildResizingStage(
   gl.useProgram(program)
   gl.uniform1i(inputFrameLocation, 0)
 
-  function render() {
+  async function render() {
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.useProgram(program)
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 
     // Downloads pixels asynchronously from GPU while rendering the current frame
-    readPixelsAsync(
+    await readPixelsAsync(
       gl,
       0,
       0,

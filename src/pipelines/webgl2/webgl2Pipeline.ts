@@ -153,9 +153,6 @@ export function buildWebGL2Pipeline(
         )
 
   async function render() {
-    gl.clearColor(0, 0, 0, 0)
-    gl.clear(gl.COLOR_BUFFER_BIT)
-
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, inputFrameTexture)
 
@@ -172,7 +169,7 @@ export function buildWebGL2Pipeline(
 
     gl.bindVertexArray(vertexArray)
 
-    resizingStage.render()
+    await resizingStage.render()
 
     addFrameEvent()
 

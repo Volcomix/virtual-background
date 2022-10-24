@@ -1,3 +1,5 @@
+import {requestWorkerTimeout} from "../../core/helpers/workerHelper";
+
 /**
  * Use it along with boyswan.glsl-literal VSCode extension
  * to get GLSL syntax highlighting.
@@ -132,11 +134,11 @@ function clientWaitAsync(gl: WebGL2RenderingContext, sync: WebGLSync) {
         return
       }
       if (res === gl.TIMEOUT_EXPIRED) {
-        requestAnimationFrame(test)
+        requestWorkerTimeout(test)
         return
       }
       resolve(res)
     }
-    requestAnimationFrame(test)
+    requestWorkerTimeout(test)
   })
 }
