@@ -1,0 +1,2 @@
+!function(){"use strict";var a=new Map;self.onmessage=function(e){if(void 0!==e.data.timeoutMs){var t=self.setTimeout((function(){self.postMessage({callbackId:e.data.callbackId}),a.delete(e.data.callbackId)}),e.data.timeoutMs);a.set(e.data.callbackId,t)}else{var l=a.get(e.data.callbackId);self.clearTimeout(l),a.delete(e.data.callbackId)}}}();
+//# sourceMappingURL=809.5b4bea51.chunk.js.map
