@@ -37,9 +37,8 @@ export function buildResizingStage(
   // TFLite memory will be accessed as float32
   const tfliteInputMemoryOffset = tflite._getInputMemoryOffset() / 4
 
-  const [outputWidth, outputHeight] = inputResolutions[
-    segmentationConfig.inputResolution
-  ]
+  const [outputWidth, outputHeight] =
+    inputResolutions[segmentationConfig.inputResolution]
   const outputPixelCount = outputWidth * outputHeight
 
   const fragmentShader = compileShader(
@@ -71,14 +70,13 @@ export function buildResizingStage(
   gl.useProgram(program)
   gl.uniform1i(inputFrameLocation, 0)
 
-  function render() {
+  async function render() {
     gl.viewport(0, 0, outputWidth, outputHeight)
     gl.useProgram(program)
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 
-    // Downloads pixels asynchronously from GPU while rendering the current frame
-    readPixelsAsync(
+    const readPixelsPromise = readPixelsAsync(
       gl,
       0,
       0,
@@ -88,6 +86,14 @@ export function buildResizingStage(
       gl.UNSIGNED_BYTE,
       outputPixels
     )
+
+    if (segmentationConfig.deferInputResizing) {
+      // Downloads pixels asynchronously from GPU while rendering the current frame.
+      // The pixels will be available in the next frame render which results
+      // in offsets in the segmentation output but increases the frame rate.
+    } else {
+      await readPixelsPromise
+    }
 
     for (let i = 0; i < outputPixelCount; i++) {
       const tfliteIndex = tfliteInputMemoryOffset + i * 3
