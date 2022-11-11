@@ -31,6 +31,7 @@ function App() {
       backend: 'wasm',
       inputResolution: '160x96',
       pipeline: 'webgl2',
+      targetFps: 65, // 60 introduces fps drop and unstable fps on Chrome
       deferInputResizing: true,
     })
   const [postProcessingConfig, setPostProcessingConfig] =

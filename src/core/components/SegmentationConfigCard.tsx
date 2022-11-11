@@ -7,6 +7,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Switch from '@material-ui/core/Switch'
+import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { ChangeEvent } from 'react'
 import {
@@ -87,6 +88,13 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
     props.onChange({
       ...props.config,
       pipeline: event.target.value as PipelineName,
+    })
+  }
+
+  function handleTargetFpsChange(event: ChangeEvent<{ value: string }>) {
+    props.onChange({
+      ...props.config,
+      targetFps: parseInt(event.target.value),
     })
   }
 
@@ -194,17 +202,27 @@ function SegmentationConfigCard(props: SegmentationConfigCardProps) {
             </Select>
           </FormControl>
           {props.config.pipeline === 'webgl2' && (
-            <FormControlLabel
-              className={classes.formControl}
-              label="Defer input resizing"
-              control={
-                <Switch
-                  checked={props.config.deferInputResizing}
-                  onChange={handleDeferInputResizingChange}
-                  color="primary"
-                />
-              }
-            />
+            <>
+              <TextField
+                className={classes.formControl}
+                label="Target fps"
+                type="number"
+                variant="outlined"
+                value={props.config.targetFps}
+                onChange={handleTargetFpsChange}
+              />
+              <FormControlLabel
+                className={classes.formControl}
+                label="Defer input resizing"
+                control={
+                  <Switch
+                    checked={props.config.deferInputResizing}
+                    onChange={handleDeferInputResizingChange}
+                    color="primary"
+                  />
+                }
+              />
+            </>
           )}
         </div>
       </CardContent>

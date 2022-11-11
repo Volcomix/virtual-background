@@ -18,6 +18,7 @@ export type SegmentationConfig = {
   backend: SegmentationBackend
   inputResolution: InputResolution
   pipeline: PipelineName
+  targetFps: number
   deferInputResizing: boolean
 }
 
