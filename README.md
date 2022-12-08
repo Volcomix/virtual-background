@@ -51,7 +51,7 @@ You can find the source of the TFLite inference tool in the [tflite directory](.
 
 - The Bazel WORKSPACE configuration is inspired from [MediaPipe repository](https://github.com/google/mediapipe/blob/master/WORKSPACE).
 - Emscripten toolchain for Bazel was setup following [Emsdk repository instructions](https://github.com/emscripten-core/emsdk/tree/master/bazel) and changed to match [XNNPACK build config](https://github.com/google/XNNPACK/blob/ec0bf144ad55cde0698083f12e0a20d4525689a6/BUILD.bazel#L7340).
-- TensorFlow source [is patched](tflite/Dockerfile) to match Emscripten toolchain and WASM CPU.
+- TensorFlow source [is patched](tflite/entrypoint.sh#L7) to match Emscripten toolchain and WASM CPU.
 - C++ functions are [called directly from JavaScript](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#call-compiled-c-c-code-directly-from-javascript) to achieve the best performance.
 - [Memory is accessed directly](https://emscripten.org/docs/porting/emscripten-runtime-environment.html#emscripten-memory-representation) from JavaScript through pointer offsets to exchange image data with WASM.
 
