@@ -1,7 +1,7 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import { BodyPix } from '@tensorflow-models/body-pix'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { BackgroundConfig } from '../helpers/backgroundHelper'
 import { PostProcessingConfig } from '../helpers/postProcessingHelper'
 import { SegmentationConfig } from '../helpers/segmentationHelper'
@@ -39,6 +39,48 @@ function OutputViewer(props: OutputViewerProps) {
       pipeline.updatePostProcessingConfig(props.postProcessingConfig)
     }
   }, [pipeline, props.postProcessingConfig])
+
+  useEffect(() => {
+    const peerConnection = new RTCPeerConnection()
+    const signalingChannel = new BroadcastChannel('signaling-channel')
+
+    const localStream = canvasRef.current.captureStream()
+    localStream.getTracks().forEach((track) => {
+      peerConnection.addTrack(track, localStream)
+    })
+
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        console.log('Sending callee ICE candidate')
+        signalingChannel.postMessage(
+          JSON.stringify({ iceCandidate: event.candidate })
+        )
+      }
+    }
+
+    signalingChannel.onmessage = async (event) => {
+      const message = JSON.parse(event.data)
+
+      if (message.offer) {
+        console.log('Received offer')
+        const remoteDesc = new RTCSessionDescription(message.offer)
+        await peerConnection.setRemoteDescription(remoteDesc)
+
+        console.log('Sending answer')
+        const answer = await peerConnection.createAnswer()
+        await peerConnection.setLocalDescription(answer)
+        signalingChannel.postMessage(JSON.stringify({ answer }))
+      } else if (message.iceCandidate) {
+        console.log('Received caller ICE candidate')
+        await peerConnection.addIceCandidate(message.iceCandidate)
+      }
+    }
+
+    return () => {
+      peerConnection.close()
+      signalingChannel.close()
+    }
+  }, [canvasRef])
 
   const statDetails = [
     `resizing ${resizingDuration}ms`,
