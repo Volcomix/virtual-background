@@ -2,7 +2,13 @@ type TimerData = {
   callbackId: number
 }
 
-export function createTimerWorker() {
+export type TimerWorker = {
+  setTimeout(callback: () => void, timeoutMs?: number): number
+  clearTimeout(callbackId: number): void
+  terminate(): void
+}
+
+export function createTimerWorker(): TimerWorker {
   const callbacks = new Map<number, () => void>()
 
   const worker = new Worker(new URL('./timerWorker', import.meta.url))
@@ -18,7 +24,7 @@ export function createTimerWorker() {
 
   let nextCallbackId = 1
 
-  function setTimeout(callback: () => void, timeoutMs: number) {
+  function setTimeout(callback: () => void, timeoutMs: number = 0) {
     const callbackId = nextCallbackId++
     callbacks.set(callbackId, callback)
     worker.postMessage({ callbackId, timeoutMs })

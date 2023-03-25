@@ -6,6 +6,7 @@ import {
 } from '../../core/helpers/segmentationHelper'
 import { SourcePlayback } from '../../core/helpers/sourceHelper'
 import { TFLite } from '../../core/hooks/useTFLite'
+import { TimerWorker } from '../../shared/helpers/timerHelper'
 import { compileShader, createTexture, glsl } from '../helpers/webglHelper'
 import {
   BackgroundBlurStage,
@@ -27,6 +28,7 @@ export function buildWebGL2Pipeline(
   segmentationConfig: SegmentationConfig,
   canvas: HTMLCanvasElement,
   tflite: TFLite,
+  timerWorker: TimerWorker,
   addFrameEvent: () => void
 ) {
   const vertexShaderSource = glsl`#version 300 es
@@ -95,6 +97,7 @@ export function buildWebGL2Pipeline(
   )!
 
   const resizingStage = buildResizingStage(
+    timerWorker,
     gl,
     vertexShader,
     positionBuffer,

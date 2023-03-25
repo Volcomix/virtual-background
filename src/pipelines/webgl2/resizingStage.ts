@@ -3,6 +3,7 @@ import {
   SegmentationConfig,
 } from '../../core/helpers/segmentationHelper'
 import { TFLite } from '../../core/hooks/useTFLite'
+import { TimerWorker } from '../../shared/helpers/timerHelper'
 import {
   compileShader,
   createPiplelineStageProgram,
@@ -12,6 +13,7 @@ import {
 } from '../helpers/webglHelper'
 
 export function buildResizingStage(
+  timerWorker: TimerWorker,
   gl: WebGL2RenderingContext,
   vertexShader: WebGLShader,
   positionBuffer: WebGLBuffer,
@@ -77,6 +79,7 @@ export function buildResizingStage(
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 
     const readPixelsPromise = readPixelsAsync(
+      timerWorker,
       gl,
       0,
       0,

@@ -44,6 +44,7 @@ function useRenderingPipeline(
             segmentationConfig,
             canvasRef.current,
             tflite,
+            timerWorker,
             addFrameEvent
           )
         : buildCanvas2dPipeline(
