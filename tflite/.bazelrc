@@ -1,6 +1,9 @@
 # Tensorflow needs remote repo
 common --experimental_repo_remote_exec
 
+# Allow usage of deleted function 'std::atomic<bool>' in Tensorflow Lite
+common --cxxopt="-std=c++17"
+
 # Unused function in Tensorflow Lite kernels
 common --copt="-Wno-error=unused-function"
 
